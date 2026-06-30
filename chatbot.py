@@ -283,15 +283,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             }).execute()
 
             reply = (
-                f"✅ **Smart Profile Generated!**\n"
-                f"⚖️ Weight: {weight} lbs | Goal: {goal.title()}\n\n"
-                f"🎯 **Your Daily Targets:**\n"
-                f"🔥 **{cals} kcal**\n"
-                f"🥩 Protein: {protein}g\n"
-                f"🍞 Carbs: {carbs}g\n"
-                f"🛢️ Fat: {fat}g"
-                f"📊 **Scan Metrics Logged:**\n"
-                f"SMM: {profile_data.skeletal_muscle_mass}kg"
+                f"**Smart Profile Generated!**\n"
+                f"Weight: {weight} lbs | Goal: {goal.title()}\n\n"
+                f"**Your Daily Targets:**\n"
+                f"**{cals} kcal**\n"
+                f"Protein: {protein}g\n"
+                f"Carbs: {carbs}g\n"
+                f"Fat: {fat}g\n"
+                f"**Scan Metrics Logged:**\n"
+                f"SMM: {profile_data.skeletal_muscle_mass}kg\n"
                 f"BMI: {profile_data.bmi}"
             )
             
@@ -621,4 +621,5 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
     except Exception as e:
         # 3. Catch any runtime errors (like Groq/Supabase failures)
         print(f"Webhook error: {e}")
+        await send_telegram_reply(chat_id, f"Webhook Error: {str(e)}")
         return {"status": "error", "message": str(e)}
