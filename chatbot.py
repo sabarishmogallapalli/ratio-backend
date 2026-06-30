@@ -5,7 +5,8 @@
 from fastapi import FastAPI, Request, BackgroundTasks
 from google import genai
 from google.genai import types
-from datetime import datetime, date
+from datetime import datetime, date, timezone
+import zoneinfo
 import httpx
 from pydantic import BaseModel
 from supabase import create_client, Client
@@ -103,7 +104,8 @@ class WorkoutStructure(BaseModel):
     reps: int = 0
 
 def define_meal() -> str:
-    current_hour = datetime.now().hour
+    central_tz = zoneinfo.ZoneInfo("America/Chicago")
+    current_hour = datetime.now(central_tz).hour
 
     #sample times
     if 5 <= current_hour < 11: return "breakfast"
