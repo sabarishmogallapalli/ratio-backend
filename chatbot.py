@@ -198,16 +198,40 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
         
         if user_text.lower() == "/profile":
-            clean_profile_text = user_text.replace("profile:", "").strip()
+            profile_instructions = (
+                "Profile Setup \n\n"
+                "You can log your Body Scan results and goal to save it and train the machine learning model. "
+                "The system will automatically use your goal and categories your food based on the time of day and calculate your macros into Supabase.\n\n"
+                "👉 *Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets: Body Composition: [Water], [Dry Lean Mass], [Fat Mass], [Weight]; Muscle-Fat: [Weight], [SMM], [Body Fat Mass]; Obesity: [BMI], [PBF]; Segmental Lean: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; Goal: [bulk/cut/recomposition]*"
+            )
+            await send_telegram_reply(chat_id, profile_instructions)
+            return {"status": "success"}
+        if user_text.lower().startswith("profile:"):
+            clean_profile_text = user_text.lower().replace("profile:", "").strip()
             
             # Simplified schema: Groq only needs to find 2 variables now
             class ProfileInput(BaseModel):
-                current_weight_lbs: float
+                weight: float
                 goal: str
                 body_fat_percentage: float
+                total_body_water: float
+                dry_lean_mass: float
+                skeletal_muscle_mass: float # SMM
+                bmi: float
+                segmental_lean_data: list[float]
 
             schema_string = json.dumps(ProfileInput.model_json_schema())
-            system_instructions = f"Extract the weight and fitness goal. Standardize the goal to either 'cut', 'bulk', or 'recomposition'. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"        
+            system_instructions = (
+                "You are an expert fitness data parser. "
+                "The user will provide data in these categories: "
+                "1. Body Composition (Total Body Water, Dry Lean Mass, Fat Mass, Weight). "
+                "2. Muscle-Fat Analysis (Weight, SMM, Fat Mass). "
+                "3. Obesity Analysis (BMI, PBF). "
+                "4. Segmental Lean Analysis (Left Arm %, Right Arm %, Left Leg %, Right Leg %). "
+                "5. Goal (bulk, cut, or recomposition)"
+                "Extract all fields into the ProfileInput schema. "
+                f"Return ONLY valid JSON: {schema_string}"
+            )
             
             response = groq_client.chat.completions.create(
                 messages=[
@@ -219,7 +243,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             )
         
             profile_data = ProfileInput.model_validate_json(response.choices[0].message.content)
-            weight = profile_data.current_weight_lbs
+            weight = profile_data.weight
             goal = profile_data.goal.lower()
             lbm_lbs = weight * (1 - (profile_data.body_fat_percentage / 100))
             bmr = 370 + (21.6 * (lbm_lbs / 2.20462)) # Converted to kg for the formula
@@ -248,7 +272,12 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "target_calories": cals,
                 "target_protein": protein,
                 "target_carbs": carbs,
-                "target_fat": fat
+                "target_fat": fat,
+                "total_body_water": profile_data.total_body_water,
+                "dry_lean_mass": profile_data.dry_lean_mass,
+                "skeletal_muscle_mass": profile_data.skeletal_muscle_mass,
+                "bmi": profile_data.bmi,
+                "segmental_lean_data": profile_data.segmental_lean_data
             }).execute()
 
             reply = (
@@ -259,6 +288,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f"🥩 Protein: {protein}g\n"
                 f"🍞 Carbs: {carbs}g\n"
                 f"🛢️ Fat: {fat}g"
+                f"📊 **Scan Metrics Logged:**\n"
+                f"SMM: {profile_data.skeletal_muscle_mass}kg"
+                f"BMI: {profile_data.bmi}"
             )
             
             await send_telegram_reply(chat_id, reply)
