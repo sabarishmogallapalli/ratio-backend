@@ -29,6 +29,8 @@ app = FastAPI()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
+USDA_API_KEY = os.getenv("USDA_API_KEY")
+
 PROGRESSION_SCHEMA = {
     # --- UPPER BODY ---
     "flat dumbbell press": { 
@@ -113,7 +115,6 @@ def define_meal() -> str:
     elif 16 <= current_hour < 22: return "dinner"
     else: return "snack"
 
-#Sending response to telegram -- CHECK
 async def send_telegram_reply(chat_id: int, text: str):
     async with httpx.AsyncClient() as http_client:
         await http_client.post(TELEGRAM_API_URL, json={
@@ -121,6 +122,31 @@ async def send_telegram_reply(chat_id: int, text: str):
             "text": text,
             "parse_mode": "Markdown"
         })
+
+async def get_usda_macros(food_query: str):
+    url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={food_query}&pageSize=1"
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url)
+            data = response.json()
+            if data.get('foods'):
+                food = data['foods'][0]
+                # Extract nutrients (protein, fat, carbs)
+                calories = next((n['value'] for n in food['foodNutrients'] if 'Energy' in n['nutrientName']), 0)
+                protein = next((n['value'] for n in food['foodNutrients'] if 'Protein' in n['nutrientName']), 0)
+                carbs = next((n['value'] for n in food['foodNutrients'] if 'Carbohydrate' in n['nutrientName']), 0)
+                fat = next((n['value'] for n in food['foodNutrients'] if 'Total lipid' in n['nutrientName']), 0)
+                return {
+                    "food_name": food['description'],
+                    "calories": int(calories),
+                    "protein": int(protein),
+                    "carbs": int(carbs),
+                    "fat": int(fat)
+                }
+        except Exception as e:
+            print(f"USDA API Error: {e}")
+            return None
+    return None
 
 async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str):
     #3 minute timer
@@ -158,15 +184,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/upper"):
             upper_menu = (
                 "🏋️‍♂️ **JEFF NIPPARD UPPER DAY CHECKLIST**\n\n"
-                "1️⃣ **Flat Dumbbell Press** (Heavy Top Set + Back-off)\n"
-                "2️⃣ **Cable Fly** (Heavy Top Set + Back-off)\n"
-                "3️⃣ **2-Grip Lat Pulldown** (Overhand Mid / Underhand Close)\n"
-                "4️⃣ **Overhead Cable Tricep Extension** (+ Drop Set)\n"
-                "5️⃣ **Machine Lateral Raise** (Antagonistic Superset)\n"
-                "6️⃣ **High Incline Smith Press** (45-60° Bench Angle)\n"
-                "7️⃣ **T-Bar Row** (Wide Grip / Close Grip)\n"
-                "8️⃣ **EZ-Bar Bicep Curl** (+ Myoreps Supination Focus)\n"
-                "9️⃣ **Cable Crunch** (+ Double Dropset Matrix)\n\n"
+                "1️⃣ **Flat Dumbbell Press** (Heavy Top Set (4-6 reps) + Back-off (8-10 reps))\n"
+                "2️⃣ **Cable Fly** (Heavy Top Set (4-6) + Back-off (8-10 reps))\n"
+                "3️⃣ **2-Grip Lat Pulldown** (Overhand Mid (10-12 reps) / Underhand Close (10-12 reps))\n"
+                "4️⃣ **Overhead Cable Tricep Extension** (+ Drop Set) (12-15 reps)\n"
+                "5️⃣ **Machine Lateral Raise** (12-15 reps)\n"
+                "6️⃣ **High Incline Smith Press** (Agnostic Superset) (10-12 reps)\n"
+                "7️⃣ **T-Bar Row** (Wide Grip / Close Grip) (Agnostic Superset (10-12 reps)\n"
+                "8️⃣ **EZ-Bar Bicep Curl** (+ Myoreps Supination Focus) (12-15 reps + Myo-reps)\n"
+                "9️⃣ **Cable Crunch** (12-15 reps + Double Dropset)\n\n"
                 "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             )
             await send_telegram_reply(chat_id, upper_menu)
@@ -174,11 +200,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == "/lower":
             lower_menu = (
                 "🏋️‍♀️ **JEFF NIPPARD LOWER DAY CHECKLIST**\n\n"
-                "1️⃣ **Dumbbell Romanian Deadlift (RDL)** (Controlled Hamstring Stretch)\n"
-                "2️⃣ **Dumbbell Step Up** (Per Leg Isolation with Lifting Straps)\n"
-                "3️⃣ **Seated Leg Press Toe-Press** (+ Heavy Dropset to Failure)\n"
-                "4️⃣ **Hack Squat / Barbell Squat** (Heavy Top Set + Mind-Muscle Back-off)\n"
-                "5️⃣ **Seated Leg Curl** (+ Forward Lean Dropset Finisher)\n\n"
+                "1️⃣ **Dumbbell Romanian Deadlift (RDL)** (Controlled Hamstring Stretch) (8-10 reps)\n"
+                "2️⃣ **Dumbbell Step Up** (Per Leg Isolation with Lifting Straps) (8-10 reps)\n"
+                "3️⃣ **Seated Leg Press Toe-Press** (+ Heavy Dropset to Failure) (12-15 reps)\n"
+                "4️⃣ **Hack Squat ** (Heavy Top Set (4-6 reps) + Mind-Muscle Back-off (8-10 reps))\n"
+                "5️⃣ **Seated Leg Curl** (+ Forward Lean Dropset Finisher) (10-12 reps)\n\n"
                 "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
             await send_telegram_reply(chat_id, lower_menu)
@@ -385,7 +411,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             progress_message = ""
 
-            if "flat dumbbell" in user_text.lower() or "flat db" in user_text.lower():
+            if "flat dumbbell" in user_text.lower() or "flat db" in user_text.lower() or "Flat Dumbbell Press" in user_text.lower():
                 total_target_sets = 2
                 if set_count == 1:
                     rep_guideline = "4-6 reps (Heavy Strength)"
@@ -401,7 +427,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 total_target_sets = 2
                 rep_guideline = "10-12 reps"
                 intensity_advice = "Set 1: Overhand middle grip. Set 2: Underhand close grip. Drop load immediately after for overhead curls!"
-            elif "tricep extension" in exercise or "overhead cable tricep" in exercise:
+            elif "tricep extension" in exercise or "overhead cable tricep extension" in exercise: 
                 total_target_sets = 1
                 rep_guideline = "12-15 reps"
                 intensity_advice = "**Drop Set Active!** Hit baseline failure, instantly drop weight by 30-40%, then take it to absolute failure once more."
@@ -409,7 +435,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 total_target_sets = 1
                 rep_guideline = "12-15 reps"
                 intensity_advice = "Drive through your side delts. Push range of motion to 90 degrees or up comfortably."
-            elif "smith machine press" in exercise or "incline smith" in exercise:
+            elif "smith machine press" in exercise or "incline smith" in exercise or "high incline smith press":
                 total_target_sets = 2  # Part of your antagonistic pairing configuration
                 rep_guideline = "10-12 reps"
                 intensity_advice = "Ensure your bench incline is set between 45 and 60 degrees."
@@ -417,7 +443,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 total_target_sets = 2
                 rep_guideline = "10-12 reps"
                 intensity_advice = "Set 1: Use wider grip variation. Set 2: Switch to closer grip profile."
-            elif "bicep curl" in exercise or "ez-bar" in exercise:
+            elif "bicep curl" in exercise or "ez-bar" in exercise or "ez-bar bicep curl" in exercise:
                 total_target_sets = 1
                 rep_guideline = "12-15 reps"
                 intensity_advice = "**Myoreps Multiplier!** Hit failure driving through pinkies for supination. Rest 3-4 secs, complete 4 reps; repeat micro-cycles until performance drops."
@@ -427,18 +453,18 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 intensity_advice = "**Double Dropset Matrix!** Hit failure $\rightarrow$ drop load by 30% to failure $\rightarrow$ drop load by another 20-30% to final failure."
             
             #LOWER BODY
-            elif "romanian deadlift" in exercise or "rdl" in exercise:
+            elif "romanian deadlift" in exercise or "rdl" in exercise or "dumbbell romanian deadlift":
                 total_target_sets = 2
                 rep_guideline = "8-10 reps"
                 intensity_advice = "Push hips backward sequentially. Rebound smooth when hamstrings reach full length stretch."
                 message = "way to go, one more set left" if set_count == 1 else "way to go, onto the next excercise"
-            elif "step up" in exercise:
+            elif "step up" in exercise or "dumbbell step up":
                 total_target_sets = 1
                 rep_guideline = "8-10 reps (Per Leg)"
                 intensity_advice = "Isolate working leg completely. Lock out and squeeze glutes heavily at the top apex."
                 message = "way to go, onto the next excercise"
 
-            elif "toe-press" in exercise or "calf raise" in exercise:
+            elif "toe-press" in exercise or "calf raise" in exercise or "seated leg press toe-press":
                 total_target_sets = 1
                 rep_guideline = "12-15 reps"
                 intensity_advice = "Keep knees static, don't bounce. Hit failure, drop load by 30-40%, then rep to absolute failure."
@@ -504,39 +530,47 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                     if last_run['reps'] >= next_targets['max_reps']:
                         next_weight = last_run['weight'] + next_targets['increment']
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Grab **{next_weight} lbs** (Last time: {last_run['weight']}lbs x {last_run['reps']})"
+                        next_set_advice = f"\n\n *Next Set Target:* Grab **{next_weight} lbs** (Last time: {last_run['weight']}lbs x {last_run['reps']})"
                     else:
                         next_weight = last_run['weight']
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Stick with **{next_weight} lbs** and push for {next_targets['max_reps']} reps."
+                        next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** and push for {next_targets['max_reps']} reps."
             
             # Update your final reply to include the dynamic next set advice
             reply_msg = (
-                f"✅ **Set {set_count} Tracked to Supabase:**\n"
-                f"🏋️ *{exercise.title()}*\n"
-                f"⚖️ **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
-                f"🎯 *Prescription Target:* {rep_guideline}\n\n"
-                f"🧠 {intensity_advice}\n\n"
-                f"🔋 {advice}{next_set_advice}"
+                f" **Set {set_count} Tracked to Supabase:**\n"
+                f" *{exercise.title()}*\n"
+                f" **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
+                f" *Prescription Target:* {rep_guideline}\n\n"
+                f" {intensity_advice}\n\n"
+                f" {advice}{next_set_advice}"
             )
             await send_telegram_reply(chat_id, reply_msg)
 
-        else:
+        elif user_text.lower().startswith("meal:"):
             clean_food_text = user_text.lower().replace("meal:", "").replace("f:", "").strip()
+
+            raw_usda_data = await get_usda_macros(clean_food_text)
+
+            if raw_usda_data:
             
-            # --- AI Call 1: Extract Macros ---
-            schema_string = json.dumps(FoodStructure.model_json_schema())
-            system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"        
+                # --- AI Call 1: Extract Macros ---
+                schema_string = json.dumps(FoodStructure.model_json_schema())
+                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"        
             
-            response = groq_client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": system_instructions},
-                    {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
-                ],
-                model="llama-3.3-70b-versatile",
-                response_format={"type": "json_object"}
-            )
+                response = groq_client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": system_instructions},
+                        {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
+                    ],
+                    model="llama-3.3-70b-versatile",
+                    response_format={"type": "json_object"}
+                )
         
-            food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
+                food_data = FoodStructure(**raw_usda_data)
+            else:
+                schema_string = json.dumps(FoodStructure.model_json_schema())
+                food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
+                
             meal_type = define_meal()
 
             # Save the current meal to the database
@@ -614,6 +648,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f"{daily_summary}"
             )
 
+            await send_telegram_reply(chat_id, reply)
+        else: 
+            reply = ("Invalid input, try again")
             await send_telegram_reply(chat_id, reply)
 
         return {"status": "success"}
