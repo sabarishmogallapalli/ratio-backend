@@ -545,18 +545,35 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f" {advice}{next_set_advice}"
             )
             await send_telegram_reply(chat_id, reply_msg)
-
         elif user_text.lower().startswith("meal:"):
             clean_food_text = user_text.lower().replace("meal:", "").replace("f:", "").strip()
 
-            raw_usda_data = await get_usda_macros(clean_food_text)
+            is_complex_meal = "," in clean_food_text or " and " in clean_food_text or " with " in clean_food_text or len(clean_food_text.split()) > 6
+
+            raw_usda_data = None
+
+            if not is_complex_meal:
+                raw_usda_data = await get_usda_macros(clean_food_text)
 
             if raw_usda_data:
             
-                # --- AI Call 1: Extract Macros ---
-                schema_string = json.dumps(FoodStructure.model_json_schema())
-                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"        
+                # # --- AI Call 1: Extract Macros ---
+                # schema_string = json.dumps(FoodStructure.model_json_schema())
+                # system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"        
             
+                # response = groq_client.chat.completions.create(
+                #     messages=[
+                #         {"role": "system", "content": system_instructions},
+                #         {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
+                #     ],
+                #     model="llama-3.3-70b-versatile",
+                #     response_format={"type": "json_object"}
+                # )
+        
+                food_data = FoodStructure(**raw_usda_data)
+            else:
+                schema_string = json.dumps(FoodStructure.model_json_schema())
+                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions},
@@ -565,10 +582,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     model="llama-3.3-70b-versatile",
                     response_format={"type": "json_object"}
                 )
-        
-                food_data = FoodStructure(**raw_usda_data)
-            else:
-                schema_string = json.dumps(FoodStructure.model_json_schema())
                 food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
                 
             meal_type = define_meal()
@@ -632,7 +645,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 coach_advice = advice_res.choices[0].message.content.strip()
 
                 daily_summary = (
-                    f"\n\n📊 **Daily Status:**\n"
+                    f"\n\n **Daily Status:**\n"
                     f" Protein: **{total_pro}g** / {target_pro}g *(Need {rem_pro}g more)*\n"
                     f" Calories: **{total_cal}** / {target_cal}\n\n"
                     f" *{coach_advice}*"
