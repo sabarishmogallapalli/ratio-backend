@@ -32,59 +32,139 @@ TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 USDA_API_KEY = os.getenv("USDA_API_KEY")
 
 PROGRESSION_SCHEMA = {
-    # --- UPPER BODY ---
-    "flat dumbbell press": { 
-        1: {"max_reps": 6, "increment": 5},   # Heavy Top Set (4-6)
-        2: {"max_reps": 10, "increment": 5}   # Back-off Set (8-10)
+    # --- UPPER BODY #1---
+    "cuffed behind-the-back lateral raise": { 
+        1: {"max_reps": 12, "increment": 5}, #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+        3: {"max_reps": 12, "increment": 5},
     },
-    "cable fly": { 
-        1: {"max_reps": 6, "increment": 5},   # Heavy Top Set (4-6)
-        2: {"max_reps": 10, "increment": 5}   # Back-off Set (8-10)
+    "cross-body lat pull-around": { 
+        1: {"max_reps": 12, "increment": 5}, #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+        3: {"max_reps": 12, "increment": 5},
     },
-    "lat pulldown": { 
-        1: {"max_reps": 12, "increment": 10}, # Overhand Mid (10-12)
-        2: {"max_reps": 12, "increment": 10}  # Underhand Close (10-12)
+    "low incline smith machine press": { 
+        1: {"max_reps": 10, "increment": 10}, #whats the increment
+        2: {"max_reps": 10, "increment": 10},
+        3: {"max_reps": 10, "increment": 10},
+        4: {"max_reps": 10, "increment": 10},
+
     },
-    "overhead cable tricep extension": { 
-        1: {"max_reps": 15, "increment": 10}, # Working set (12-15) + Dropset
+    "chest-supported machine row": { 
+        1: {"max_reps": 10, "increment": 10}, #whats the increment
+        2: {"max_reps": 10, "increment": 10},
+        3: {"max_reps": 10, "increment": 10},
     },
-    "machine lateral raise": { 
-        1: {"max_reps": 15, "increment": 5},  # (12-15) - 5lb jump optimal here
+    "overhead cable tricep extensions (bar)": { 
+        1: {"max_reps": 10, "increment": 5},
+        2: {"max_reps": 10, "increment": 5},
     },
-    "high incline smith press": { 
-        1: {"max_reps": 12, "increment": 10}, # Antagonistic pairing 1 (10-12)
-        2: {"max_reps": 12, "increment": 10}
+    "straight-bar lat prayer": { 
+        1: {"max_reps": 15, "increment": 10}, #whats the increment
+        2: {"max_reps": 15, "increment": 10},
+        3: {"max_reps": 15, "increment": 10},
     },
-    "t-bar row": { 
-        1: {"max_reps": 12, "increment": 10}, # Antagonistic pairing 2 (10-12)
-        2: {"max_reps": 12, "increment": 10}
-    },
-    "ez-bar bicep curl": { 
-        1: {"max_reps": 15, "increment": 5},  # (12-15) + Myoreps 
-    },
-    "cable crunch": { 
-        1: {"max_reps": 15, "increment": 10}, # (12-15) + Double drop set
+    "pec deck (with integrated partials)": { 
+        1: {"max_reps": 15, "increment": 10}, #whats the increment
+        2: {"max_reps": 15, "increment": 10},
+        3: {"max_reps": 15, "increment": 10},
     },
 
-    # --- LOWER BODY ---
-    "dumbbell romanian deadlift": { 
-        1: {"max_reps": 10, "increment": 10}, # (8-10)
-        2: {"max_reps": 10, "increment": 10}  # (8-10)
+    # --- LOWER BODY #1---
+    "seated leg curl": { 
+        1: {"max_reps": 10, "increment": 10}, #whats the increment
+        2: {"max_reps": 10, "increment": 10},
+        3: {"max_reps": 10, "increment": 10}
     },
-    "dumbbell step up": { 
-        1: {"max_reps": 10, "increment": 5},  # (8-10) per leg - 5lb jump optimal
-    },
-    "seated leg press toe-press": { 
-        1: {"max_reps": 15, "increment": 10}, # (12-15)
+    "machine hip abduction": { 
+        1: {"max_reps": 12, "increment": 10}, #whats the increment
+        2: {"max_reps": 12, "increment": 10},
+        3: {"max_reps": 12, "increment": 10}
     },
     "hack squat": { 
-        1: {"max_reps": 6, "increment": 10},  # Heavy Top Set (4-6)
-        2: {"max_reps": 10, "increment": 10}  # Back-off Set (8-10)
+        1: {"max_reps": 4, "increment": 5}, #whats the increment
+        2: {"max_reps": 6, "increment": 5}, #whats the increment
+        3: {"max_reps": 8, "increment": 5}, #whats the increment
     },
-    "seated leg curl": { 
-        1: {"max_reps": 12, "increment": 5}   # (10-12) + Dropset
+    "leg extension": { 
+        1: {"max_reps": 12, "increment": 10}, #whats the increment
+        2: {"max_reps": 12, "increment": 10},
+        3: {"max_reps": 12, "increment": 10},
     },
-    
+
+    "leg press calf press": { 
+        1: {"max_reps": 10, "increment": 10}, #whats the increment
+        2: {"max_reps": 10, "increment": 10},
+        3: {"max_reps": 10, "increment": 10},  
+    },
+
+    # --- UPPER BODY #2---
+    "super-rom overhand cable row": { 
+        1: {"max_reps": 12, "increment": 5}, #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+        3: {"max_reps": 12, "increment": 5},
+    },
+    "machine shoulder press": { 
+        1: {"max_reps": 12, "increment": 5}, #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+        3: {"max_reps": 12, "increment": 5},
+    },
+    "assisted pull-up": { 
+        1: {"max_reps": 10, "increment": 5}, #whats the increment
+        2: {"max_reps": 10, "increment": 5},
+        3: {"max_reps": 10, "increment": 5},
+    },
+    "paused assisted dip": { 
+        1: {"max_reps": 10, "increment": 5},   #whats the increment
+        2: {"max_reps": 10, "increment": 5},
+        3: {"max_reps": 10, "increment": 5},
+    },
+    "inverse db zottman curl": { 
+        1: {"max_reps": 12, "increment": 5},   #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+    },
+    "super-rom db lateral raise": { 
+        1: {"max_reps": 15, "increment": 5},   #whats the increment
+        2: {"max_reps": 15, "increment": 5},
+        3: {"max_reps": 15, "increment": 5},
+    },
+    "cable reverse fly (mechanical dropset)": { 
+        1: {"max_reps": 5, "increment": 5},   #whats the increment
+        2: {"max_reps": 4, "increment": 5},
+        3: {"max_reps": 3, "increment": 5},
+    },
+
+    # --- LOWER BODY #2---
+    "lying leg curl": { 
+        1: {"max_reps": 10, "increment": 5}, #whats the increment
+        2: {"max_reps": 10, "increment": 5},
+        3: {"max_reps": 10, "increment": 5},
+    },
+    "leg press": { 
+        1: {"max_reps": 8, "increment": 5},   #whats the increment
+        2: {"max_reps": 8, "increment": 5},
+        3: {"max_reps": 8, "increment": 5},
+    },
+    "paused barbell rdl": { 
+        1: {"max_reps": 8, "increment": 5},   #whats the increment
+        2: {"max_reps": 8, "increment": 5},
+    },
+    "machine hip abduction": { 
+        1: {"max_reps": 12, "increment": 5},   #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+        3: {"max_reps": 12, "increment": 5},
+    },
+    "sissy squat": { 
+        1: {"max_reps": 12, "increment": 5},   #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+        3: {"max_reps": 12, "increment": 5},
+    },
+    "standing calf raise": { 
+        1: {"max_reps": 12, "increment": 5},   #whats the increment
+        2: {"max_reps": 12, "increment": 5},
+        3: {"max_reps": 12, "increment": 5},
+    },
+
     # --- DEFAULT FALLBACK ---
     "default": {
         1: {"max_reps": 12, "increment": 5},
@@ -181,33 +261,58 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             welcome_message = "Welcome to the workout or meal tracker: Are you logging a workout or meal? If meal start message with '/meal' If workout start message with '/upper' or '/lower' If updating profile with updated BMR information start message with '/profile'"
             await send_telegram_reply(chat_id, welcome_message)
             return {"status": "success"}
-        if user_text.lower() == ("/upper"):
-            upper_menu = (
-                "🏋️‍♂️ **JEFF NIPPARD UPPER DAY CHECKLIST**\n\n"
-                "1️⃣ **Flat Dumbbell Press** (Heavy Top Set (4-6 reps) + Back-off (8-10 reps))\n"
-                "2️⃣ **Cable Fly** (Heavy Top Set (4-6) + Back-off (8-10 reps))\n"
-                "3️⃣ **2-Grip Lat Pulldown** (Overhand Mid (10-12 reps) / Underhand Close (10-12 reps))\n"
-                "4️⃣ **Overhead Cable Tricep Extension** (+ Drop Set) (12-15 reps)\n"
-                "5️⃣ **Machine Lateral Raise** (12-15 reps)\n"
-                "6️⃣ **High Incline Smith Press** (Agnostic Superset) (10-12 reps)\n"
-                "7️⃣ **T-Bar Row** (Wide Grip / Close Grip) (Agnostic Superset (10-12 reps)\n"
-                "8️⃣ **EZ-Bar Bicep Curl** (+ Myoreps Supination Focus) (12-15 reps + Myo-reps)\n"
-                "9️⃣ **Cable Crunch** (12-15 reps + Double Dropset)\n\n"
+        if user_text.lower() == ("/upper-1"):
+            upper_1_menu = (
+                "🏋️‍♂️ **JEFF NIPPARD UPPER DAY 1 CHECKLIST**\n\n"
+                "1️⃣ **Cuffed Behind-The-Back Lateral Raise** (10-12 reps) (3 sets)\n"
+                "2️⃣ **cross-body lat pull-around** (10-12 reps) (3 sets)\n"
+                "3️⃣ **low incline smith machine press** (8-10 reps) (4 sets)\n"
+                "4️⃣ **chest-supported machine row** (8-10 reps) (3 sets)\n"
+                "5️⃣ **overhead cable tricep extensions (bar)** (8-10 reps) (2 sets)\n"
+                "6️⃣ **straight-bar lat prayer** (12-15 reps) (3 sets)\n"
+                "7️⃣ **pec deck (with integrated partials)** (12-15 reps) (3 sets)\n"
                 "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             )
-            await send_telegram_reply(chat_id, upper_menu)
+            await send_telegram_reply(chat_id, upper_1_menu)
             return {"status": "success"}
-        if user_text.lower() == "/lower":
-            lower_menu = (
-                "🏋️‍♀️ **JEFF NIPPARD LOWER DAY CHECKLIST**\n\n"
-                "1️⃣ **Dumbbell Romanian Deadlift (RDL)** (Controlled Hamstring Stretch) (8-10 reps)\n"
-                "2️⃣ **Dumbbell Step Up** (Per Leg Isolation with Lifting Straps) (8-10 reps)\n"
-                "3️⃣ **Seated Leg Press Toe-Press** (+ Heavy Dropset to Failure) (12-15 reps)\n"
-                "4️⃣ **Hack Squat ** (Heavy Top Set (4-6 reps) + Mind-Muscle Back-off (8-10 reps))\n"
-                "5️⃣ **Seated Leg Curl** (+ Forward Lean Dropset Finisher) (10-12 reps)\n\n"
+        if user_text.lower() == ("/upper-2"):
+            upper_2_menu = (
+                "🏋️‍♂️ **JEFF NIPPARD UPPER DAY 2 CHECKLIST**\n\n"
+                "1️⃣ **super-rom overhand cable row** (10-12 reps) (3 sets)\n"
+                "2️⃣ **machine shoulder press** (10-12 reps) (3 sets)\n"
+                "3️⃣ **assisted pull-up** (8-10 reps) (3 sets)\n"
+                "4️⃣ **paused assisted dip** (8-10 reps) (3 sets)\n"
+                "5️⃣ **inverse db zottman curl** (10-12 reps) (2 sets)\n"
+                "6️⃣ **super-rom db lateral raise** (12-15 reps) (3 sets)\n"
+                "7️⃣ **cable reverse fly (mechanical dropset on all sets)** (5,4,3+ reps) (3 sets)\n"
+                "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            )
+            await send_telegram_reply(chat_id, upper_2_menu)
+            return {"status": "success"}
+        if user_text.lower() == ("/lower-1"):
+            lower_1_menu = (
+                "🏋️‍♀️ **JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
+                "1️⃣ **seated leg curl** (8-10 reps) (3 sets)\n"
+                "2️⃣ **machine hip abduction** (10-12 reps) (3 sets)\n"
+                "3️⃣ **hack squat** (4,6,8 reps) (3 sets)\n"
+                "4️⃣ **leg extension** (10-12 reps) (3 sets)\n"
+                "5️⃣ **leg press calf press** (12-15 reps) (3 sets)\n\n"
                 "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
-            await send_telegram_reply(chat_id, lower_menu)
+            await send_telegram_reply(chat_id, lower_1_menu)
+            return {"status": "success"}
+        if user_text.lower() == ("/lower-2"):
+            lower_2_menu = (
+                "🏋️‍♀️ **JEFF NIPPARD LOWER DAY 2 CHECKLIST**\n\n"
+                "1️⃣ **lying leg curl** (8-10 reps) (3 sets)\n"
+                "2️⃣ **leg press** (8 reps) (3 sets)\n"
+                "3️⃣ **paused barbell rdl** (8 reps) (2 sets)\n"
+                "4️⃣ **machine hip abduction (super set with sissy squat)** (10-12 reps) (3 sets)\n"
+                "5️⃣ **sissy squat (super set with machine hip abduction)** (10-12 reps) (3 sets)\n\n"
+                "6️⃣ **standing calf raise** (10-12 reps) (3 sets)\n"
+                "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+            )
+            await send_telegram_reply(chat_id, lower_2_menu)
             return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
@@ -411,82 +516,115 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             progress_message = ""
 
-            if "flat dumbbell" in user_text.lower() or "flat db" in user_text.lower() or "Flat Dumbbell Press" in user_text.lower():
-                total_target_sets = 2
-                if set_count == 1:
-                    rep_guideline = "4-6 reps (Heavy Strength)"
-                    intensity_advice = "Keep elbow tuck around 30-45 degrees, flare outward slightly on ascent."
-                else:
-                    rep_guideline = "8-10 reps (Hypertrophy Back-off)"
-                    intensity_advice = "Drop the load back. Maximize mechanical tension."
-            elif "cable fly" in exercise:
-                total_target_sets = 2
-                rep_guideline = "4-6 reps" if set_count == 1 else "8-10 reps (Light Back-off)"
-                intensity_advice = "Focus on a deep stretch and tight squeeze at peak contraction."
-            elif "lat pulldown" in exercise:
-                total_target_sets = 2
+            # --- UPPER #1 ---
+            if "cuffed behind-the-back lateral raise" in exercise:
+                total_target_sets = 3
                 rep_guideline = "10-12 reps"
-                intensity_advice = "Set 1: Overhand middle grip. Set 2: Underhand close grip. Drop load immediately after for overhead curls!"
-            elif "tricep extension" in exercise or "overhead cable tricep extension" in exercise: 
-                total_target_sets = 1
-                rep_guideline = "12-15 reps"
-                intensity_advice = "**Drop Set Active!** Hit baseline failure, instantly drop weight by 30-40%, then take it to absolute failure once more."
-            elif "lateral raise" in exercise:
-                total_target_sets = 1
-                rep_guideline = "12-15 reps"
-                intensity_advice = "Drive through your side delts. Push range of motion to 90 degrees or up comfortably."
-            elif "smith machine press" in exercise or "incline smith" in exercise or "high incline smith press":
-                total_target_sets = 2  # Part of your antagonistic pairing configuration
+                intensity_advice = "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"
+            elif "cross-body lat pull-around" in exercise:
+                total_target_sets = 3
                 rep_guideline = "10-12 reps"
-                intensity_advice = "Ensure your bench incline is set between 45 and 60 degrees."
-            elif "t-bar row" in exercise or "supported row" in exercise:
-                total_target_sets = 2
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Set 1: Use wider grip variation. Set 2: Switch to closer grip profile."
-            elif "bicep curl" in exercise or "ez-bar" in exercise or "ez-bar bicep curl" in exercise:
-                total_target_sets = 1
-                rep_guideline = "12-15 reps"
-                intensity_advice = "**Myoreps Multiplier!** Hit failure driving through pinkies for supination. Rest 3-4 secs, complete 4 reps; repeat micro-cycles until performance drops."
-            elif "cable crunch" in exercise:
-                total_target_sets = 1
-                rep_guideline = "12-15 reps"
-                intensity_advice = "**Double Dropset Matrix!** Hit failure $\rightarrow$ drop load by 30% to failure $\rightarrow$ drop load by another 20-30% to final failure."
-            
-            #LOWER BODY
-            elif "romanian deadlift" in exercise or "rdl" in exercise or "dumbbell romanian deadlift":
+                intensity_advice = "Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"
+            elif "low incline smith machine press" in exercise:
+                total_target_sets = 4
+                rep_guideline = "8-10 reps"
+                intensity_advice = "15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"
+            elif "chest-supported machine row" in exercise:
+                total_target_sets = 3
+                rep_guideline = "8-10 reps"
+                intensity_advice = "Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"
+            elif "overhead cable tricep extension" in exercise:
                 total_target_sets = 2
                 rep_guideline = "8-10 reps"
-                intensity_advice = "Push hips backward sequentially. Rebound smooth when hamstrings reach full length stretch."
-                message = "way to go, one more set left" if set_count == 1 else "way to go, onto the next excercise"
-            elif "step up" in exercise or "dumbbell step up":
-                total_target_sets = 1
-                rep_guideline = "8-10 reps (Per Leg)"
-                intensity_advice = "Isolate working leg completely. Lock out and squeeze glutes heavily at the top apex."
-                message = "way to go, onto the next excercise"
-
-            elif "toe-press" in exercise or "calf raise" in exercise or "seated leg press toe-press":
-                total_target_sets = 1
+                intensity_advice = "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"
+            elif "straight-bar lat prayer" in exercise:
+                total_target_sets = 3
                 rep_guideline = "12-15 reps"
-                intensity_advice = "Keep knees static, don't bounce. Hit failure, drop load by 30-40%, then rep to absolute failure."
-                message = "way to go, onto the next excercise"
+                intensity_advice = "Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"
+            elif "pec deck" in exercise:
+                total_target_sets = 3
+                rep_guideline = "12-15 reps"
+                intensity_advice = "**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."
 
-            elif "hack squat" in exercise or "barbell back squat" in exercise:
-                total_target_sets = 2
-                if set_count == 1:
-                    rep_guideline = "4-6 reps (Heavy Top Set)"
-                    intensity_advice = "Aim for RPE 9 (1 rep in reserve). Drive through heels with maximum full depth."
-                    message = "way to go, one more set left"
-                else:
-                    rep_guideline = "8-10 reps (Volume Focus)"
-                    intensity_advice = "Drop load back. Control eccentric negative phase slowly to enhance mind-muscle connection."
-                    message = "way to go, onto the next excercise"
-
-            elif "leg curl" in exercise:
-                total_target_sets = 1
+            # --- LOWER #1 ---
+            elif "seated leg curl" in exercise:
+                total_target_sets = 3
+                rep_guideline = "8-10 reps"
+                intensity_advice = "Lean forward to maximize hamstring stretch."
+            elif "machine hip abduction" in exercise:
+                total_target_sets = 3
                 rep_guideline = "10-12 reps"
-                intensity_advice = "Lean forward over the machine dashboard interface. Hit failure, drop load by 30-40%, run to secondary failure."
-                message = "way to go, onto the next excercise"
-                
+                intensity_advice = "Mind-muscle connection with inner thighs—push them hard."
+            elif "hack squat" in exercise:
+                total_target_sets = 3
+                # Reverse Pyramid logic: 4, 6, 8 reps
+                reps_map = {1: 4, 2: 6, 3: 8}
+                rep_guideline = f"{reps_map.get(set_count, 8)} reps (Reverse Pyramid)"
+                intensity_advice = "Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."
+            elif "leg extension" in exercise:
+                total_target_sets = 3
+                rep_guideline = "10-12 reps"
+                intensity_advice = "2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"
+            elif "leg press calf press" in exercise:
+                total_target_sets = 3
+                rep_guideline = "12-15 reps"
+                intensity_advice = "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"
+
+            # --- UPPER #2 ---
+            elif "super-rom overhand cable row" in exercise:
+                total_target_sets = 3
+                rep_guideline = "10-12 reps"
+                intensity_advice = "Wide-grip pulldown bar. Lean forward on negative, upright on pull."
+            elif "machine shoulder press" in exercise:
+                total_target_sets = 3
+                rep_guideline = "10-12 reps"
+                intensity_advice = "Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"
+            elif "assisted pull-up" in exercise:
+                total_target_sets = 3
+                rep_guideline = "8-10 reps"
+                intensity_advice = "2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"
+            elif "paused assisted dip" in exercise:
+                total_target_sets = 3
+                rep_guideline = "8-10 reps"
+                intensity_advice = "2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."
+            elif "inverse db zottman curl" in exercise:
+                total_target_sets = 2
+                rep_guideline = "10-12 reps"
+                intensity_advice = "Hammer curl on positive, palms-up grip on the negative."
+            elif "super-rom db lateral raise" in exercise:
+                total_target_sets = 3
+                rep_guideline = "12-15 reps"
+                intensity_advice = "Full ROM to overhead. Squeeze upper traps at the top."
+            elif "cable reverse fly" in exercise:
+                total_target_sets = 3
+                rep_guideline = "5, 4, 3+ reps"
+                intensity_advice = "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."
+
+            # --- LOWER #2 ---
+            elif "lying leg curl" in exercise:
+                total_target_sets = 3
+                rep_guideline = "8-10 reps"
+                intensity_advice = "Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"
+            elif "leg press" in exercise:
+                total_target_sets = 3
+                rep_guideline = "8 reps"
+                intensity_advice = "Feet low on platform. Deep stretch with 1s pause at bottom."
+            elif "paused barbell rdl" in exercise:
+                total_target_sets = 2
+                rep_guideline = "8 reps"
+                intensity_advice = "1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."
+            elif "machine hip abduction" in exercise:
+                total_target_sets = 3
+                rep_guideline = "10-12 reps"
+                intensity_advice = "Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"
+            elif "sissy squat" in exercise:
+                total_target_sets = 3
+                rep_guideline = "10-12 reps"
+                intensity_advice = "Knees forward past toes. Push hard!"
+            elif "standing calf raise" in exercise:
+                total_target_sets = 3
+                rep_guideline = "10-12 reps"
+                intensity_advice = "1-2s pause at bottom. **Last Set: 30s Static Stretch.**"
             # --- UNIFIED PROGRESSION & TIMER LIFE CYCLE ---
             if set_count >= total_target_sets:
                 advice = f"**Exercise Complete!** All {total_target_sets} configured sets mapped successfully.\n💡 *Next Move:* Proceed directly to your next movement assignment."
