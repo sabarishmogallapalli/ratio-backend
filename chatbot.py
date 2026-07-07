@@ -262,7 +262,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             welcome_message = "Welcome to the workout or meal tracker: Are you logging a workout or meal? If meal start message with '/meal' If workout start message with '/upper' or '/lower' If updating profile with updated BMR information start message with '/profile'"
             await send_telegram_reply(chat_id, welcome_message)
             return {"status": "success"}
-        if user_text.lower() == ("/upper-1"):
+        if user_text.lower() == ("/upper_1"):
             upper_1_menu = (
                 "🏋️‍♂️ **JEFF NIPPARD UPPER DAY 1 CHECKLIST**\n\n"
                 "1️⃣ **Cuffed Behind-The-Back Lateral Raise** (10-12 reps) (3 sets)\n"
@@ -276,7 +276,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             )
             await send_telegram_reply(chat_id, upper_1_menu)
             return {"status": "success"}
-        if user_text.lower() == ("/upper-2"):
+        if user_text.lower() == ("/upper_2"):
             upper_2_menu = (
                 "🏋️‍♂️ **JEFF NIPPARD UPPER DAY 2 CHECKLIST**\n\n"
                 "1️⃣ **super-rom overhand cable row** (10-12 reps) (3 sets)\n"
@@ -290,7 +290,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             )
             await send_telegram_reply(chat_id, upper_2_menu)
             return {"status": "success"}
-        if user_text.lower() == ("/lower-1"):
+        if user_text.lower() == ("/lower_1"):
             lower_1_menu = (
                 "🏋️‍♀️ **JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
                 "1️⃣ **seated leg curl** (8-10 reps) (3 sets)\n"
@@ -302,7 +302,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             )
             await send_telegram_reply(chat_id, lower_1_menu)
             return {"status": "success"}
-        if user_text.lower() == ("/lower-2"):
+        if user_text.lower() == ("/lower_2"):
             lower_2_menu = (
                 "🏋️‍♀️ **JEFF NIPPARD LOWER DAY 2 CHECKLIST**\n\n"
                 "1️⃣ **lying leg curl** (8-10 reps) (3 sets)\n"
