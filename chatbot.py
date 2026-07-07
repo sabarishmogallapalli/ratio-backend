@@ -197,11 +197,12 @@ def define_meal() -> str:
 
 async def send_telegram_reply(chat_id: int, text: str):
     async with httpx.AsyncClient() as http_client:
-        await http_client.post(TELEGRAM_API_URL, json={
+        resp = await http_client.post(TELEGRAM_API_URL, json={
             "chat_id": chat_id,
             "text": text,
             "parse_mode": "Markdown"
         })
+        resp.raise_for_status()
 
 async def get_usda_macros(food_query: str):
     url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={food_query}&pageSize=1"
@@ -778,7 +779,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 advice_res = groq_client.chat.completions.create(
                     messages=[{"role": "user", "content": advice_prompt}],
-                    model="llama3-8b-8192" # Using the smaller 8B model here because it replies in ~0.2 seconds!
+                    model="llama-3.1-8b-instant"
                 )
                 coach_advice = advice_res.choices[0].message.content.strip()
 
@@ -807,7 +808,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         return {"status": "success"}
     
     except Exception as e:
-        # 3. Catch any runtime errors (like Groq/Supabase failures)
         print(f"Webhook error: {e}")
         await send_telegram_reply(chat_id, f"Webhook Error: {str(e)}")
         return {"status": "error", "message": str(e)}
