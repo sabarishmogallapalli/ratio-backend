@@ -76,7 +76,7 @@ PROGRESSION_SCHEMA = {
         2: {"max_reps": 10, "increment": 10},
         3: {"max_reps": 10, "increment": 10}
     },
-    "machine hip abduction": { 
+    "machine hip adduction": { 
         1: {"max_reps": 12, "increment": 10}, #whats the increment
         2: {"max_reps": 12, "increment": 10},
         3: {"max_reps": 12, "increment": 10}
@@ -149,7 +149,7 @@ PROGRESSION_SCHEMA = {
         1: {"max_reps": 8, "increment": 5},   #whats the increment
         2: {"max_reps": 8, "increment": 5},
     },
-    "machine hip abduction": { 
+    "machine hip adduction": { 
         1: {"max_reps": 12, "increment": 5},   #whats the increment
         2: {"max_reps": 12, "increment": 5},
         3: {"max_reps": 12, "increment": 5},
@@ -294,7 +294,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             lower_1_menu = (
                 "🏋️‍♀️ **JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
                 "1️⃣ **seated leg curl** (8-10 reps) (3 sets)\n"
-                "2️⃣ **machine hip abduction** (10-12 reps) (3 sets)\n"
+                "2️⃣ **machine hip adduction** (10-12 reps) (3 sets)\n"
                 "3️⃣ **hack squat** (4,6,8 reps) (3 sets)\n"
                 "4️⃣ **leg extension** (10-12 reps) (3 sets)\n"
                 "5️⃣ **leg press calf press** (12-15 reps) (3 sets)\n\n"
@@ -308,8 +308,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "1️⃣ **lying leg curl** (8-10 reps) (3 sets)\n"
                 "2️⃣ **leg press** (8 reps) (3 sets)\n"
                 "3️⃣ **paused barbell rdl** (8 reps) (2 sets)\n"
-                "4️⃣ **machine hip abduction (super set with sissy squat)** (10-12 reps) (3 sets)\n"
-                "5️⃣ **sissy squat (super set with machine hip abduction)** (10-12 reps) (3 sets)\n\n"
+                "4️⃣ **machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n"
+                "5️⃣ **sissy squat (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
                 "6️⃣ **standing calf raise** (10-12 reps) (3 sets)\n"
                 "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
@@ -552,7 +552,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 total_target_sets = 3
                 rep_guideline = "8-10 reps"
                 intensity_advice = "Lean forward to maximize hamstring stretch."
-            elif "machine hip abduction" in exercise:
+            elif "machine hip adduction" in exercise:
                 total_target_sets = 3
                 rep_guideline = "10-12 reps"
                 intensity_advice = "Mind-muscle connection with inner thighs—push them hard."
@@ -614,7 +614,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 total_target_sets = 2
                 rep_guideline = "8 reps"
                 intensity_advice = "1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."
-            elif "machine hip abduction" in exercise:
+            elif "machine hip adduction" in exercise:
                 total_target_sets = 3
                 rep_guideline = "10-12 reps"
                 intensity_advice = "Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"
