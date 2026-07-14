@@ -329,7 +329,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "• *'meal: chicken korma with two pieces of garlic naan'*\n"
                 "• *'meal: fish pulusu with two pieces of paratha for lunch 06/10/2026'*\n"
                 "• *'meal: rice with chicken for dinner'*\n"
-                "• *'meal: a slice of homemade tiramisu'* Kettle bell\n\n"
+                "• *'meal: a slice of homemade tiramisu'*\n\n"
                 "👉 *Just start your message with 'meal:' followed by your food to save it!*"
             )
             await send_telegram_reply(chat_id, meal_instructions)
