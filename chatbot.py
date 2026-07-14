@@ -179,6 +179,8 @@ class FoodStructure(BaseModel):
     protein: int
     carbs: int
     fat: int
+    extracted_date: str = None
+    extracted_meal_type: str = None
 
 class WorkoutStructure(BaseModel):
     exercise_name: str
@@ -325,6 +327,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "💬 **Examples:**\n"
                 "• *'meal: 3 eggs and a scoop of ascent native fuel whey protein powder'*\n"
                 "• *'meal: chicken korma with two pieces of garlic naan'*\n"
+                "• *'meal: fish pulusu with two pieces of paratha for lunch 06/10/2026'*\n"
+                "• *'meal: rice with chicken for dinner'*\n"
                 "• *'meal: a slice of homemade tiramisu'* Kettle bell\n\n"
                 "👉 *Just start your message with 'meal:' followed by your food to save it!*"
             )
@@ -712,7 +716,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 food_data = FoodStructure(**raw_usda_data)
             else:
                 schema_string = json.dumps(FoodStructure.model_json_schema())
-                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"
+                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions},
@@ -723,17 +727,32 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 )
                 food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
                 
-            meal_type = define_meal()
+            meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
 
-            # Save the current meal to the database
-            supabase.table("food_logs").insert({
+            insert_payload = {
                 "meal_type": meal_type,
                 "food_name": food_data.food_name,
                 "calories": food_data.calories,
                 "protein": food_data.protein,
                 "carbs": food_data.carbs,
                 "fat": food_data.fat
-            }).execute()
+            }
+
+            if food_data.extracted_date:
+            # This forces the log to be created for that specific date at noon
+                insert_payload["created_at"] = f"{food_data.extracted_date}T12:00:00Z" 
+
+            supabase.table("food_logs").insert(insert_payload).execute()
+
+            # Save the current meal to the database
+            # supabase.table("food_logs").insert({
+            #     "meal_type": meal_type,
+            #     "food_name": food_data.food_name,
+            #     "calories": food_data.calories,
+            #     "protein": food_data.protein,
+            #     "carbs": food_data.carbs,
+            #     "fat": food_data.fat
+            # }).execute()
 
             # --- THE DAILY SUMMARY & COACHING ENGINE ---
             today_str = date.today().isoformat()
