@@ -434,7 +434,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, reply)
             return {"status": "success"}    
         
-        workout_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout", "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"] 
+        base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout", "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"] 
+        workout_keywords = base_keywords + list(PROGRESSION_SCHEMA.keys())
         is_workout = any(word in user_text.lower() for word in workout_keywords) or user_text.lower().startswith("w:") or "upper:" in user_text.lower() or "lower:" in user_text.lower()
 
         if is_workout:
@@ -455,7 +456,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             exercise = lift_data.exercise_name.lower().strip()
 
 
-            if lift_data.weight == 0 or lift_data.reps == 0:
+            if lift_data.reps == 0:
                 today_str = date.today().isoformat()
                 
                 # Fetch the most recent past logs for this exercise
