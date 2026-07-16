@@ -829,5 +829,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
     
     except Exception as e:
         print(f"Webhook error: {e}")
-        await send_telegram_reply(chat_id, f"Webhook Error: {str(e)}")
-        return {"status": "error", "message": str(e)}
+        try:
+            # Send without Markdown to prevent parsing crashes!
+            async with httpx.AsyncClient() as http_client:
+                await http_client.post(TELEGRAM_API_URL, json={
+                    "chat_id": chat_id,
+                    "text": f"Webhook Error: {str(e)}"
+                })
+        except Exception as inner_e:
+            print(f"Failed to even send the error to Telegram: {inner_e}")
+        return {"status": "success"}
