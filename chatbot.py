@@ -26,6 +26,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI()
 
+PENDING_LOGS = {}
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
@@ -173,6 +175,37 @@ PROGRESSION_SCHEMA = {
     }
 }
 
+EXERCISE_COACHING = {
+    "cuffed behind-the-back lateral raise": {"reps": "10-12 reps", "advice": "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"},
+    "cross-body lat pull-around": {"reps": "10-12 reps", "advice":"Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"},
+    "low incline smith machine press": {"reps": "8-10 reps", "advice":"15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"},
+    "chest-supported machine row": {"reps": "8-10 reps", "advice":"Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"},
+    "overhead cable tricep extension": {"reps": "8-10 reps", "advice":"Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"},
+    "straight-bar lat prayer": {"reps": "12-15 reps", "advice":"Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"},
+    "pec deck": {"reps": "12-15 reps", "advice":"**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."},
+
+    "seated leg curl": {"reps": "8-10 reps", "advice":"Lean forward to maximize hamstring stretch."},
+    "machine hip adduction": {"reps": "10-12 reps", "advice":"Mind-muscle connection with inner thighs—push them hard."},
+    "hack squat": {"reps": "4, 6, 8 reps (Reverse Pyramid)", "advice":"Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."},
+    "leg extension": {"reps": "10-12 reps (Reverse Pyramid)", "advice":"2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"},
+    "leg press calf press": {"reps": "12-15 reps", "advice":"1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"},
+
+    "super-rom overhand cable row": {"reps": "10-12 reps", "advice":"Wide-grip pulldown bar. Lean forward on negative, upright on pull."},
+    "machine shoulder press": {"reps": "10-12 reps", "advice":"Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"},
+    "assisted pull-up": {"reps": "8-10 reps", "advice":"2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"},
+    "paused assisted dip": {"reps": "8-10 reps", "advice":"2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."},
+    "inverse db zottman curl": {"reps": "10-12 reps", "advice":"Hammer curl on positive, palms-up grip on the negative."},
+    "super-rom db lateral raise": {"reps": "12-15 reps", "advice":"Full ROM to overhead. Squeeze upper traps at the top."},
+    "cable reverse fly": {"reps": "5, 4, 3+ reps", "advice":"**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."},
+
+    "lying leg curl": {"reps": "8-10 reps", "advice":"Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"},
+    "leg press": {"reps": "8 reps", "advice":"Feet low on platform. Deep stretch with 1s pause at bottom."},
+    "paused barbell rdl": {"reps": "8 reps", "advice":"1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."},
+    "machine hip adduction": {"reps": "10-12 reps", "advice":"Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"},
+    "sissy squat": {"reps": "10-12 reps", "advice":"Knees forward past toes. Push hard!"},
+    "standing calf raise": {"reps": "10-12 reps", "advice":"1-2s pause at bottom. **Last Set: 30s Static Stretch.**"},
+}
+
 class FoodStructure(BaseModel):
     food_name: str
     calories: int
@@ -197,21 +230,34 @@ def define_meal() -> str:
     elif 16 <= current_hour < 22: return "dinner"
     else: return "snack"
 
-async def send_telegram_reply(chat_id: int, text: str):
+async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None):
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "Markdown"
+    }
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
     async with httpx.AsyncClient() as http_client:
-        resp = await http_client.post(TELEGRAM_API_URL, json={
-            "chat_id": chat_id,
-            "text": text,
-            "parse_mode": "Markdown"
-        })
-        resp.raise_for_status()
+        try:
+            resp = await http_client.post(TELEGRAM_API_URL, json=payload)
+            resp.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 400:
+                print(f"Telegram Markdown parsing failed. Retrying as plain text.")
+                payload.pop("parse_mode", None)
+                retry_resp = await http_client.post(TELEGRAM_API_URL, json=payload)
+                retry_resp.raise_for_status()
+            else:
+                raise e
 
 async def get_usda_macros(food_query: str):
-    url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={food_query}&pageSize=1"
+    url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={food_query}&pageSize=3&dataType=Branded,SR%20Legacy"
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(url)
             data = response.json()
+            options = []
             if data.get('foods'):
                 food = data['foods'][0]
                 # Extract nutrients (protein, fat, carbs)
@@ -219,26 +265,101 @@ async def get_usda_macros(food_query: str):
                 protein = next((n['value'] for n in food['foodNutrients'] if 'Protein' in n['nutrientName']), 0)
                 carbs = next((n['value'] for n in food['foodNutrients'] if 'Carbohydrate' in n['nutrientName']), 0)
                 fat = next((n['value'] for n in food['foodNutrients'] if 'Total lipid' in n['nutrientName']), 0)
-                return {
-                    "food_name": food['description'],
-                    "calories": int(calories),
-                    "protein": int(protein),
-                    "carbs": int(carbs),
-                    "fat": int(fat)
-                }
+                options.append({
+                        "food_name": food['description'],
+                        "calories": int(calories),
+                        "protein": int(protein),
+                        "carbs": int(carbs),
+                        "fat": int(fat)
+                    })
+                return options
         except Exception as e:
             print(f"USDA API Error: {e}")
-            return None
-    return None
+            return []
+    return []
 
 async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str):
     #3 minute timer
     await asyncio.sleep(180) 
-    reminder = f"**3-Minute Rest Over!**\nTime for **Set {next_set}** of *{exercise_name.title()}*.\n🎯 Target: {target_desc}"
+    reminder = f"**3-Minute Rest Over!**\nTime for **Set {next_set}** of *{exercise_name.title()}*.\n Target: {target_desc}"
     async with httpx.AsyncClient() as http_client:
         await http_client.post(TELEGRAM_API_URL, json={
             "chat_id": chat_id, "text": reminder, "parse_mode": "Markdown"
         })
+
+# --- NEW: Abstracted Saving & Coaching Engine ---
+async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
+    meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
+
+    insert_payload = {
+        "meal_type": meal_type,
+        "food_name": food_data.food_name,
+        "calories": food_data.calories,
+        "protein": food_data.protein,
+        "carbs": food_data.carbs,
+        "fat": food_data.fat
+    }
+
+    if food_data.extracted_date:
+        insert_payload["created_at"] = f"{food_data.extracted_date}T12:00:00Z" 
+
+    supabase.table("food_logs").insert(insert_payload).execute()
+
+    today_str = date.today().isoformat()
+    daily_logs = supabase.table("food_logs") \
+        .select("calories, protein, carbs, fat") \
+        .gte("created_at", today_str) \
+        .execute()
+
+    total_cal = sum(log['calories'] for log in daily_logs.data)
+    total_pro = sum(log['protein'] for log in daily_logs.data)
+    total_carb = sum(log['carbs'] for log in daily_logs.data)
+    total_fat = sum(log['fat'] for log in daily_logs.data)
+
+    profile = supabase.table("user_profiles").select("*").eq("chat_id", chat_id).execute()
+
+    daily_summary = ""
+    if profile.data:
+        target_pro = profile.data[0]['target_protein']
+        target_cal = profile.data[0]['target_calories']
+        target_fat = profile.data[0]['target_fat']
+        goal = profile.data[0]['goal']
+
+        rem_pro = target_pro - total_pro
+        rem_cal = target_cal - total_cal
+
+        advice_prompt = (
+            f"I am focusing on {goal}. I just ate {food_data.food_name}. "
+            f"My daily totals are now: {total_pro}g protein, {total_fat}g fat, {total_cal} cals. "
+            f"I have {rem_pro}g of protein and {rem_cal} calories left to hit my targets. "
+            f"Give me exactly ONE short, punchy sentence of advice. "
+            f"If protein is lagging, suggest something like a scoop of Ascent Native Fuel Whey or a lean meat. "
+            f"If fat or calories are getting too high, tell me to dial it back."
+        )
+
+        advice_res = groq_client.chat.completions.create(
+            messages=[{"role": "user", "content": advice_prompt}],
+            model="llama-3.1-8b-instant"
+        )
+        coach_advice = advice_res.choices[0].message.content.strip()
+
+        daily_summary = (
+            f"\n\n **Daily Status:**\n"
+            f" Protein: **{total_pro}g** / {target_pro}g *(Need {rem_pro}g more)*\n"
+            f" Calories: **{total_cal}** / {target_cal}\n\n"
+            f" *{coach_advice}*"
+        )
+    else:
+        daily_summary = "\n\n *Profile not found in database. Add your baseline to get macro coaching!*"
+
+    reply = (
+        f" **Logged for {meal_type.capitalize()}!**\n"
+        f" *{food_data.food_name.title()}*\n"
+        f" **{food_data.calories} kcal** | {food_data.protein}g P | {food_data.carbs}g C | {food_data.fat}g F"
+        f"{daily_summary}"
+    )
+
+    await send_telegram_reply(chat_id, reply)
 
 # Webhook endpoint
 @app.post("/api/v1/webhook")
@@ -251,11 +372,71 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         return {"status": "error", "message": "Invalid JSON"}
     
     try:
-    
-        # extract text and chat ID from Telegram's structure
+        # --- NEW: HANDLE BUTTON CLICKS ---
+        if "callback_query" in payload:
+            callback = payload["callback_query"]
+            chat_id = callback["message"]["chat"]["id"]
+            callback_data = callback["data"]
+            
+            if chat_id not in PENDING_LOGS:
+                await send_telegram_reply(chat_id, "Session expired. Please re-enter your meal.")
+                return {"status": "success"}
+                
+            pending_data = PENDING_LOGS[chat_id]
+            raw_text = pending_data["raw_text"]
+            # 1. User clicked a USDA result
+            if callback_data.startswith("usda_"):
+                index = int(callback_data.split("_")[1])
+                selected_food = pending_data["usda_options"][index]
+                
+                schema_string = json.dumps(FoodStructure.model_json_schema())
+                system_instructions = (
+                    f"Return a flat JSON object matching this schema: {schema_string}. "
+                    f"The user ate: '{raw_text}'. "
+                    f"Use this EXACT baseline data to calculate the final macros based on their portion: "
+                    f"{json.dumps(selected_food)}. Extract 'extracted_date' and 'extracted_meal_type' if present."
+                )
+                
+                response = groq_client.chat.completions.create(
+                    messages=[{"role": "system", "content": system_instructions}],
+                    model="llama-3.3-70b-versatile",
+                    response_format={"type": "json_object"}
+                )
+                food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
+            # 2. User clicked AI Fallback
+            elif callback_data == "ai_fallback":
+                schema_string = json.dumps(FoodStructure.model_json_schema())
+                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
+                
+                response = groq_client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": system_instructions},
+                        {"role": "user", "content": f"Analyze this meal text: '{raw_text}'"}
+                    ],
+                    model="llama-3.3-70b-versatile",
+                    response_format={"type": "json_object"}
+                )
+                food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
+
+            # Clear memory and trigger saving engine
+            del PENDING_LOGS[chat_id]
+            await process_and_save_meal(chat_id, food_data)
+            
+            # Edit the original message to remove the buttons
+            async with httpx.AsyncClient() as http_client:
+                await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageReplyMarkup", json={
+                    "chat_id": chat_id,
+                    "message_id": callback["message"]["message_id"],
+                    "reply_markup": {"inline_keyboard": []}
+                })
+
+            return {"status": "success"}
+
+        # --- NORMAL MESSAGE LOGIC CONTINUES BELOW ---
         message = payload.get("message", {})
         chat_id = message.get("chat", {}).get("id")
         user_text = message.get("text", "").strip()
+
     
         if not user_text or not chat_id:
             return {"status": "ignored"}
@@ -266,71 +447,71 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
         if user_text.lower() == ("/upper_1"):
             upper_1_menu = (
-                "🏋️‍♂️ **JEFF NIPPARD UPPER DAY 1 CHECKLIST**\n\n"
-                "1️⃣ **Cuffed Behind-The-Back Lateral Raise** (10-12 reps) (3 sets)\n"
-                "2️⃣ **cross-body lat pull-around** (10-12 reps) (3 sets)\n"
-                "3️⃣ **low incline smith machine press** (8-10 reps) (4 sets)\n"
-                "4️⃣ **chest-supported machine row** (8-10 reps) (3 sets)\n"
-                "5️⃣ **overhead cable tricep extensions (bar)** (8-10 reps) (2 sets)\n"
-                "6️⃣ **straight-bar lat prayer** (12-15 reps) (3 sets)\n"
-                "7️⃣ **pec deck (with integrated partials)** (12-15 reps) (3 sets)\n"
-                "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+                "**JEFF NIPPARD UPPER DAY 1 CHECKLIST**\n\n"
+                "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n"
+                "**cross-body lat pull-around** (10-12 reps) (3 sets)\n"
+                "**low incline smith machine press** (8-10 reps) (4 sets)\n"
+                "**chest-supported machine row** (8-10 reps) (3 sets)\n"
+                "**overhead cable tricep extensions (bar)** (8-10 reps) (2 sets)\n"
+                "**straight-bar lat prayer** (12-15 reps) (3 sets)\n"
+                "**pec deck (with integrated partials)** (12-15 reps) (3 sets)\n"
+                "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             )
             await send_telegram_reply(chat_id, upper_1_menu)
             return {"status": "success"}
         if user_text.lower() == ("/upper_2"):
             upper_2_menu = (
-                "🏋️‍♂️ **JEFF NIPPARD UPPER DAY 2 CHECKLIST**\n\n"
-                "1️⃣ **super-rom overhand cable row** (10-12 reps) (3 sets)\n"
-                "2️⃣ **machine shoulder press** (10-12 reps) (3 sets)\n"
-                "3️⃣ **assisted pull-up** (8-10 reps) (3 sets)\n"
-                "4️⃣ **paused assisted dip** (8-10 reps) (3 sets)\n"
-                "5️⃣ **inverse db zottman curl** (10-12 reps) (2 sets)\n"
-                "6️⃣ **super-rom db lateral raise** (12-15 reps) (3 sets)\n"
-                "7️⃣ **cable reverse fly (mechanical dropset on all sets)** (5,4,3+ reps) (3 sets)\n"
-                "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+                "**JEFF NIPPARD UPPER DAY 2 CHECKLIST**\n\n"
+                "**super-rom overhand cable row** (10-12 reps) (3 sets)\n"
+                "**machine shoulder press** (10-12 reps) (3 sets)\n"
+                "**assisted pull-up** (8-10 reps) (3 sets)\n"
+                "**paused assisted dip** (8-10 reps) (3 sets)\n"
+                "**inverse db zottman curl** (10-12 reps) (2 sets)\n"
+                "**super-rom db lateral raise** (12-15 reps) (3 sets)\n"
+                "**cable reverse fly (mechanical dropset on all sets)** (5,4,3+ reps) (3 sets)\n"
+                "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             )
             await send_telegram_reply(chat_id, upper_2_menu)
             return {"status": "success"}
         if user_text.lower() == ("/lower_1"):
             lower_1_menu = (
-                "🏋️‍♀️ **JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
-                "1️⃣ **seated leg curl** (8-10 reps) (3 sets)\n"
-                "2️⃣ **machine hip adduction** (10-12 reps) (3 sets)\n"
-                "3️⃣ **hack squat** (4,6,8 reps) (3 sets)\n"
-                "4️⃣ **leg extension** (10-12 reps) (3 sets)\n"
-                "5️⃣ **leg press calf press** (12-15 reps) (3 sets)\n\n"
-                "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+                "**JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
+                "**seated leg curl** (8-10 reps) (3 sets)\n"
+                "**machine hip adduction** (10-12 reps) (3 sets)\n"
+                "**hack squat** (4,6,8 reps) (3 sets)\n"
+                "**leg extension** (10-12 reps) (3 sets)\n"
+                "**leg press calf press** (12-15 reps) (3 sets)\n\n"
+                "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
             await send_telegram_reply(chat_id, lower_1_menu)
             return {"status": "success"}
         if user_text.lower() == ("/lower_2"):
             lower_2_menu = (
-                "🏋️‍♀️ **JEFF NIPPARD LOWER DAY 2 CHECKLIST**\n\n"
-                "1️⃣ **lying leg curl** (8-10 reps) (3 sets)\n"
-                "2️⃣ **leg press** (8 reps) (3 sets)\n"
-                "3️⃣ **paused barbell rdl** (8 reps) (2 sets)\n"
-                "4️⃣ **machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n"
-                "5️⃣ **sissy squat (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-                "6️⃣ **standing calf raise** (10-12 reps) (3 sets)\n"
-                "📋 **Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+                "**JEFF NIPPARD LOWER DAY 2 CHECKLIST**\n\n"
+                "**lying leg curl** (8-10 reps) (3 sets)\n"
+                "**leg press** (8 reps) (3 sets)\n"
+                "**paused barbell rdl** (8 reps) (2 sets)\n"
+                "**machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n"
+                "**sissy squat (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
+                "**standing calf raise** (10-12 reps) (3 sets)\n"
+                "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
             await send_telegram_reply(chat_id, lower_2_menu)
             return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
-                "🍔 **NUTRITION LOGGING ENGINE**\n\n"
+                "**NUTRITION LOGGING ENGINE**\n\n"
                 "You can log your food conversationally without worrying about exact serving math. "
                 "The system will automatically categorize it based on the time of day and calculate your macros into Supabase.\n\n"
-                "📋 **How to log:**\n"
+                "  **How to log:**\n"
                 "Simply text me what you ate naturally. If your message doesn't contain lifting terms (like lbs or reps), it defaults to a food log!\n\n"
-                "💬 **Examples:**\n"
+                "**Examples:**\n"
                 "• *'meal: 3 eggs and a scoop of ascent native fuel whey protein powder'*\n"
                 "• *'meal: chicken korma with two pieces of garlic naan'*\n"
                 "• *'meal: fish pulusu with two pieces of paratha for lunch 06/10/2026'*\n"
                 "• *'meal: rice with chicken for dinner'*\n"
                 "• *'meal: a slice of homemade tiramisu'*\n\n"
-                "👉 *Just start your message with 'meal:' followed by your food to save it!*"
+                "*Just start your message with 'meal:' followed by your food to save it!*"
             )
             await send_telegram_reply(chat_id, meal_instructions)
             return {"status": "success"}
@@ -340,7 +521,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "Profile Setup \n\n"
                 "You can log your Body Scan results and goal to save it and train the machine learning model. "
                 "The system will automatically use your goal and categories your food based on the time of day and calculate your macros into Supabase.\n\n"
-                "👉 *Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets: Body Composition: [Water], [Dry Lean Mass], [Fat Mass], [Weight]; Muscle-Fat: [Weight], [SMM], [Body Fat Mass]; Obesity: [BMI], [PBF]; Segmental Lean: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; Goal: [bulk/cut/recomposition]*"
+                "*Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets: Body Composition: [Water], [Dry Lean Mass], [Fat Mass], [Weight]; Muscle-Fat: [Weight], [SMM], [Body Fat Mass]; Obesity: [BMI], [PBF]; Segmental Lean: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; Goal: [bulk/cut/recomposition]*"
             )
             await send_telegram_reply(chat_id, profile_instructions)
             return {"status": "success"}
@@ -469,32 +650,23 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     .execute()
 
                 if not history.data:
-                    reply = f"🆕 **No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today."
+                    reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today."
                 else:
-                    # Filter to group only the sets from the absolute last session
                     last_date = history.data[0]['created_at'][:10]
                     last_session = [row for row in history.data if row['created_at'].startswith(last_date)]
-                    last_session.sort(key=lambda x: x['set_number'])
 
-                    history_text = "\n".join([f"• Set {row['set_number']}: {row['weight']} lbs × {row['reps']} reps" for row in last_session])
+                    history_text = "\n".join([f"• Set {row['set_number']}: {row['weight']} lbs × {row['reps']} reps" for row in sorted(last_session, key=lambda x: x['set_number'])])
 
-                    # --- NEW DYNAMIC OVERLOAD MATH ---
-                    set_1 = last_session[0]
-                    
-                    # Fetch the schema for this exercise, or use default
+                    heaviest_set = max(last_session, key=lambda x: x['weight'])
+                    start_weight = heaviest_set['weight']
+
                     ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
                     set_1_targets = ex_schema.get(1, {"max_reps": 12, "increment": 5})
+                    target_reps = set_1_targets['max_reps']
 
-                    if set_1['reps'] >= set_1_targets['max_reps']: 
-                        # You hit the top of the range (e.g., 6 reps on the heavy set)
-                        rec_weight = set_1['weight'] + set_1_targets['increment']
-                        rec_text = f"You hit {set_1['reps']} reps last time. Bump your top set up to **{rec_weight} lbs** today!"
-                    else:
-                        # You didn't max out the range (e.g., 4 reps on the heavy set)
-                        rec_weight = set_1['weight']
-                        rec_text = f"You got {set_1['reps']} reps last time. Stick to **{rec_weight} lbs** and try to push for {set_1_targets['max_reps']} reps!"
+                    rec_text = f"Your heaviest set last time was **{start_weight} lbs**. Load that up for Set 1 today and aim for **{target_reps} reps**!"
 
-                    reply = f"📊 **Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n💡 **Target:** {rec_text}"
+                    reply = f"**Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n 🎯 **Target:** {rec_text}"
 
                 await send_telegram_reply(chat_id, reply)
                 return {"status": "success"} #
@@ -522,115 +694,123 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             progress_message = ""
 
-            # --- UPPER #1 ---
-            if "cuffed behind-the-back lateral raise" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"
-            elif "cross-body lat pull-around" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"
-            elif "low incline smith machine press" in exercise:
-                total_target_sets = 4
-                rep_guideline = "8-10 reps"
-                intensity_advice = "15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"
-            elif "chest-supported machine row" in exercise:
-                total_target_sets = 3
-                rep_guideline = "8-10 reps"
-                intensity_advice = "Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"
-            elif "overhead cable tricep extension" in exercise:
-                total_target_sets = 2
-                rep_guideline = "8-10 reps"
-                intensity_advice = "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"
-            elif "straight-bar lat prayer" in exercise:
-                total_target_sets = 3
-                rep_guideline = "12-15 reps"
-                intensity_advice = "Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"
-            elif "pec deck" in exercise:
-                total_target_sets = 3
-                rep_guideline = "12-15 reps"
-                intensity_advice = "**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."
+            # # --- UPPER #1 ---
+            # if "cuffed behind-the-back lateral raise" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"
+            # elif "cross-body lat pull-around" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"
+            # elif "low incline smith machine press" in exercise:
+            #     total_target_sets = 4
+            #     rep_guideline = "8-10 reps"
+            #     intensity_advice = "15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"
+            # elif "chest-supported machine row" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "8-10 reps"
+            #     intensity_advice = "Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"
+            # elif "overhead cable tricep extension" in exercise:
+            #     total_target_sets = 2
+            #     rep_guideline = "8-10 reps"
+            #     intensity_advice = "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"
+            # elif "straight-bar lat prayer" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "12-15 reps"
+            #     intensity_advice = "Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"
+            # elif "pec deck" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "12-15 reps"
+            #     intensity_advice = "**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."
 
-            # --- LOWER #1 ---
-            elif "seated leg curl" in exercise:
-                total_target_sets = 3
-                rep_guideline = "8-10 reps"
-                intensity_advice = "Lean forward to maximize hamstring stretch."
-            elif "machine hip adduction" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Mind-muscle connection with inner thighs—push them hard."
-            elif "hack squat" in exercise:
-                total_target_sets = 3
-                # Reverse Pyramid logic: 4, 6, 8 reps
-                reps_map = {1: 4, 2: 6, 3: 8}
-                rep_guideline = f"{reps_map.get(set_count, 8)} reps (Reverse Pyramid)"
-                intensity_advice = "Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."
-            elif "leg extension" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"
-            elif "leg press calf press" in exercise:
-                total_target_sets = 3
-                rep_guideline = "12-15 reps"
-                intensity_advice = "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"
+            # # --- LOWER #1 ---
+            # elif "seated leg curl" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "8-10 reps"
+            #     intensity_advice = "Lean forward to maximize hamstring stretch."
+            # elif "machine hip adduction" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard."
+            # elif "hack squat" in exercise:
+            #     total_target_sets = 3
+            #     # Reverse Pyramid logic: 4, 6, 8 reps
+            #     reps_map = {1: 4, 2: 6, 3: 8}
+            #     rep_guideline = f"{reps_map.get(set_count, 8)} reps (Reverse Pyramid)"
+            #     intensity_advice = "Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."
+            # elif "leg extension" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"
+            # elif "leg press calf press" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "12-15 reps"
+            #     intensity_advice = "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"
 
-            # --- UPPER #2 ---
-            elif "super-rom overhand cable row" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Wide-grip pulldown bar. Lean forward on negative, upright on pull."
-            elif "machine shoulder press" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"
-            elif "assisted pull-up" in exercise:
-                total_target_sets = 3
-                rep_guideline = "8-10 reps"
-                intensity_advice = "2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"
-            elif "paused assisted dip" in exercise:
-                total_target_sets = 3
-                rep_guideline = "8-10 reps"
-                intensity_advice = "2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."
-            elif "inverse db zottman curl" in exercise:
-                total_target_sets = 2
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Hammer curl on positive, palms-up grip on the negative."
-            elif "super-rom db lateral raise" in exercise:
-                total_target_sets = 3
-                rep_guideline = "12-15 reps"
-                intensity_advice = "Full ROM to overhead. Squeeze upper traps at the top."
-            elif "cable reverse fly" in exercise:
-                total_target_sets = 3
-                rep_guideline = "5, 4, 3+ reps"
-                intensity_advice = "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."
+            # # --- UPPER #2 ---
+            # elif "super-rom overhand cable row" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Wide-grip pulldown bar. Lean forward on negative, upright on pull."
+            # elif "machine shoulder press" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"
+            # elif "assisted pull-up" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "8-10 reps"
+            #     intensity_advice = "2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"
+            # elif "paused assisted dip" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "8-10 reps"
+            #     intensity_advice = "2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."
+            # elif "inverse db zottman curl" in exercise:
+            #     total_target_sets = 2
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Hammer curl on positive, palms-up grip on the negative."
+            # elif "super-rom db lateral raise" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "12-15 reps"
+            #     intensity_advice = "Full ROM to overhead. Squeeze upper traps at the top."
+            # elif "cable reverse fly" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "5, 4, 3+ reps"
+            #     intensity_advice = "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."
 
-            # --- LOWER #2 ---
-            elif "lying leg curl" in exercise:
-                total_target_sets = 3
-                rep_guideline = "8-10 reps"
-                intensity_advice = "Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"
-            elif "leg press" in exercise:
-                total_target_sets = 3
-                rep_guideline = "8 reps"
-                intensity_advice = "Feet low on platform. Deep stretch with 1s pause at bottom."
-            elif "paused barbell rdl" in exercise:
-                total_target_sets = 2
-                rep_guideline = "8 reps"
-                intensity_advice = "1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."
-            elif "machine hip adduction" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"
-            elif "sissy squat" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "Knees forward past toes. Push hard!"
-            elif "standing calf raise" in exercise:
-                total_target_sets = 3
-                rep_guideline = "10-12 reps"
-                intensity_advice = "1-2s pause at bottom. **Last Set: 30s Static Stretch.**"
+            # # --- LOWER #2 ---
+            # elif "lying leg curl" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "8-10 reps"
+            #     intensity_advice = "Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"
+            # elif "leg press" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "8 reps"
+            #     intensity_advice = "Feet low on platform. Deep stretch with 1s pause at bottom."
+            # elif "paused barbell rdl" in exercise:
+            #     total_target_sets = 2
+            #     rep_guideline = "8 reps"
+            #     intensity_advice = "1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."
+            # elif "machine hip adduction" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"
+            # elif "sissy squat" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "Knees forward past toes. Push hard!"
+            # elif "standing calf raise" in exercise:
+            #     total_target_sets = 3
+            #     rep_guideline = "10-12 reps"
+            #     intensity_advice = "1-2s pause at bottom. **Last Set: 30s Static Stretch.**"
+
+            # --- DYNAMIC TARGETS & COACHING ENGINE ---
+            ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+            total_target_sets = len(ex_schema)
+
+            coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
+            rep_guideline = coaching_data["reps"]
+            intensity_advice = coaching_data["advice"]
             # --- UNIFIED PROGRESSION & TIMER LIFE CYCLE ---
             if set_count >= total_target_sets:
                 advice = f"**Exercise Complete!** All {total_target_sets} configured sets mapped successfully.\n💡 *Next Move:* Proceed directly to your next movement assignment."
@@ -657,27 +837,29 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             if set_count < total_target_sets:
                 next_set_count = set_count + 1
                 
-                # Fetch what they did for this specific set number last week
-                past_next_set = supabase.table("exercise_logs") \
-                    .select("weight, reps") \
-                    .eq("exercise_name", exercise) \
-                    .eq("set_number", next_set_count) \
-                    .lt("created_at", today_str) \
-                    .order("created_at", desc=True) \
-                    .limit(1) \
-                    .execute()
+                # Fetch targets based on the set you JUST completed
+                ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+                current_targets = ex_schema.get(set_count, {"max_reps": 12, "increment": 5})
 
-                if past_next_set.data:
-                    last_run = past_next_set.data[0]
-                    ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
-                    next_targets = ex_schema.get(next_set_count, {"max_reps": 12, "increment": 5})
+                max_reps = current_targets['max_reps']
+                increment = current_targets['increment']
 
-                    if last_run['reps'] >= next_targets['max_reps']:
-                        next_weight = last_run['weight'] + next_targets['increment']
-                        next_set_advice = f"\n\n *Next Set Target:* Grab **{next_weight} lbs** (Last time: {last_run['weight']}lbs x {last_run['reps']})"
-                    else:
-                        next_weight = last_run['weight']
-                        next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** and push for {next_targets['max_reps']} reps."
+                if max_reps >= 10:
+                    rep_floor = max_reps - 3
+                elif max_reps >= 6:
+                    rep_floor = max_reps - 2
+                else:
+                    rep_floor = max_reps - 1
+
+                if lift_data.reps >= max_reps:
+                    next_weight = lift_data.weight + increment
+                    next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Bump up to **{next_weight} lbs**."
+                elif lift_data.reps < rep_floor:
+                    next_weight = max(0, lift_data.weight - increment) # Prevents negative weights
+                    next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Drop to **{next_weight} lbs** to stay in the target zone."
+                else:
+                    next_weight = lift_data.weight
+                    next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** and try to push closer to {max_reps} reps."
             
             # Update your final reply to include the dynamic next set advice
             reply_msg = (
@@ -686,141 +868,41 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f" **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
                 f" *Prescription Target:* {rep_guideline}\n\n"
                 f" {intensity_advice}\n\n"
-                f" {advice}{next_set_advice}"
+                f" {next_set_advice}"
             )
             await send_telegram_reply(chat_id, reply_msg)
         elif user_text.lower().startswith("meal:"):
             clean_food_text = user_text.lower().replace("meal:", "").replace("f:", "").strip()
+            search_prompt = f"Extract ONLY the core food ingredient or restaurant item to search in a database from this text: '{clean_food_text}'. Do not include portions, meal types, or dates. Return just the search string."
+            search_res = groq_client.chat.completions.create(
+                messages=[{"role": "user", "content": search_prompt}],
+                model="llama-3.1-8b-instant"
+            )
+            search_query = search_res.choices[0].message.content.strip().replace('"', '')
 
-            is_complex_meal = "," in clean_food_text or " and " in clean_food_text or " with " in clean_food_text or len(clean_food_text.split()) > 6
+            usda_results = await get_usda_macros(search_query)
 
-            raw_usda_data = None
-
-            if not is_complex_meal:
-                raw_usda_data = await get_usda_macros(clean_food_text)
-
-            if raw_usda_data:
-            
-                # # --- AI Call 1: Extract Macros ---
-                # schema_string = json.dumps(FoodStructure.model_json_schema())
-                # system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}"        
-            
-                # response = groq_client.chat.completions.create(
-                #     messages=[
-                #         {"role": "system", "content": system_instructions},
-                #         {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
-                #     ],
-                #     model="llama-3.3-70b-versatile",
-                #     response_format={"type": "json_object"}
-                # )
-        
-                food_data = FoodStructure(**raw_usda_data)
-            else:
-                schema_string = json.dumps(FoodStructure.model_json_schema())
-                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
-                response = groq_client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": system_instructions},
-                        {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
-                    ],
-                    model="llama-3.3-70b-versatile",
-                    response_format={"type": "json_object"}
-                )
-                food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
-                
-            meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
-
-            insert_payload = {
-                "meal_type": meal_type,
-                "food_name": food_data.food_name,
-                "calories": food_data.calories,
-                "protein": food_data.protein,
-                "carbs": food_data.carbs,
-                "fat": food_data.fat
+            PENDING_LOGS[chat_id] = {
+                "raw_text": clean_food_text,
+                "usda_options": usda_results
             }
 
-            if food_data.extracted_date:
-            # This forces the log to be created for that specific date at noon
-                insert_payload["created_at"] = f"{food_data.extracted_date}T12:00:00Z" 
-
-            supabase.table("food_logs").insert(insert_payload).execute()
-
-            # Save the current meal to the database
-            # supabase.table("food_logs").insert({
-            #     "meal_type": meal_type,
-            #     "food_name": food_data.food_name,
-            #     "calories": food_data.calories,
-            #     "protein": food_data.protein,
-            #     "carbs": food_data.carbs,
-            #     "fat": food_data.fat
-            # }).execute()
-
-            # --- THE DAILY SUMMARY & COACHING ENGINE ---
-            today_str = date.today().isoformat()
+            keyboard = {"inline_keyboard": []}
             
-            # 1. Fetch all meals logged today
-            daily_logs = supabase.table("food_logs") \
-                .select("calories, protein, carbs, fat") \
-                .gte("created_at", today_str) \
-                .execute()
-
-            # Calculate today's running totals
-            total_cal = sum(log['calories'] for log in daily_logs.data)
-            total_pro = sum(log['protein'] for log in daily_logs.data)
-            total_carb = sum(log['carbs'] for log in daily_logs.data)
-            total_fat = sum(log['fat'] for log in daily_logs.data)
-
-            # 2. Fetch your baseline profile targets
-            profile = supabase.table("user_profiles") \
-                .select("*") \
-                .eq("chat_id", chat_id) \
-                .execute()
-
-            daily_summary = ""
-            
-            if profile.data:
-                target_pro = profile.data[0]['target_protein']
-                target_cal = profile.data[0]['target_calories']
-                target_fat = profile.data[0]['target_fat']
-                goal = profile.data[0]['goal']
-
-                rem_pro = target_pro - total_pro
-                rem_cal = target_cal - total_cal
-
-                # --- AI Call 2: Generate Contextual Advice ---
-                advice_prompt = (
-                    f"I am focusing on {goal}. I just ate {food_data.food_name}. "
-                    f"My daily totals are now: {total_pro}g protein, {total_fat}g fat, {total_cal} cals. "
-                    f"I have {rem_pro}g of protein and {rem_cal} calories left to hit my targets. "
-                    f"Give me exactly ONE short, punchy sentence of advice. "
-                    f"If protein is lagging, suggest something like a scoop of Ascent Native Fuel Whey or a lean meat. "
-                    f"If fat or calories are getting too high, tell me to dial it back."
-                )
-
-                advice_res = groq_client.chat.completions.create(
-                    messages=[{"role": "user", "content": advice_prompt}],
-                    model="llama-3.1-8b-instant"
-                )
-                coach_advice = advice_res.choices[0].message.content.strip()
-
-                daily_summary = (
-                    f"\n\n **Daily Status:**\n"
-                    f" Protein: **{total_pro}g** / {target_pro}g *(Need {rem_pro}g more)*\n"
-                    f" Calories: **{total_cal}** / {target_cal}\n\n"
-                    f" *{coach_advice}*"
-                )
+            if usda_results:
+                msg_text = f" Found {len(usda_results)} results for **{search_query}**.\nSelect the most accurate option to log it:"
+                for i, item in enumerate(usda_results):
+                    btn_text = f"{item['food_name'][:30]}... ({item['calories']} kcal)"
+                    keyboard["inline_keyboard"].append([{"text": btn_text, "callback_data": f"usda_{i}"}])
             else:
-                daily_summary = "\n\n *Profile not found in database. Add your baseline to get macro coaching!*"
+                msg_text = f" No exact USDA match found for **{search_query}**. Would you like the AI to estimate the macros?"
 
-            # --- FINAL OUTPUT ---
-            reply = (
-                f" **Logged for {meal_type.capitalize()}!**\n"
-                f" *{food_data.food_name.title()}*\n"
-                f" **{food_data.calories} kcal** | {food_data.protein}g P | {food_data.carbs}g C | {food_data.fat}g F"
-                f"{daily_summary}"
-            )
+            # Always offer the AI fallback button
+            keyboard["inline_keyboard"].append([{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
 
-            await send_telegram_reply(chat_id, reply)
+            # Send the approval request
+            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+
         else: 
             reply = ("Invalid input, try again")
             await send_telegram_reply(chat_id, reply)
