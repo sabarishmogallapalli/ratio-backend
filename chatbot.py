@@ -8,7 +8,8 @@ from google.genai import types
 from datetime import datetime, date, timezone
 import zoneinfo
 import httpx
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, Field
 from supabase import create_client, Client
 import asyncio
 from groq import Groq
@@ -89,8 +90,8 @@ PROGRESSION_SCHEMA = {
         3: {"max_reps": 8, "increment": 5}, #whats the increment
     },
     "leg extension": { 
-        1: {"max_reps": 12, "increment": 10}, #whats the increment
-        2: {"max_reps": 12, "increment": 10},
+        1: {"max_reps": 10, "increment": 10}, #whats the increment
+        2: {"max_reps": 11, "increment": 10},
         3: {"max_reps": 12, "increment": 10},
     },
 
@@ -185,7 +186,7 @@ EXERCISE_COACHING = {
     "pec deck": {"reps": "12-15 reps", "advice":"**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."},
 
     "seated leg curl": {"reps": "8-10 reps", "advice":"Lean forward to maximize hamstring stretch."},
-    "machine hip adduction": {"reps": "10-12 reps", "advice":"Mind-muscle connection with inner thighs—push them hard."},
+    "machine hip abduction": {"reps": "10-12 reps", "advice":"Drive knees outward against the pads. Control the eccentric."},
     "hack squat": {"reps": "4, 6, 8 reps (Reverse Pyramid)", "advice":"Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."},
     "leg extension": {"reps": "10-12 reps (Reverse Pyramid)", "advice":"2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"},
     "leg press calf press": {"reps": "12-15 reps", "advice":"1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"},
@@ -212,8 +213,8 @@ class FoodStructure(BaseModel):
     protein: int
     carbs: int
     fat: int
-    extracted_date: str = None
-    extracted_meal_type: str = None
+    extracted_date: Optional[str] = Field(default=None)
+    extracted_meal_type: Optional[str] = Field(default=None)
 
 class WorkoutStructure(BaseModel):
     exercise_name: str
@@ -402,7 +403,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     model="llama-3.3-70b-versatile",
                     response_format={"type": "json_object"}
                 )
-                food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
+                response_dict = json.loads(response.choices[0].message.content)
+                clean_dict = {k: v for k, v in response_dict.items() if v is not None}
+                food_data = FoodStructure.model_validate_json(clean_dict)
             # 2. User clicked AI Fallback
             elif callback_data == "ai_fallback":
                 schema_string = json.dumps(FoodStructure.model_json_schema())
@@ -851,7 +854,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 else:
                     rep_floor = max_reps - 1
 
-                if lift_data.reps >= max_reps:
+                is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "leg extension"])
+                if is_reverse_pyramid and set_count > 1:
+                    drop_weight = max(0, lift_data.weight - 10)
+                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off set. Target **{drop_weight} lbs** for {max_reps} reps (Reverse Pyramid)."
+                elif lift_data.reps >= max_reps:
                     next_weight = lift_data.weight + increment
                     next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Bump up to **{next_weight} lbs**."
                 elif lift_data.reps < rep_floor:
