@@ -642,6 +642,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             if lift_data.reps == 0:
                 today_str = date.today().isoformat()
+
+                coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
+                intensity_advice = coaching_data["advice"]
                 
                 # Fetch the most recent past logs for this exercise
                 history = supabase.table("exercise_logs") \
@@ -653,7 +656,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     .execute()
 
                 if not history.data:
-                    reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today."
+                    reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n *Technique Cues:* {intensity_advice}"
                 else:
                     last_date = history.data[0]['created_at'][:10]
                     last_session = [row for row in history.data if row['created_at'].startswith(last_date)]
@@ -669,10 +672,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                     rec_text = f"Your heaviest set last time was **{start_weight} lbs**. Load that up for Set 1 today and aim for **{target_reps} reps**!"
 
-                    reply = f"**Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n 🎯 **Target:** {rec_text}"
+                    reply = f"**Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n **Target:** {rec_text}\n\n *Technique Cues:* {intensity_advice}"
 
                 await send_telegram_reply(chat_id, reply)
-                return {"status": "success"} #
+                return {"status": "success"}
 
             today_str = date.today().isoformat()
             existing_sets = supabase.table("exercise_logs") \
@@ -816,7 +819,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             intensity_advice = coaching_data["advice"]
             # --- UNIFIED PROGRESSION & TIMER LIFE CYCLE ---
             if set_count >= total_target_sets:
-                advice = f"**Exercise Complete!** All {total_target_sets} configured sets mapped successfully.\n💡 *Next Move:* Proceed directly to your next movement assignment."
+                advice = f"**Exercise Complete!** All {total_target_sets} configured sets mapped successfully.\n *Next Move:* Proceed directly to your next movement assignment."
             else:
                 next_set_count = set_count + 1
                 # Generate specific next-set instructions for the rest reminder configuration
@@ -854,19 +857,32 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 else:
                     rep_floor = max_reps - 1
 
+                is_assisted = any(ex in exercise for ex in ["assisted pull-up", "paused assisted dip"])
                 is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "leg extension"])
                 if is_reverse_pyramid and set_count > 1:
                     drop_weight = max(0, lift_data.weight - 10)
                     next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off set. Target **{drop_weight} lbs** for {max_reps} reps (Reverse Pyramid)."
-                elif lift_data.reps >= max_reps:
-                    next_weight = lift_data.weight + increment
-                    next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Bump up to **{next_weight} lbs**."
-                elif lift_data.reps < rep_floor:
-                    next_weight = max(0, lift_data.weight - increment) # Prevents negative weights
-                    next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Drop to **{next_weight} lbs** to stay in the target zone."
+                elif is_assisted:
+                    # ASSISTED LOGIC: Less assistance weight = harder (progressing forward)
+                    if lift_data.reps >= max_reps:
+                        next_weight = max(0, lift_data.weight - increment) # Reduce assistance weight!
+                        next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Reduce assistance weight down to **{next_weight} lbs**."
+                    elif lift_data.reps < rep_floor:
+                        next_weight = lift_data.weight + increment # Add assistance weight if struggling
+                        next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Add assistance up to **{next_weight} lbs** to stay in the target zone."
+                    else:
+                        next_weight = lift_data.weight
+                        next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** assistance and try to push closer to {max_reps} reps."
                 else:
-                    next_weight = lift_data.weight
-                    next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** and try to push closer to {max_reps} reps."
+                    if lift_data.reps >= max_reps:
+                        next_weight = lift_data.weight + increment
+                        next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Bump up to **{next_weight} lbs**."
+                    elif lift_data.reps < rep_floor:
+                        next_weight = max(0, lift_data.weight - increment) 
+                        next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Drop to **{next_weight} lbs** to stay in the target zone."
+                    else:
+                        next_weight = lift_data.weight
+                        next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** and try to push closer to {max_reps} reps."
             
             # Update your final reply to include the dynamic next set advice
             reply_msg = (
