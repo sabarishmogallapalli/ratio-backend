@@ -209,10 +209,10 @@ EXERCISE_COACHING = {
 
 class FoodStructure(BaseModel):
     food_name: str
-    calories: int
-    protein: int
-    carbs: int
-    fat: int
+    calories: float
+    protein: float
+    carbs: float
+    fat: float
     extracted_date: Optional[str] = Field(default=None)
     extracted_meal_type: Optional[str] = Field(default=None)
 
@@ -253,7 +253,7 @@ async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None
                 raise e
 
 async def get_usda_macros(food_query: str):
-    url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={food_query}&pageSize=3&dataType=Branded,SR%20Legacy"
+    url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={food_query}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(url)
