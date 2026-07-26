@@ -290,6 +290,7 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
 
 # --- NEW: Abstracted Saving & Coaching Engine ---
 async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
+    central_tz = zoneinfo.ZoneInfo("America/Chicago")
     meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
 
     insert_payload = {
@@ -298,11 +299,12 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
         "calories": food_data.calories,
         "protein": food_data.protein,
         "carbs": food_data.carbs,
-        "fat": food_data.fat
+        "fat": food_data.fat,
+        "created_at": datetime.now(central_tz).isoformat()
     }
 
     if food_data.extracted_date:
-        insert_payload["created_at"] = f"{food_data.extracted_date}T12:00:00Z" 
+        insert_payload["created_at"] = f"{food_data.extracted_date}T12:00:00-05:00" 
 
     supabase.table("food_logs").insert(insert_payload).execute()
 
@@ -405,7 +407,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 )
                 response_dict = json.loads(response.choices[0].message.content)
                 clean_dict = {k: v for k, v in response_dict.items() if v is not None}
-                food_data = FoodStructure.model_validate_json(clean_dict)
+                food_data = FoodStructure.model_validate(clean_dict)
             # 2. User clicked AI Fallback
             elif callback_data == "ai_fallback":
                 schema_string = json.dumps(FoodStructure.model_json_schema())
@@ -686,11 +688,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             
             set_count = len(existing_sets.data) + 1
 
+            central_tz = zoneinfo.ZoneInfo("America/Chicago")
             supabase.table("exercise_logs").insert({
                 "exercise_name": exercise,
                 "weight": lift_data.weight,
                 "reps": lift_data.reps,
-                "set_number": set_count
+                "set_number": set_count,
+                "created_at": datetime.now(central_tz).isoformat()
             }).execute()
 
             total_target_sets = 1
