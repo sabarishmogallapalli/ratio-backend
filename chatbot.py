@@ -526,7 +526,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "Profile Setup \n\n"
                 "You can log your Body Scan results and goal to save it and train the machine learning model. "
                 "The system will automatically use your goal and categories your food based on the time of day and calculate your macros into Supabase.\n\n"
-                "*Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets: Body Composition: [Water], [Dry Lean Mass], [Fat Mass], [Weight]; Muscle-Fat: [Weight], [SMM], [Body Fat Mass]; Obesity: [BMI], [PBF]; Segmental Lean: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; Goal: [bulk/cut/recomposition]*"
+                "Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets: Body Composition: [Water], [Dry Lean Mass], [Fat Mass], [Weight]; Muscle-Fat: [Weight], [SMM], [Body Fat Mass]; Obesity: [BMI], [PBF]; Segmental Lean: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; BMR: [Height in inches, Age], Goal: [bulk/cut/recomposition]"
             )
             await send_telegram_reply(chat_id, profile_instructions)
             return {"status": "success"}
@@ -543,6 +543,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 skeletal_muscle_mass: float # SMM
                 bmi: float
                 segmental_lean_data: list[float]
+                age: float
+                height: float
 
             schema_string = json.dumps(ProfileInput.model_json_schema())
             system_instructions = (
@@ -552,7 +554,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "2. Muscle-Fat Analysis (Weight, SMM, Fat Mass). "
                 "3. Obesity Analysis (BMI, PBF). "
                 "4. Segmental Lean Analysis (Left Arm %, Right Arm %, Left Leg %, Right Leg %). "
-                "5. Goal (bulk, cut, or recomposition)"
+                "5. BMR Analysis (height, age)"
+                "5. Goal (bulk, cut, maintenance, recomposition)"
                 "Extract all fields into the ProfileInput schema. "
                 f"Return ONLY valid JSON: {schema_string}"
             )
@@ -568,22 +571,22 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         
             profile_data = ProfileInput.model_validate_json(response.choices[0].message.content)
             weight = profile_data.weight
+            height = profile_data.height
+            age = profile_data.age
             goal = profile_data.goal.lower()
-            lbm_lbs = weight * (1 - (profile_data.body_fat_percentage / 100))
-            bmr = 370 + (21.6 * (lbm_lbs / 2.20462)) # Converted to kg for the formula
-            tdee = bmr * 1.55 # Using 1.55 as a moderate activity baseline
+            bmr = (10 * (weight / 2.2)) + (6.25 * (height * 2.54)) - (5 * age) + 5
+            tdee = bmr * 1.55
 
             # --- THE MACRO MATH ENGINE ---
             if "cut" in goal:
-                cals = int(tdee * 12)
+                cals = tdee - 500
             elif "bulk" in goal:
-                cals = int(tdee * 18)
+                cals = tdee + 500
             else: 
-                # Maintenance or Recomposition
-                cals = int(weight * 15)
+                cals = tdee - 100
 
             protein = int(weight * 1.0)
-            fat = int(weight * 0.4)
+            fat = int(weight * 0.3)
             
             # Carbs = (Total Calories - Protein Calories - Fat Calories) / 4
             carbs = int((cals - (protein * 4) - (fat * 9)) / 4)
