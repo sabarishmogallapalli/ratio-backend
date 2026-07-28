@@ -411,7 +411,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             # 2. User clicked AI Fallback
             elif callback_data == "ai_fallback":
                 schema_string = json.dumps(FoodStructure.model_json_schema())
-                system_instructions = f"Analyze meal text, extract properties, and estimate nutrition. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
+                system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
                 
                 response = groq_client.chat.completions.create(
                     messages=[
@@ -421,7 +421,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     model="llama-3.3-70b-versatile",
                     response_format={"type": "json_object"}
                 )
-                food_data = FoodStructure.model_validate_json(response.choices[0].message.content)
+                response_dict = json.loads(response.choices[0].message.content)
+                clean_dict = {k: v for k, v in response_dict.items() if v is not None}
+                food_data = FoodStructure.model_validate(clean_dict)
 
             # Clear memory and trigger saving engine
             del PENDING_LOGS[chat_id]
@@ -584,6 +586,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 cals = tdee + 500
             else: 
                 cals = tdee - 100
+
+            cals = round(cals)
 
             protein = int(weight * 1.0)
             fat = int(weight * 0.3)
