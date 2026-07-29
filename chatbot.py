@@ -227,8 +227,8 @@ def define_meal() -> str:
 
     #sample times
     if 5 <= current_hour < 11: return "breakfast"
-    elif 11 <= current_hour < 16: return "lunch"
-    elif 16 <= current_hour < 22: return "dinner"
+    elif 11 <= current_hour < 14: return "lunch"
+    elif 19 <= current_hour < 22: return "dinner"
     else: return "snack"
 
 async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None):
@@ -282,6 +282,17 @@ async def get_usda_macros(food_query: str):
 async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str):
     #3 minute timer
     await asyncio.sleep(180) 
+
+    today_str = date.today().isoformat()
+    existing_sets = supabase.table("exercise_logs") \
+        .select("id") \
+        .eq("exercise_name", exercise_name) \
+        .gte("created_at", today_str) \
+        .execute()
+
+    if len(existing_sets.data) >= next_set:
+        return
+
     reminder = f"**3-Minute Rest Over!**\nTime for **Set {next_set}** of *{exercise_name.title()}*.\n Target: {target_desc}"
     async with httpx.AsyncClient() as http_client:
         await http_client.post(TELEGRAM_API_URL, json={
@@ -631,281 +642,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         workout_keywords = base_keywords + list(PROGRESSION_SCHEMA.keys())
         is_workout = any(word in user_text.lower() for word in workout_keywords) or user_text.lower().startswith("w:") or "upper:" in user_text.lower() or "lower:" in user_text.lower()
 
-        if is_workout:
-
-            clean_text = user_text.replace("workout:", "").replace("upper", "").replace("lower", "").replace("w", "").strip()
-            schema_string = json.dumps(WorkoutStructure.model_json_schema())
-            official_names = ", ".join(PROGRESSION_SCHEMA.keys())
-            system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both."            
-            response = groq_client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": system_instructions},
-                    {"role": "user", "content": f"Extract parameters from this performed set text: '{clean_text}'"}
-                ],
-                model="llama-3.3-70b-versatile",
-                response_format={"type": "json_object"}
-            )
-            lift_data = WorkoutStructure.model_validate_json(response.choices[0].message.content)
-            exercise = lift_data.exercise_name.lower().strip()
-
-
-            if lift_data.reps == 0:
-                today_str = date.today().isoformat()
-
-                coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
-                intensity_advice = coaching_data["advice"]
-                
-                # Fetch the most recent past logs for this exercise
-                history = supabase.table("exercise_logs") \
-                    .select("weight, reps, set_number, created_at") \
-                    .eq("exercise_name", exercise) \
-                    .lt("created_at", today_str) \
-                    .order("created_at", desc=True) \
-                    .limit(5) \
-                    .execute()
-
-                if not history.data:
-                    reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n *Technique Cues:* {intensity_advice}"
-                else:
-                    last_date = history.data[0]['created_at'][:10]
-                    last_session = [row for row in history.data if row['created_at'].startswith(last_date)]
-
-                    history_text = "\n".join([f"• Set {row['set_number']}: {row['weight']} lbs × {row['reps']} reps" for row in sorted(last_session, key=lambda x: x['set_number'])])
-
-                    heaviest_set = max(last_session, key=lambda x: x['weight'])
-                    start_weight = heaviest_set['weight']
-
-                    ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
-                    set_1_targets = ex_schema.get(1, {"max_reps": 12, "increment": 5})
-                    target_reps = set_1_targets['max_reps']
-
-                    rec_text = f"Your heaviest set last time was **{start_weight} lbs**. Load that up for Set 1 today and aim for **{target_reps} reps**!"
-
-                    reply = f"**Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n **Target:** {rec_text}\n\n *Technique Cues:* {intensity_advice}"
-
-                await send_telegram_reply(chat_id, reply)
-                return {"status": "success"}
-
-            today_str = date.today().isoformat()
-            existing_sets = supabase.table("exercise_logs") \
-                .select("id") \
-                .eq("exercise_name", exercise) \
-                .gte("created_at", today_str) \
-                .execute()
-            
-            set_count = len(existing_sets.data) + 1
-
-            central_tz = zoneinfo.ZoneInfo("America/Chicago")
-            supabase.table("exercise_logs").insert({
-                "exercise_name": exercise,
-                "weight": lift_data.weight,
-                "reps": lift_data.reps,
-                "set_number": set_count,
-                "created_at": datetime.now(central_tz).isoformat()
-            }).execute()
-
-            total_target_sets = 1
-            rep_guideline = "8-12 reps"
-            intensity_advice = "Normal working set to hypertrophy depth."
-            message = ""
-
-            progress_message = ""
-
-            # # --- UPPER #1 ---
-            # if "cuffed behind-the-back lateral raise" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"
-            # elif "cross-body lat pull-around" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"
-            # elif "low incline smith machine press" in exercise:
-            #     total_target_sets = 4
-            #     rep_guideline = "8-10 reps"
-            #     intensity_advice = "15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"
-            # elif "chest-supported machine row" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "8-10 reps"
-            #     intensity_advice = "Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"
-            # elif "overhead cable tricep extension" in exercise:
-            #     total_target_sets = 2
-            #     rep_guideline = "8-10 reps"
-            #     intensity_advice = "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"
-            # elif "straight-bar lat prayer" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "12-15 reps"
-            #     intensity_advice = "Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"
-            # elif "pec deck" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "12-15 reps"
-            #     intensity_advice = "**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."
-
-            # # --- LOWER #1 ---
-            # elif "seated leg curl" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "8-10 reps"
-            #     intensity_advice = "Lean forward to maximize hamstring stretch."
-            # elif "machine hip adduction" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard."
-            # elif "hack squat" in exercise:
-            #     total_target_sets = 3
-            #     # Reverse Pyramid logic: 4, 6, 8 reps
-            #     reps_map = {1: 4, 2: 6, 3: 8}
-            #     rep_guideline = f"{reps_map.get(set_count, 8)} reps (Reverse Pyramid)"
-            #     intensity_advice = "Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."
-            # elif "leg extension" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"
-            # elif "leg press calf press" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "12-15 reps"
-            #     intensity_advice = "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"
-
-            # # --- UPPER #2 ---
-            # elif "super-rom overhand cable row" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Wide-grip pulldown bar. Lean forward on negative, upright on pull."
-            # elif "machine shoulder press" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"
-            # elif "assisted pull-up" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "8-10 reps"
-            #     intensity_advice = "2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"
-            # elif "paused assisted dip" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "8-10 reps"
-            #     intensity_advice = "2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."
-            # elif "inverse db zottman curl" in exercise:
-            #     total_target_sets = 2
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Hammer curl on positive, palms-up grip on the negative."
-            # elif "super-rom db lateral raise" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "12-15 reps"
-            #     intensity_advice = "Full ROM to overhead. Squeeze upper traps at the top."
-            # elif "cable reverse fly" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "5, 4, 3+ reps"
-            #     intensity_advice = "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."
-
-            # # --- LOWER #2 ---
-            # elif "lying leg curl" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "8-10 reps"
-            #     intensity_advice = "Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"
-            # elif "leg press" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "8 reps"
-            #     intensity_advice = "Feet low on platform. Deep stretch with 1s pause at bottom."
-            # elif "paused barbell rdl" in exercise:
-            #     total_target_sets = 2
-            #     rep_guideline = "8 reps"
-            #     intensity_advice = "1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."
-            # elif "machine hip adduction" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"
-            # elif "sissy squat" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "Knees forward past toes. Push hard!"
-            # elif "standing calf raise" in exercise:
-            #     total_target_sets = 3
-            #     rep_guideline = "10-12 reps"
-            #     intensity_advice = "1-2s pause at bottom. **Last Set: 30s Static Stretch.**"
-
-            # --- DYNAMIC TARGETS & COACHING ENGINE ---
-            ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
-            total_target_sets = len(ex_schema)
-
-            coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
-            rep_guideline = coaching_data["reps"]
-            intensity_advice = coaching_data["advice"]
-            # --- UNIFIED PROGRESSION & TIMER LIFE CYCLE ---
-            if set_count >= total_target_sets:
-                advice = f"**Exercise Complete!** All {total_target_sets} configured sets mapped successfully.\n *Next Move:* Proceed directly to your next movement assignment."
-            else:
-                next_set_count = set_count + 1
-                # Generate specific next-set instructions for the rest reminder configuration
-                if "flat dumbbell" in exercise or "flat db" in exercise or "hack squat" in exercise:
-                    next_guideline = "8-10 reps (Hypertrophy Back-off)"
-                else:
-                    next_guideline = rep_guideline
-                    
-                advice = f" **Set logged smoothly.** Prepare for Set {next_set_count} of {total_target_sets}.\n *Next Target:* {next_guideline}"
-                
-                    # Append the background rest task for incomplete arrays
-                background_tasks.add_task(
-                    delayed_rest_reminder, 
-                    chat_id=chat_id, 
-                    exercise_name=exercise, 
-                    next_set=next_set_count, 
-                    target_desc=next_guideline
-                )
-            # --- NEW: REAL-TIME SET 2 RECOMMENDATION ---
-            next_set_advice = ""
-            if set_count < total_target_sets:
-                next_set_count = set_count + 1
-                
-                # Fetch targets based on the set you JUST completed
-                ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
-                current_targets = ex_schema.get(set_count, {"max_reps": 12, "increment": 5})
-
-                max_reps = current_targets['max_reps']
-                increment = current_targets['increment']
-
-                if max_reps >= 10:
-                    rep_floor = max_reps - 3
-                elif max_reps >= 6:
-                    rep_floor = max_reps - 2
-                else:
-                    rep_floor = max_reps - 1
-
-                is_assisted = any(ex in exercise for ex in ["assisted pull-up", "paused assisted dip"])
-                is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "leg extension"])
-                if is_reverse_pyramid and set_count > 1:
-                    drop_weight = max(0, lift_data.weight - 10)
-                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off set. Target **{drop_weight} lbs** for {max_reps} reps (Reverse Pyramid)."
-                elif is_assisted:
-                    # ASSISTED LOGIC: Less assistance weight = harder (progressing forward)
-                    if lift_data.reps >= max_reps:
-                        next_weight = max(0, lift_data.weight - increment) # Reduce assistance weight!
-                        next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Reduce assistance weight down to **{next_weight} lbs**."
-                    elif lift_data.reps < rep_floor:
-                        next_weight = lift_data.weight + increment # Add assistance weight if struggling
-                        next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Add assistance up to **{next_weight} lbs** to stay in the target zone."
-                    else:
-                        next_weight = lift_data.weight
-                        next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** assistance and try to push closer to {max_reps} reps."
-                else:
-                    if lift_data.reps >= max_reps:
-                        next_weight = lift_data.weight + increment
-                        next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Bump up to **{next_weight} lbs**."
-                    elif lift_data.reps < rep_floor:
-                        next_weight = max(0, lift_data.weight - increment) 
-                        next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Drop to **{next_weight} lbs** to stay in the target zone."
-                    else:
-                        next_weight = lift_data.weight
-                        next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** and try to push closer to {max_reps} reps."
-            
-            # Update your final reply to include the dynamic next set advice
-            reply_msg = (
-                f" **Set {set_count} Tracked to Supabase:**\n"
-                f" *{exercise.title()}*\n"
-                f" **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
-                f" *Prescription Target:* {rep_guideline}\n\n"
-                f" {intensity_advice}\n\n"
-                f" {next_set_advice}"
-            )
-            await send_telegram_reply(chat_id, reply_msg)
-        elif user_text.lower().startswith("meal:"):
+        if user_text.lower().startswith("meal:"):
             clean_food_text = user_text.lower().replace("meal:", "").replace("f:", "").strip()
             search_prompt = f"Extract ONLY the core food ingredient or restaurant item to search in a database from this text: '{clean_food_text}'. Do not include portions, meal types, or dates. Return just the search string."
             search_res = groq_client.chat.completions.create(
@@ -936,7 +673,290 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             # Send the approval request
             await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+        
+        elif is_workout:
+                    clean_text = user_text.replace("workout:", "").replace("upper", "").replace("lower", "").replace("w", "").strip()
+                    schema_string = json.dumps(WorkoutStructure.model_json_schema())
+                    official_names = ", ".join(PROGRESSION_SCHEMA.keys())
+                    system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both."            
+                    response = groq_client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": system_instructions},
+                            {"role": "user", "content": f"Extract parameters from this performed set text: '{clean_text}'"}
+                        ],
+                        model="llama-3.3-70b-versatile",
+                        response_format={"type": "json_object"}
+                    )
+                    lift_data = WorkoutStructure.model_validate_json(response.choices[0].message.content)
+                    exercise = lift_data.exercise_name.lower().strip()
+        
+        
+                    if lift_data.reps == 0:
+                        today_str = date.today().isoformat()
+        
+                        coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
+                        intensity_advice = coaching_data["advice"]
 
+                        ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+                        schema_text_lines = []
+                        for s, targets in ex_schema.items():
+                            schema_text_lines.append(f"• Set {s}: {targets['max_reps']} reps (+{targets['increment']} lbs incr.)")
+                        schema_text = "\n".join(schema_text_lines)
+                        
+                        # Fetch the most recent past logs for this exercise
+                        history = supabase.table("exercise_logs") \
+                            .select("weight, reps, set_number, created_at") \
+                            .eq("exercise_name", exercise) \
+                            .lt("created_at", today_str) \
+                            .order("created_at", desc=True) \
+                            .limit(5) \
+                            .execute()
+        
+                        if not history.data:
+                            reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n**Progression Schema:**\n{schema_text}\n\n *Technique Cues:* {intensity_advice}"
+                        else:
+                            last_date = history.data[0]['created_at'][:10]
+                            last_session = [row for row in history.data if row['created_at'].startswith(last_date)]
+        
+                            history_text = "\n".join([f"• Set {row['set_number']}: {row['weight']} lbs × {row['reps']} reps" for row in sorted(last_session, key=lambda x: x['set_number'])])
+        
+                            heaviest_set = max(last_session, key=lambda x: x['weight'])
+                            start_weight = heaviest_set['weight']
+        
+                            set_1_targets = ex_schema.get(1, {"max_reps": 12, "increment": 5})
+                            target_reps = set_1_targets['max_reps']
+                            increment = set_1_targets['increment']
+
+                            if heaviest_set['reps'] >= target_reps:
+                                start_weight += increment
+                                rec_text = f"You crushed **{target_reps} reps** at {heaviest_set['weight']} lbs last time! Load up **{start_weight} lbs** for Set 1 today and aim for **{target_reps} reps**!"
+                            else:
+                                rec_text = f"Your heaviest set last time was **{start_weight} lbs** for {heaviest_set['reps']} reps. Stick with **{start_weight} lbs** for Set 1 today and push for **{target_reps} reps**!"
+
+                            reply = f"**Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n **Target:** {rec_text}\n\n**Progression Schema:**\n{schema_text}\n\n *Technique Cues:* {intensity_advice}"
+                        
+                        await send_telegram_reply(chat_id, reply)
+                        return {"status": "success"}
+        
+                    today_str = date.today().isoformat()
+                    existing_sets = supabase.table("exercise_logs") \
+                        .select("id") \
+                        .eq("exercise_name", exercise) \
+                        .gte("created_at", today_str) \
+                        .execute()
+                    
+                    set_count = len(existing_sets.data) + 1
+        
+                    central_tz = zoneinfo.ZoneInfo("America/Chicago")
+                    supabase.table("exercise_logs").insert({
+                        "exercise_name": exercise,
+                        "weight": lift_data.weight,
+                        "reps": lift_data.reps,
+                        "set_number": set_count,
+                        "created_at": datetime.now(central_tz).isoformat()
+                    }).execute()
+        
+                    total_target_sets = 1
+                    rep_guideline = "8-12 reps"
+                    intensity_advice = "Normal working set to hypertrophy depth."
+                    message = ""
+        
+                    progress_message = ""
+        
+                    # # --- UPPER #1 ---
+                    # if "cuffed behind-the-back lateral raise" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"
+                    # elif "cross-body lat pull-around" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"
+                    # elif "low incline smith machine press" in exercise:
+                    #     total_target_sets = 4
+                    #     rep_guideline = "8-10 reps"
+                    #     intensity_advice = "15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"
+                    # elif "chest-supported machine row" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "8-10 reps"
+                    #     intensity_advice = "Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"
+                    # elif "overhead cable tricep extension" in exercise:
+                    #     total_target_sets = 2
+                    #     rep_guideline = "8-10 reps"
+                    #     intensity_advice = "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"
+                    # elif "straight-bar lat prayer" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "12-15 reps"
+                    #     intensity_advice = "Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"
+                    # elif "pec deck" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "12-15 reps"
+                    #     intensity_advice = "**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."
+        
+                    # # --- LOWER #1 ---
+                    # elif "seated leg curl" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "8-10 reps"
+                    #     intensity_advice = "Lean forward to maximize hamstring stretch."
+                    # elif "machine hip adduction" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard."
+                    # elif "hack squat" in exercise:
+                    #     total_target_sets = 3
+                    #     # Reverse Pyramid logic: 4, 6, 8 reps
+                    #     reps_map = {1: 4, 2: 6, 3: 8}
+                    #     rep_guideline = f"{reps_map.get(set_count, 8)} reps (Reverse Pyramid)"
+                    #     intensity_advice = "Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."
+                    # elif "leg extension" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"
+                    # elif "leg press calf press" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "12-15 reps"
+                    #     intensity_advice = "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"
+        
+                    # # --- UPPER #2 ---
+                    # elif "super-rom overhand cable row" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Wide-grip pulldown bar. Lean forward on negative, upright on pull."
+                    # elif "machine shoulder press" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"
+                    # elif "assisted pull-up" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "8-10 reps"
+                    #     intensity_advice = "2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"
+                    # elif "paused assisted dip" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "8-10 reps"
+                    #     intensity_advice = "2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."
+                    # elif "inverse db zottman curl" in exercise:
+                    #     total_target_sets = 2
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Hammer curl on positive, palms-up grip on the negative."
+                    # elif "super-rom db lateral raise" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "12-15 reps"
+                    #     intensity_advice = "Full ROM to overhead. Squeeze upper traps at the top."
+                    # elif "cable reverse fly" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "5, 4, 3+ reps"
+                    #     intensity_advice = "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."
+        
+                    # # --- LOWER #2 ---
+                    # elif "lying leg curl" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "8-10 reps"
+                    #     intensity_advice = "Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"
+                    # elif "leg press" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "8 reps"
+                    #     intensity_advice = "Feet low on platform. Deep stretch with 1s pause at bottom."
+                    # elif "paused barbell rdl" in exercise:
+                    #     total_target_sets = 2
+                    #     rep_guideline = "8 reps"
+                    #     intensity_advice = "1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."
+                    # elif "machine hip adduction" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"
+                    # elif "sissy squat" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "Knees forward past toes. Push hard!"
+                    # elif "standing calf raise" in exercise:
+                    #     total_target_sets = 3
+                    #     rep_guideline = "10-12 reps"
+                    #     intensity_advice = "1-2s pause at bottom. **Last Set: 30s Static Stretch.**"
+        
+                    # --- DYNAMIC TARGETS & COACHING ENGINE ---
+                    ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+                    total_target_sets = len(ex_schema)
+        
+                    coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
+                    rep_guideline = coaching_data["reps"]
+                    intensity_advice = coaching_data["advice"]
+                    # --- UNIFIED PROGRESSION & TIMER LIFE CYCLE ---
+                    if set_count >= total_target_sets:
+                        advice = f"**Exercise Complete!** All {total_target_sets} configured sets mapped successfully.\n *Next Move:* Proceed directly to your next movement assignment."
+                    else:
+                        next_set_count = set_count + 1
+                        # Generate specific next-set instructions for the rest reminder configuration
+                        if "flat dumbbell" in exercise or "flat db" in exercise or "hack squat" in exercise:
+                            next_guideline = "8-10 reps (Hypertrophy Back-off)"
+                        else:
+                            next_guideline = rep_guideline
+                            
+                        advice = f" **Set logged smoothly.** Prepare for Set {next_set_count} of {total_target_sets}.\n *Next Target:* {next_guideline}"
+                        
+                            # Append the background rest task for incomplete arrays
+                        background_tasks.add_task(
+                            delayed_rest_reminder, 
+                            chat_id=chat_id, 
+                            exercise_name=exercise, 
+                            next_set=next_set_count, 
+                            target_desc=next_guideline
+                        )
+                    # --- NEW: REAL-TIME SET 2 RECOMMENDATION ---
+                    next_set_advice = ""
+                    if set_count < total_target_sets:
+                        next_set_count = set_count + 1
+                        
+                        # Fetch targets based on the set you JUST completed
+                        ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+                        current_targets = ex_schema.get(set_count, {"max_reps": 12, "increment": 5})
+        
+                        max_reps = current_targets['max_reps']
+                        increment = current_targets['increment']
+        
+                        if max_reps >= 10:
+                            rep_floor = max_reps - 3
+                        elif max_reps >= 6:
+                            rep_floor = max_reps - 2
+                        else:
+                            rep_floor = max_reps - 1
+        
+                        is_assisted = any(ex in exercise for ex in ["assisted pull-up", "paused assisted dip"])
+                        is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "leg extension"])
+                        if is_reverse_pyramid and set_count > 1:
+                            drop_weight = max(0, lift_data.weight - increment)
+                            next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off set. Target **{drop_weight} lbs** for {max_reps} reps (Reverse Pyramid)."
+                        elif is_assisted:
+                            # ASSISTED LOGIC: Less assistance weight = harder (progressing forward)
+                            if lift_data.reps >= max_reps:
+                                next_weight = max(0, lift_data.weight - increment) # Reduce assistance weight!
+                                next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Reduce assistance weight down to **{next_weight} lbs**."
+                            elif lift_data.reps < rep_floor:
+                                next_weight = lift_data.weight + increment # Add assistance weight if struggling
+                                next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Add assistance up to **{next_weight} lbs** to stay in the target zone."
+                            else:
+                                next_weight = lift_data.weight
+                                next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** assistance and try to push closer to {max_reps} reps."
+                        else:
+                            if lift_data.reps >= max_reps:
+                                next_weight = lift_data.weight + increment
+                                next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Bump up to **{next_weight} lbs**."
+                            elif lift_data.reps < rep_floor:
+                                next_weight = max(0, lift_data.weight - increment) 
+                                next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Drop to **{next_weight} lbs** to stay in the target zone."
+                            else:
+                                next_weight = lift_data.weight
+                                next_set_advice = f"\n\n *Next Set Target:* Stick with **{next_weight} lbs** and try to push closer to {max_reps} reps."
+                    
+                    # Update your final reply to include the dynamic next set advice
+                    reply_msg = (
+                        f" **Set {set_count} Tracked to Supabase:**\n"
+                        f" *{exercise.title()}*\n"
+                        f" **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
+                        f" *Prescription Target:* {rep_guideline}\n\n"
+                        f" {intensity_advice}\n\n"
+                        f" {next_set_advice}"
+                    )
+                    await send_telegram_reply(chat_id, reply_msg)
         else: 
             reply = ("Invalid input, try again")
             await send_telegram_reply(chat_id, reply)
