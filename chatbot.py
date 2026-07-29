@@ -35,177 +35,75 @@ TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 USDA_API_KEY = os.getenv("USDA_API_KEY")
 
 PROGRESSION_SCHEMA = {
-    # --- UPPER BODY #1---
-    "cuffed behind-the-back lateral raise": { 
-        1: {"max_reps": 12, "increment": 5}, #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5},
-    },
-    "cross-body lat pull-around": { 
-        1: {"max_reps": 12, "increment": 5}, #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5},
-    },
-    "low incline smith machine press": { 
-        1: {"max_reps": 10, "increment": 10}, #whats the increment
-        2: {"max_reps": 10, "increment": 10},
-        3: {"max_reps": 10, "increment": 10},
-        4: {"max_reps": 10, "increment": 10},
+    "cuffed behind-the-back lateral raise": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "cross-body lat pull-around": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "low incline smith machine press": { 1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10}, 4: {"max_reps": 10, "increment": 10} },
+    "chest-supported machine row": { 1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10} },
+    "overhead cable tricep extensions (bar)": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5} },
+    "straight-bar lat prayer": { 1: {"min_reps": 12, "max_reps": 15, "increment": 10}, 2: {"min_reps": 12, "max_reps": 15, "increment": 10}, 3: {"min_reps": 12, "max_reps": 15, "increment": 10} },
+    "pec deck (with integrated partials)": { 1: {"min_reps": 12, "max_reps": 15, "increment": 10}, 2: {"min_reps": 12, "max_reps": 15, "increment": 10}, 3: {"min_reps": 12, "max_reps": 15, "increment": 10} },
 
-    },
-    "chest-supported machine row": { 
-        1: {"max_reps": 10, "increment": 10}, #whats the increment
-        2: {"max_reps": 10, "increment": 10},
-        3: {"max_reps": 10, "increment": 10},
-    },
-    "overhead cable tricep extensions (bar)": { 
-        1: {"max_reps": 10, "increment": 5},
-        2: {"max_reps": 10, "increment": 5},
-    },
-    "straight-bar lat prayer": { 
-        1: {"max_reps": 15, "increment": 10}, #whats the increment
-        2: {"max_reps": 15, "increment": 10},
-        3: {"max_reps": 15, "increment": 10},
-    },
-    "pec deck (with integrated partials)": { 
-        1: {"max_reps": 15, "increment": 10}, #whats the increment
-        2: {"max_reps": 15, "increment": 10},
-        3: {"max_reps": 15, "increment": 10},
-    },
+    "seated leg curl": { 1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10} },
+    "machine hip adduction": { 1: {"min_reps": 10, "max_reps": 12, "increment": 10}, 2: {"min_reps": 10, "max_reps": 12, "increment": 10}, 3: {"min_reps": 10, "max_reps": 12, "increment": 10} },
+    "hack squat": { 1: {"max_reps": 4, "increment": 10}, 2: {"max_reps": 6, "increment": 10}, 3: {"max_reps": 8, "increment": 10} },
+    "leg extension": { 1: {"min_reps": 10, "max_reps": 12, "increment": 10}, 2: {"min_reps": 10, "max_reps": 12, "increment": 10}, 3: {"min_reps": 10, "max_reps": 12, "increment": 10} },
+    "leg press calf press": { 1: {"min_reps": 12, "max_reps": 15, "increment": 10}, 2: {"min_reps": 12, "max_reps": 15, "increment": 10}, 3: {"min_reps": 12, "max_reps": 15, "increment": 10} },
 
-    # --- LOWER BODY #1---
-    "seated leg curl": { 
-        1: {"max_reps": 10, "increment": 10}, #whats the increment
-        2: {"max_reps": 10, "increment": 10},
-        3: {"max_reps": 10, "increment": 10}
-    },
-    "machine hip adduction": { 
-        1: {"max_reps": 12, "increment": 10}, #whats the increment
-        2: {"max_reps": 12, "increment": 10},
-        3: {"max_reps": 12, "increment": 10}
-    },
-    "hack squat": { 
-        1: {"max_reps": 4, "increment": 5}, #whats the increment
-        2: {"max_reps": 6, "increment": 5}, #whats the increment
-        3: {"max_reps": 8, "increment": 5}, #whats the increment
-    },
-    "leg extension": { 
-        1: {"max_reps": 10, "increment": 10}, #whats the increment
-        2: {"max_reps": 11, "increment": 10},
-        3: {"max_reps": 12, "increment": 10},
-    },
+    "super-rom overhand cable row": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "machine shoulder press": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "assisted pull-up": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
+    "paused assisted dip": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
+    "inverse db zottman curl": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "super-rom db lateral raise": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}, 3: {"min_reps": 12, "max_reps": 15, "increment": 5} },
+    "cable reverse fly (mechanical dropset)": { 1: {"max_reps": 5, "increment": 5}, 2: {"max_reps": 4, "increment": 5}, 3: {"max_reps": 3, "increment": 5} },
 
-    "leg press calf press": { 
-        1: {"max_reps": 10, "increment": 10}, #whats the increment
-        2: {"max_reps": 10, "increment": 10},
-        3: {"max_reps": 10, "increment": 10},  
-    },
+    "lying leg curl": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
+    "leg press": { 1: {"max_reps": 8, "increment": 10}, 2: {"max_reps": 8, "increment": 10}, 3: {"max_reps": 8, "increment": 10} },
+    "paused barbell rdl": { 1: {"max_reps": 8, "increment": 10}, 2: {"max_reps": 8, "increment": 10} },
+    "sissy squat": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "standing calf raise": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
 
-    # --- UPPER BODY #2---
-    "super-rom overhand cable row": { 
-        1: {"max_reps": 12, "increment": 5}, #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5},
-    },
-    "machine shoulder press": { 
-        1: {"max_reps": 12, "increment": 5}, #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5},
-    },
-    "assisted pull-up": { 
-        1: {"max_reps": 10, "increment": 5}, #whats the increment
-        2: {"max_reps": 10, "increment": 5},
-        3: {"max_reps": 10, "increment": 5},
-    },
-    "paused assisted dip": { 
-        1: {"max_reps": 10, "increment": 5},   #whats the increment
-        2: {"max_reps": 10, "increment": 5},
-        3: {"max_reps": 10, "increment": 5},
-    },
-    "inverse db zottman curl": { 
-        1: {"max_reps": 12, "increment": 5},   #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-    },
-    "super-rom db lateral raise": { 
-        1: {"max_reps": 15, "increment": 5},   #whats the increment
-        2: {"max_reps": 15, "increment": 5},
-        3: {"max_reps": 15, "increment": 5},
-    },
-    "cable reverse fly (mechanical dropset)": { 
-        1: {"max_reps": 5, "increment": 5},   #whats the increment
-        2: {"max_reps": 4, "increment": 5},
-        3: {"max_reps": 3, "increment": 5},
-    },
-
-    # --- LOWER BODY #2---
-    "lying leg curl": { 
-        1: {"max_reps": 10, "increment": 5}, #whats the increment
-        2: {"max_reps": 10, "increment": 5},
-        3: {"max_reps": 10, "increment": 5},
-    },
-    "leg press": { 
-        1: {"max_reps": 8, "increment": 5},   #whats the increment
-        2: {"max_reps": 8, "increment": 5},
-        3: {"max_reps": 8, "increment": 5},
-    },
-    "paused barbell rdl": { 
-        1: {"max_reps": 8, "increment": 5},   #whats the increment
-        2: {"max_reps": 8, "increment": 5},
-    },
-    "machine hip adduction": { 
-        1: {"max_reps": 12, "increment": 5},   #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5},
-    },
-    "sissy squat": { 
-        1: {"max_reps": 12, "increment": 5},   #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5},
-    },
-    "standing calf raise": { 
-        1: {"max_reps": 12, "increment": 5},   #whats the increment
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5},
-    },
-
-    # --- DEFAULT FALLBACK ---
-    "default": {
-        1: {"max_reps": 12, "increment": 5},
-        2: {"max_reps": 12, "increment": 5},
-        3: {"max_reps": 12, "increment": 5}
-    }
+    "default": { 1: {"max_reps": 12, "increment": 5}, 2: {"max_reps": 12, "increment": 5}, 3: {"max_reps": 12, "increment": 5} }
 }
+
 
 EXERCISE_COACHING = {
-    "cuffed behind-the-back lateral raise": {"reps": "10-12 reps", "advice": "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"},
-    "cross-body lat pull-around": {"reps": "10-12 reps", "advice":"Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"},
-    "low incline smith machine press": {"reps": "8-10 reps", "advice":"15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"},
-    "chest-supported machine row": {"reps": "8-10 reps", "advice":"Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"},
-    "overhead cable tricep extension": {"reps": "8-10 reps", "advice":"Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"},
-    "straight-bar lat prayer": {"reps": "12-15 reps", "advice":"Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"},
-    "pec deck": {"reps": "12-15 reps", "advice":"**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."},
+    "cuffed behind-the-back lateral raise": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Raise cables up/out in a 'Y' motion. Connect with middle delts. **Last Set: Myo-reps!**"},
+    "cross-body lat pull-around": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top. **Last Set: Long-length Partials.**"},
+    "low incline smith machine press": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "~15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch.**"},
+    "chest-supported machine row": {"warmup_sets": 1, "reps": "8-10 reps", "advice": "Flare elbows ~45° and squeeze blades hard at top. **Last Set: Long-length Partials.**"},
+    "overhead cable tricep extensions (bar)": {"warmup_sets": 1, "reps": "8-10 reps", "advice": "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"},
+    "straight-bar lat prayer": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Lean forward for big lat stretch at top, stand upright at bottom. **Last Set: Long-length Partials.**"},
+    "pec deck (with integrated partials)": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "**Integrated Partials:** Alternate 1 full-ROM rep with 1 half-ROM rep in stretched position."},
 
-    "seated leg curl": {"reps": "8-10 reps", "advice":"Lean forward to maximize hamstring stretch."},
-    "machine hip abduction": {"reps": "10-12 reps", "advice":"Drive knees outward against the pads. Control the eccentric."},
-    "hack squat": {"reps": "4, 6, 8 reps (Reverse Pyramid)", "advice":"Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."},
-    "leg extension": {"reps": "10-12 reps (Reverse Pyramid)", "advice":"2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"},
-    "leg press calf press": {"reps": "12-15 reps", "advice":"1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"},
+    "seated leg curl": {"warmup_sets": 1, "reps": "8-10 reps", "advice": "Lean forward over machine for maximum hamstring stretch."},
+    "machine hip adduction": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Mind-muscle connection with inner thighs. Push hard!"},
+    "hack squat": {"warmup_sets": 3, "reps": "4, 6, 8 reps (Reverse Pyramid)", "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps)."},
+    "leg extension": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Pull butt down into seat. 2-3s negative. **Last Set: Long-length Partials.**"},
+    "leg press calf press": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Calf Static Stretch.**"},
 
-    "super-rom overhand cable row": {"reps": "10-12 reps", "advice":"Wide-grip pulldown bar. Lean forward on negative, upright on pull."},
-    "machine shoulder press": {"reps": "10-12 reps", "advice":"Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"},
-    "assisted pull-up": {"reps": "8-10 reps", "advice":"2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"},
-    "paused assisted dip": {"reps": "8-10 reps", "advice":"2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."},
-    "inverse db zottman curl": {"reps": "10-12 reps", "advice":"Hammer curl on positive, palms-up grip on the negative."},
-    "super-rom db lateral raise": {"reps": "12-15 reps", "advice":"Full ROM to overhead. Squeeze upper traps at the top."},
-    "cable reverse fly": {"reps": "5, 4, 3+ reps", "advice":"**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."},
+    "super-rom overhand cable row": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Wide grip pulldown bar. Lean forward on negative, upright at finish."},
+    "machine shoulder press": {"warmup_sets": 2, "reps": "10-12 reps", "advice": "Elbows break 90°. Smooth, controlled reps. **Last Set: Dropset.**"},
+    "assisted pull-up": {"warmup_sets": 1, "reps": "8-10 reps", "advice": "Slow 2-3s negative. 0.5-1s pause at bottom. **Last Set: Long-length Partials.**"},
+    "paused assisted dip": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "Slow 2-3s negative. 1-2s pause at bottom. Break 90° elbow angle."},
+    "inverse db zottman curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Hammer curl on positive, palms-up grip on negative."},
+    "super-rom db lateral raise": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Hands overhead. Squeeze upper traps at top. Point thumbs up if shoulder hurts."},
+    "cable reverse fly (mechanical dropset)": {"warmup_sets": 0, "reps": "5, 4, 3+ reps", "advice": "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!"},
 
-    "lying leg curl": {"reps": "8-10 reps", "advice":"Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"},
-    "leg press": {"reps": "8 reps", "advice":"Feet low on platform. Deep stretch with 1s pause at bottom."},
-    "paused barbell rdl": {"reps": "8 reps", "advice":"1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."},
-    "machine hip adduction": {"reps": "10-12 reps", "advice":"Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"},
-    "sissy squat": {"reps": "10-12 reps", "advice":"Knees forward past toes. Push hard!"},
-    "standing calf raise": {"reps": "10-12 reps", "advice":"1-2s pause at bottom. **Last Set: 30s Static Stretch.**"},
+    "lying leg curl": {"warmup_sets": 1, "reps": "8-10 reps", "advice": "Big stretch at bottom. Keep hips down. **Last Set: Long-length Partials.**"},
+    "leg press": {"warmup_sets": 2, "reps": "8 reps", "advice": "Feet low for quad focus. Deep stretch with slight pause at bottom."},
+    "paused barbell rdl": {"warmup_sets": 2, "reps": "8 reps", "advice": "Low RPE (~6-7). 1s pause at bottom. Stop 75% to lockout to keep tension."},
+    "sissy squat": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Knees forward past toes. Push hard!"},
+    "standing calf raise": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "1-2s pause at bottom. **Last Set: 30s Calf Static Stretch.**"},
 }
+
+EXERCISE_COACHING.update({
+    "bayesian cable curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. **Last Set: Long-length Partials.**"},
+    "seated db french press": {"warmup_sets": 1, "reps": "10 reps", "advice": "Palms under top of dumbbell. Deep stretch at bottom. Avoid pausing at the top of each rep."},
+    "bottom-2/3 constant tension preacher curl": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Stay in bottom 2/3. No pausing at top or bottom—constant tension!"},
+    "cable triceps kickback": {"warmup_sets": 0, "reps": "12-15 reps", "advice": "Upright or bent over. At full squeeze, keep shoulder positioned behind torso."},
+    "cable crunch": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack."}
+})
 
 class FoodStructure(BaseModel):
     food_name: str
@@ -220,6 +118,7 @@ class WorkoutStructure(BaseModel):
     exercise_name: str
     weight: float = 0.0
     reps: int = 0
+    is_warmup: bool = Field(default=False, description="True if the user indicates this is a warm-up set.")
 
 def define_meal() -> str:
     central_tz = zoneinfo.ZoneInfo("America/Chicago")
@@ -230,6 +129,22 @@ def define_meal() -> str:
     elif 11 <= current_hour < 14: return "lunch"
     elif 19 <= current_hour < 22: return "dinner"
     else: return "snack"
+
+def generate_warmup_guide(warmup_count: int, working_weight: float) -> str:
+    if warmup_count == 0:
+        return "• *No warm-up sets required—jump straight into Working Set 1!*"
+    elif warmup_count == 1:
+        w1 = round((working_weight * 0.60) / 5) * 5
+        return f"• Warm-Up Set 1: **{w1} lbs** × 6-10 reps (~60%)"
+    elif warmup_count == 2:
+        w1 = round((working_weight * 0.50) / 5) * 5
+        w2 = round((working_weight * 0.70) / 5) * 5
+        return f"• Warm-Up Set 1: **{w1} lbs** × 6-10 reps (~50%)\n• Warm-Up Set 2: **{w2} lbs** × 4-6 reps (~70%)"
+    elif warmup_count >= 3:
+        w1 = round((working_weight * 0.45) / 5) * 5
+        w2 = round((working_weight * 0.65) / 5) * 5
+        w3 = round((working_weight * 0.85) / 5) * 5
+        return f"• Warm-Up Set 1: **{w1} lbs** × 6-10 reps (~45%)\n• Warm-Up Set 2: **{w2} lbs** × 4-6 reps (~65%)\n• Warm-Up Set 3: **{w3} lbs** × 3-4 reps (~85%)"
 
 async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None):
     payload = {
@@ -287,6 +202,7 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
     existing_sets = supabase.table("exercise_logs") \
         .select("id") \
         .eq("exercise_name", exercise_name) \
+        .eq("is_warmup", False) \
         .gte("created_at", today_str) \
         .execute()
 
@@ -516,6 +432,20 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             )
             await send_telegram_reply(chat_id, lower_2_menu)
             return {"status": "success"}
+        if user_text.lower() == ("/arms"):
+            arms_menu = (
+                "**JEFF NIPPARD ARMS & WEAK POINTS CHECKLIST**\n\n"
+                "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n"
+                "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n"
+                "**bayesian cable curl** (10-12 reps) (3 sets)\n"
+                "**seated db french press** (10 reps) (3 sets)\n"
+                "**bottom-2/3 constant tension preacher curl** (12-15 reps) (2 sets)\n"
+                "**cable triceps kickback** (12-15 reps) (2 sets)\n"
+                "**cable crunch** (10-12 reps) (3 sets)\n\n"
+                "**Ready to log!** Just text your sets normally."
+            )
+            await send_telegram_reply(chat_id, arms_menu)
+            return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
                 "**NUTRITION LOGGING ENGINE**\n\n"
@@ -678,7 +608,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     clean_text = user_text.replace("workout:", "").replace("upper", "").replace("lower", "").replace("w", "").strip()
                     schema_string = json.dumps(WorkoutStructure.model_json_schema())
                     official_names = ", ".join(PROGRESSION_SCHEMA.keys())
-                    system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both."            
+                    system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both. If the user indicates this set is a warm-up (e.g. 'warmup', 'wu', 'warm up'), set 'is_warmup' to true."            
                     response = groq_client.chat.completions.create(
                         messages=[
                             {"role": "system", "content": system_instructions},
@@ -689,18 +619,19 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     )
                     lift_data = WorkoutStructure.model_validate_json(response.choices[0].message.content)
                     exercise = lift_data.exercise_name.lower().strip()
-        
+                    
         
                     if lift_data.reps == 0:
                         today_str = date.today().isoformat()
         
                         coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
                         intensity_advice = coaching_data["advice"]
+                        warmup_count = coaching_data.get("warmup_sets", 0)
 
                         ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
                         schema_text_lines = []
                         for s, targets in ex_schema.items():
-                            schema_text_lines.append(f"• Set {s}: {targets['max_reps']} reps (+{targets['increment']} lbs incr.)")
+                            schema_text_lines.append(f"• Working Set {s}: {targets['max_reps']} reps (+{targets['increment']} lbs incr.)")
                         schema_text = "\n".join(schema_text_lines)
                         
                         # Fetch the most recent past logs for this exercise
@@ -709,7 +640,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             .eq("exercise_name", exercise) \
                             .lt("created_at", today_str) \
                             .order("created_at", desc=True) \
-                            .limit(5) \
+                            .limit(25) \
                             .execute()
         
                         if not history.data:
@@ -721,19 +652,31 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             history_text = "\n".join([f"• Set {row['set_number']}: {row['weight']} lbs × {row['reps']} reps" for row in sorted(last_session, key=lambda x: x['set_number'])])
         
                             heaviest_set = max(last_session, key=lambda x: x['weight'])
-                            start_weight = heaviest_set['weight']
+                            target_working_weight = heaviest_set['weight']
         
-                            set_1_targets = ex_schema.get(1, {"max_reps": 12, "increment": 5})
-                            target_reps = set_1_targets['max_reps']
+                            set_1_targets = ex_schema.get(1, {"min_reps": 8, "max_reps": 12, "increment": 5})
+                            target_max_reps = set_1_targets['max_reps']
+                            target_min_reps = set_1_targets['min_reps']
                             increment = set_1_targets['increment']
 
-                            if heaviest_set['reps'] >= target_reps:
-                                start_weight += increment
-                                rec_text = f"You crushed **{target_reps} reps** at {heaviest_set['weight']} lbs last time! Load up **{start_weight} lbs** for Set 1 today and aim for **{target_reps} reps**!"
-                            else:
-                                rec_text = f"Your heaviest set last time was **{start_weight} lbs** for {heaviest_set['reps']} reps. Stick with **{start_weight} lbs** for Set 1 today and push for **{target_reps} reps**!"
+                            unique_sessions = len(set(row['created_at'][:10] for row in history.data))
+                            is_deload_week = (unique_sessions == 4) # If 4 previous sessions exist, today is session 5!
 
-                            reply = f"**Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n **Target:** {rec_text}\n\n**Progression Schema:**\n{schema_text}\n\n *Technique Cues:* {intensity_advice}"
+                            if heaviest_set['reps'] >= target_max_reps:
+                                target_working_weight += increment
+                                rec_text = f"You crushed **{target_max_reps} reps** at {heaviest_set['weight']} lbs last time! Load up **{target_working_weight} lbs** for Set 1 today and aim for **{target_max_reps} reps**!"
+                            elif heaviest_set['reps'] < target_min_reps:
+                                target_working_weight = max(0, target_working_weight - increment)
+                                rec_text = f"You fell below the {target_min_reps} rep floor last time. Drop weight to **{target_working_weight} lbs** for Working Set 1 today to stay in the target zone."
+                            else:
+                                rec_text = f"Your heaviest set last time was **{target_working_weight} lbs** for {heaviest_set['reps']} reps. Stick with **{target_working_weight} lbs** for Set 1 today and push for **{target_max_reps} reps**!"
+
+                            if is_deload_week:
+                                schema_text = " **SEMI-DELOAD WEEK (Week 5)** \n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery!*\n\n" + schema_text
+
+                            warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
+
+                            reply = f"**Last Session: {exercise.title()}** ({last_date})\n\n{history_text}\n\n **Target Working Weight:** {rec_text}\n\n **Recommended Warm-Up Pyramid ({warmup_count} sets): **\n{warmup_guide}\n\n **Working Progression Schema:**\n{schema_text}\n\n *Technique Cues:* {intensity_advice}"
                         
                         await send_telegram_reply(chat_id, reply)
                         return {"status": "success"}
@@ -745,7 +688,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         .gte("created_at", today_str) \
                         .execute()
                     
-                    set_count = len(existing_sets.data) + 1
+                    if lift_data.is_warmup:
+                        set_count = 0  # Marked as 0 or warm-up in logs
+                    else:
+                        set_count = len(existing_sets.data) + 1
         
                     central_tz = zoneinfo.ZoneInfo("America/Chicago")
                     supabase.table("exercise_logs").insert({
@@ -753,6 +699,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "weight": lift_data.weight,
                         "reps": lift_data.reps,
                         "set_number": set_count,
+                        "is_warmup": lift_data.is_warmup,
                         "created_at": datetime.now(central_tz).isoformat()
                     }).execute()
         
@@ -908,17 +855,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         
                         # Fetch targets based on the set you JUST completed
                         ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
-                        current_targets = ex_schema.get(set_count, {"max_reps": 12, "increment": 5})
-        
+                        current_targets = ex_schema.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
+                        min_reps = current_targets['min_reps']
                         max_reps = current_targets['max_reps']
                         increment = current_targets['increment']
-        
-                        if max_reps >= 10:
-                            rep_floor = max_reps - 3
-                        elif max_reps >= 6:
-                            rep_floor = max_reps - 2
-                        else:
-                            rep_floor = max_reps - 1
         
                         is_assisted = any(ex in exercise for ex in ["assisted pull-up", "paused assisted dip"])
                         is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "leg extension"])
@@ -926,12 +866,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             drop_weight = max(0, lift_data.weight - increment)
                             next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off set. Target **{drop_weight} lbs** for {max_reps} reps (Reverse Pyramid)."
                         elif is_assisted:
-                            # ASSISTED LOGIC: Less assistance weight = harder (progressing forward)
                             if lift_data.reps >= max_reps:
-                                next_weight = max(0, lift_data.weight - increment) # Reduce assistance weight!
+                                next_weight = max(0, lift_data.weight - increment)
                                 next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Reduce assistance weight down to **{next_weight} lbs**."
-                            elif lift_data.reps < rep_floor:
-                                next_weight = lift_data.weight + increment # Add assistance weight if struggling
+                            elif lift_data.reps < min_reps:
+                                next_weight = lift_data.weight + increment
                                 next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Add assistance up to **{next_weight} lbs** to stay in the target zone."
                             else:
                                 next_weight = lift_data.weight
@@ -940,7 +879,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             if lift_data.reps >= max_reps:
                                 next_weight = lift_data.weight + increment
                                 next_set_advice = f"\n\n *Next Set Target:* You crushed the rep cap! Bump up to **{next_weight} lbs**."
-                            elif lift_data.reps < rep_floor:
+                            elif lift_data.reps < min_reps:
                                 next_weight = max(0, lift_data.weight - increment) 
                                 next_set_advice = f"\n\n *Next Set Target:* That looked heavy. Drop to **{next_weight} lbs** to stay in the target zone."
                             else:
