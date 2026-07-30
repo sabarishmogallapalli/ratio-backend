@@ -105,6 +105,44 @@ EXERCISE_COACHING.update({
     "cable crunch": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack."}
 })
 
+WEAK_POINTS_TABLE = {
+    "shoulders": {
+        "title": "Shoulders",
+        "ex1": ["Cuffed Behind-The-Back Lateral Raise", "Machine Lateral Raise", "Dumbbell Lateral Raise"],
+        "ex2": ["Machine Shoulder Press", "Smith Machine Shoulder Press", "Standing DB Arnold Press"]
+    },
+    "lats": {
+        "title": "Lats ('Back Width')",
+        "ex1": ["Cable Lat Prayer", "DB Lat Pullover", "Machine Lat Pullover"],
+        "ex2": ["Lat-Focused Cable Row", "Elbows-In 1-Arm DB Row", "Half-Kneeling 1-Arm Lat Pulldown"]
+    },
+    "quads": {
+        "title": "Quads",
+        "ex1": ["Leg Extension", "Reverse Nordics"],
+        "ex2": ["Single-Leg Leg Press", "Sissy Squat"]
+    },
+    "glutes": {
+        "title": "Glutes",
+        "ex1": ["Machine Hip Abduction", "Cable Hip Abduction", "Lateral Band Walk"],
+        "ex2": ["Barbell Hip Thrust", "Single-Leg DB Hip Thrust"]
+    },
+    "chest": {
+        "title": "Chest",
+        "ex1": ["Low Incline DB Flye", "Low-To-High Cable Crossover"],
+        "ex2": ["Chest Press Machine (incline if upper pecs lagging)", "Dumbbell Chest Press (incline if upper pecs lagging)"]
+    },
+    "neck": {
+        "title": "Neck",
+        "ex1": ["Plate-Loaded Neck Curls"],
+        "ex2": ["Head Harness Neck Extension", "Plate-Loaded Neck Extension"]
+    },
+    "hamstrings": "There is a lot of hamstrings volume in this program. If they are a weak point, simply focus on executing the listed exercises with your best effort rather than adding more volume.",
+    "calves": "Focus on execution first. Ensure you are pausing at the bottom. Feel free to sprinkle in 1-2 extra sets per exercise if they are a major priority.",
+    "mid-back": "There is a lot of mid-back volume. Focus on execution rather than adding volume. Squeeze blades together on the positive, feel the back pull apart on the negative.",
+    "upper traps": "Shouldn't require high volume. Focus on execution. Feel free to sprinkle in 1-2 extra sets per exercise if they are a major priority.",
+    "abs": "Diet is mainly responsible for abs. Focus on execution of crunches and leg raises. Feel free to sprinkle in 1-2 extra sets if a major priority."
+}
+
 class FoodStructure(BaseModel):
     food_name: str
     calories: float
@@ -351,6 +389,34 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 response_dict = json.loads(response.choices[0].message.content)
                 clean_dict = {k: v for k, v in response_dict.items() if v is not None}
                 food_data = FoodStructure.model_validate(clean_dict)
+            elif callback_data.startswith("wp_"):
+                wp_key = callback_data.replace("wp_", "")
+                wp_data = WEAK_POINTS_TABLE.get(wp_key)
+
+                if isinstance(wp_data, str):
+                    # For Hamstrings, Calves, Mid-Back, etc. where he just gives text advice
+                    reply_text = f"**{wp_key.title()} Advice:**\n\n{wp_data}"
+                else:
+                    # For muscle groups with specific Ex 1 & Ex 2 options
+                    ex1_list = "\n".join([f"• {ex}" for ex in wp_data['ex1']])
+                    ex2_list = "\n".join([f"• {ex}" for ex in wp_data['ex2']])
+                    
+                    reply_text = (
+                        f"**{wp_data['title']} Weak Point Options**\n\n"
+                        f"**Exercise #1 Options (Pick One):**\n{ex1_list}\n\n"
+                        f"**Exercise #2 Options (Pick One):**\n{ex2_list}\n\n"
+                        f"*Note: Do not do all of them in one day!*"
+                    )
+
+                # Edit the message to show the results and remove the keyboard
+                async with httpx.AsyncClient() as http_client:
+                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
+                        "chat_id": chat_id,
+                        "message_id": callback["message"]["message_id"],
+                        "text": reply_text,
+                        "parse_mode": "Markdown"
+                    })
+                return {"status": "success"}
 
             # Clear memory and trigger saving engine
             del PENDING_LOGS[chat_id]
@@ -382,6 +448,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/upper_1"):
             upper_1_menu = (
                 "**JEFF NIPPARD UPPER DAY 1 CHECKLIST**\n\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
                 "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n"
                 "**cross-body lat pull-around** (10-12 reps) (3 sets)\n"
                 "**low incline smith machine press** (8-10 reps) (4 sets)\n"
@@ -396,6 +463,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/upper_2"):
             upper_2_menu = (
                 "**JEFF NIPPARD UPPER DAY 2 CHECKLIST**\n\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
                 "**super-rom overhand cable row** (10-12 reps) (3 sets)\n"
                 "**machine shoulder press** (10-12 reps) (3 sets)\n"
                 "**assisted pull-up** (8-10 reps) (3 sets)\n"
@@ -410,6 +478,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/lower_1"):
             lower_1_menu = (
                 "**JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"                
                 "**seated leg curl** (8-10 reps) (3 sets)\n"
                 "**machine hip adduction** (10-12 reps) (3 sets)\n"
                 "**hack squat** (4,6,8 reps) (3 sets)\n"
@@ -422,6 +491,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/lower_2"):
             lower_2_menu = (
                 "**JEFF NIPPARD LOWER DAY 2 CHECKLIST**\n\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
                 "**lying leg curl** (8-10 reps) (3 sets)\n"
                 "**leg press** (8 reps) (3 sets)\n"
                 "**paused barbell rdl** (8 reps) (2 sets)\n"
@@ -435,6 +505,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/arms"):
             arms_menu = (
                 "**JEFF NIPPARD ARMS & WEAK POINTS CHECKLIST**\n\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
                 "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n"
                 "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n"
                 "**bayesian cable curl** (10-12 reps) (3 sets)\n"
@@ -445,6 +516,20 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "**Ready to log!** Just text your sets normally."
             )
             await send_telegram_reply(chat_id, arms_menu)
+            return {"status": "success"}
+        if user_text.lower() == "/weakpoints":
+            msg_text = "**Select your Weak Point for today:**"
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "Shoulders", "callback_data": "wp_shoulders"}, {"text": "Lats", "callback_data": "wp_lats"}],
+                    [{"text": "Quads", "callback_data": "wp_quads"}, {"text": "Glutes", "callback_data": "wp_glutes"}],
+                    [{"text": "Chest", "callback_data": "wp_chest"}, {"text": "Neck", "callback_data": "wp_neck"}],
+                    [{"text": "Hamstrings", "callback_data": "wp_hamstrings"}, {"text": "Calves", "callback_data": "wp_calves"}],
+                    [{"text": "Mid-Back", "callback_data": "wp_mid-back"}, {"text": "Upper Traps", "callback_data": "wp_upper traps"}],
+                    [{"text": "Abs", "callback_data": "wp_abs"}]
+                ]
+            }
+            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
             return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
@@ -672,7 +757,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                                 rec_text = f"Your heaviest set last time was **{target_working_weight} lbs** for {heaviest_set['reps']} reps. Stick with **{target_working_weight} lbs** for Set 1 today and push for **{target_max_reps} reps**!"
 
                             if is_deload_week:
-                                schema_text = " **SEMI-DELOAD WEEK (Week 5)** \n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery!*\n\n" + schema_text
+                                schema_text = " **SEMI-DELOAD WEEK (Week 5)** \n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery! Next week starts Next Block so Update Excercises*\n\n" + schema_text
 
                             warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
 
