@@ -45,7 +45,7 @@ PROGRESSION_SCHEMA = {
 
     "seated leg curl": { 1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10} },
     "machine hip adduction": { 1: {"min_reps": 10, "max_reps": 12, "increment": 10}, 2: {"min_reps": 10, "max_reps": 12, "increment": 10}, 3: {"min_reps": 10, "max_reps": 12, "increment": 10} },
-    "hack squat": { 1: {"max_reps": 4, "increment": 10}, 2: {"max_reps": 6, "increment": 10}, 3: {"max_reps": 8, "increment": 10} },
+    "hack squat": { 1: {"min_reps": 3, "max_reps": 4, "increment": 10}, 2: {"min_reps": 5, "max_reps": 6, "increment": 10}, 3: {"min_reps": 7, "max_reps": 8, "increment": 10} },
     "leg extension": { 1: {"min_reps": 10, "max_reps": 12, "increment": 10}, 2: {"min_reps": 10, "max_reps": 12, "increment": 10}, 3: {"min_reps": 10, "max_reps": 12, "increment": 10} },
     "leg press calf press": { 1: {"min_reps": 12, "max_reps": 15, "increment": 10}, 2: {"min_reps": 12, "max_reps": 15, "increment": 10}, 3: {"min_reps": 12, "max_reps": 15, "increment": 10} },
 
@@ -58,12 +58,12 @@ PROGRESSION_SCHEMA = {
     "cable reverse fly (mechanical dropset)": { 1: {"max_reps": 5, "increment": 5}, 2: {"max_reps": 4, "increment": 5}, 3: {"max_reps": 3, "increment": 5} },
 
     "lying leg curl": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
-    "leg press": { 1: {"max_reps": 8, "increment": 10}, 2: {"max_reps": 8, "increment": 10}, 3: {"max_reps": 8, "increment": 10} },
-    "paused barbell rdl": { 1: {"max_reps": 8, "increment": 10}, 2: {"max_reps": 8, "increment": 10} },
+    "leg press": { 1: {"min_reps": 6, "max_reps": 8, "increment": 10}, 2: {"min_reps": 6, "max_reps": 8, "increment": 10}, 3: {"min_reps": 6, "max_reps": 8, "increment": 10} },
+    "paused barbell rdl": { 1: {"min_reps": 6, "max_reps": 8, "increment": 10}, 2: {"min_reps": 6, "max_reps": 8, "increment": 10} },
     "sissy squat": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
     "standing calf raise": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
 
-    "default": { 1: {"max_reps": 12, "increment": 5}, 2: {"max_reps": 12, "increment": 5}, 3: {"max_reps": 12, "increment": 5} }
+    "default": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"max_reps": 12, "increment": 5} }
 }
 
 
