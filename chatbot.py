@@ -37,17 +37,17 @@ USDA_API_KEY = os.getenv("USDA_API_KEY")
 PROGRESSION_SCHEMA = {
     "cuffed behind-the-back lateral raise": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
     "cross-body lat pull-around": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
-    "low incline smith machine press": { 1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10}, 4: {"max_reps": 10, "increment": 10} },
+    "low incline smith machine press": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5}, 4: {"max_reps": 10, "increment": 5} },
     "chest-supported machine row": { 1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10} },
     "overhead cable tricep extensions (bar)": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5} },
-    "straight-bar lat prayer": { 1: {"min_reps": 12, "max_reps": 15, "increment": 10}, 2: {"min_reps": 12, "max_reps": 15, "increment": 10}, 3: {"min_reps": 12, "max_reps": 15, "increment": 10} },
-    "pec deck (with integrated partials)": { 1: {"min_reps": 12, "max_reps": 15, "increment": 10}, 2: {"min_reps": 12, "max_reps": 15, "increment": 10}, 3: {"min_reps": 12, "max_reps": 15, "increment": 10} },
+    "straight-bar lat prayer": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}, 3: {"min_reps": 12, "max_reps": 15, "increment": 5} },
+    "pec deck (with integrated partials)": { 1: {"min_reps": 12, "max_reps": 15, "increment": 15}, 2: {"min_reps": 12, "max_reps": 15, "increment": 15}, 3: {"min_reps": 12, "max_reps": 15, "increment": 15} },
 
     "seated leg curl": { 1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10} },
     "machine hip adduction": { 1: {"min_reps": 10, "max_reps": 12, "increment": 10}, 2: {"min_reps": 10, "max_reps": 12, "increment": 10}, 3: {"min_reps": 10, "max_reps": 12, "increment": 10} },
-    "hack squat": { 1: {"max_reps": 4, "increment": 10}, 2: {"max_reps": 6, "increment": 10}, 3: {"max_reps": 8, "increment": 10} },
-    "leg extension": { 1: {"min_reps": 10, "max_reps": 12, "increment": 10}, 2: {"min_reps": 10, "max_reps": 12, "increment": 10}, 3: {"min_reps": 10, "max_reps": 12, "increment": 10} },
-    "leg press calf press": { 1: {"min_reps": 12, "max_reps": 15, "increment": 10}, 2: {"min_reps": 12, "max_reps": 15, "increment": 10}, 3: {"min_reps": 12, "max_reps": 15, "increment": 10} },
+    "hack squat": { 1: {"min_reps": 4, "max_reps": 4, "increment": 5}, 2: {"min_reps": 6, "max_reps": 6, "increment": 5}, 3: {"min_reps": 8, "max_reps": 8, "increment": 5} },
+    "leg extension": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "leg press calf press": { 1: {"min_reps": 12, "max_reps": 15, "increment": 20}, 2: {"min_reps": 12, "max_reps": 15, "increment": 20}, 3: {"min_reps": 12, "max_reps": 15, "increment": 20} },
 
     "super-rom overhand cable row": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
     "machine shoulder press": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
@@ -55,15 +55,43 @@ PROGRESSION_SCHEMA = {
     "paused assisted dip": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
     "inverse db zottman curl": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5} },
     "super-rom db lateral raise": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}, 3: {"min_reps": 12, "max_reps": 15, "increment": 5} },
-    "cable reverse fly (mechanical dropset)": { 1: {"max_reps": 5, "increment": 5}, 2: {"max_reps": 4, "increment": 5}, 3: {"max_reps": 3, "increment": 5} },
+    "cable reverse fly (mechanical dropset)": { 1: {"min_reps": 5, "max_reps": 5, "increment": 5}, 2: {"min_reps": 4, "max_reps": 4, "increment": 5}, 3: {"min_reps": 3, "max_reps": 3, "increment": 5} },
 
     "lying leg curl": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
-    "leg press": { 1: {"max_reps": 8, "increment": 10}, 2: {"max_reps": 8, "increment": 10}, 3: {"max_reps": 8, "increment": 10} },
-    "paused barbell rdl": { 1: {"max_reps": 8, "increment": 10}, 2: {"max_reps": 8, "increment": 10} },
-    "sissy squat": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
-    "standing calf raise": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "leg press": { 1: {"min_reps": 8, "max_reps": 8, "increment": 5}, 2: {"min_reps": 8, "max_reps": 8, "increment": 5}, 3: {"min_reps": 8, "max_reps": 8, "increment": 5} },
+    "paused barbell rdl": { 1: {"min_reps": 8, "max_reps": 8, "increment": 5}, 2: {"min_reps": 8, "max_reps": 8, "increment": 5} },
+    "sissy squat": { 1: {"min_reps": 10, "max_reps": 12, "increment": 0}, 2: {"min_reps": 10, "max_reps": 12, "increment": 0}, 3: {"min_reps": 10, "max_reps": 12, "increment": 0} },
+    "standing calf raise": { 1: {"min_reps": 10, "max_reps": 12, "increment": 15}, 2: {"min_reps": 10, "max_reps": 12, "increment": 15}, 3: {"min_reps": 10, "max_reps": 12, "increment": 15} },
 
-    "default": { 1: {"max_reps": 12, "increment": 5}, 2: {"max_reps": 12, "increment": 5}, 3: {"max_reps": 12, "increment": 5} }
+    "bayesian cable curl": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+    "seated db french press": { 1: {"min_reps": 10, "max_reps": 10, "increment": 5}, 2: {"min_reps": 10, "max_reps": 10, "increment": 5}, 3: {"min_reps": 10, "max_reps": 10, "increment": 5} },
+    "bottom-2/3 constant tension preacher curl": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5} },
+    "cable triceps kickback": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5} },
+    "cable crunch": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
+
+    "machine lateral raise": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "dumbbell lateral raise": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "smith machine shoulder press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "standing dumbbell arnold press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "dumbbell lat pullover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "machine lat pullover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "lat-focused cable row": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "elbows-in 1-arm db row": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "half-kneeling 1-arm lat pulldown": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "reverse nordics": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "single-leg leg press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 10}, 2: {"min_reps": 8, "max_reps": 12, "increment": 10} },
+    "machine hip abduction": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "cable hip abduction": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },    "lateral band walk": {}, #8-12 reps  3 regular sets
+    "barbell hip thrust": { 1: {"min_reps": 8, "max_reps": 12, "increment": 10}, 2: {"min_reps": 8, "max_reps": 12, "increment": 10} },
+    "single-leg dumbbell hip thrust": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "low incline db flye": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "low-to-high cable crossover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "chest press machine (incline if upper pecs lagging)": { 1: {"min_reps": 8, "max_reps": 12, "increment": 10}, 2: {"min_reps": 8, "max_reps": 12, "increment": 10} },
+    "dumbbell chest press (incline if upper pecs lagging)": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "plate-loaded neck curls": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "head harness neck extension": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+    "plate-loaded neck extension": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
+
 }
 
 
@@ -95,6 +123,7 @@ EXERCISE_COACHING = {
     "paused barbell rdl": {"warmup_sets": 2, "reps": "8 reps", "advice": "Low RPE (~6-7). 1s pause at bottom. Stop 75% to lockout to keep tension."},
     "sissy squat": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Knees forward past toes. Push hard!"},
     "standing calf raise": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "1-2s pause at bottom. **Last Set: 30s Calf Static Stretch.**"},
+
 }
 
 EXERCISE_COACHING.update({
@@ -102,18 +131,42 @@ EXERCISE_COACHING.update({
     "seated db french press": {"warmup_sets": 1, "reps": "10 reps", "advice": "Palms under top of dumbbell. Deep stretch at bottom. Avoid pausing at the top of each rep."},
     "bottom-2/3 constant tension preacher curl": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Stay in bottom 2/3. No pausing at top or bottom—constant tension!"},
     "cable triceps kickback": {"warmup_sets": 0, "reps": "12-15 reps", "advice": "Upright or bent over. At full squeeze, keep shoulder positioned behind torso."},
-    "cable crunch": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack."}
+    "cable crunch": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack."},
+
+    "machine lateral raise": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Focus on pushing the weight out rather than up. Keep a slight bend in the elbows."},
+    "dumbbell lateral raise": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Slight lean forward, lead with the elbows. Stop at shoulder height."},
+    "smith machine shoulder press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Set bench to a high incline. Lower bar with control to chin/upper chest level."},
+    "standing dumbbell arnold press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Start with palms facing you, rotate palms forward as you press overhead."},
+    "dumbbell lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows slightly bent. Feel the stretch in your lats, not your chest."},
+    "machine lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Drive elbows down and back. Deep stretch at the top."},
+    "lat-focused cable row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows tucked close to your sides to bias the lats."},
+    "elbows-in 1-arm db row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Pull dumbbell toward your hip. Squeeze the lat at the top."},
+    "half-kneeling 1-arm lat pulldown": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Kneel on the same side you are pulling with. Drive elbow straight down."},
+    "reverse nordics": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep a straight line from knees to shoulders. Control the descent into a deep quad stretch."},
+    "single-leg leg press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Place foot lower on the platform for quad focus. Avoid completely locking out the knee."},
+    "machine hip abduction": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Mind-muscle connection with inner thighs. Push hard!"},
+    "cable hip abduction": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep torso stationary. Pull the cable away using only your glutes."},
+    "lateral band walk": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep tension on the band at all times. Do not drag the trailing foot."},
+    "barbell hip thrust": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Tuck your chin, drive through the heels, and squeeze glutes hard at lockout."},
+    "single-leg dumbbell hip thrust": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep your core braced and hinge at the hips. Push through the working heel."},
+    "low incline db flye": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Slight bend in elbows. Maximize the stretch at the bottom without shoulder pain."},
+    "low-to-high cable crossover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Pull from low to high to target the upper pecs. Squeeze at the top."},
+    "chest press machine (incline if upper pecs lagging)": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep chest up and shoulders retracted. Push smoothly through the palms."},
+    "dumbbell chest press (incline if upper pecs lagging)": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Control the negative. Get a deep stretch at the bottom before pressing up."},
+    "plate-loaded neck curls": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Use slow, controlled reps. Tuck chin to chest at the top."},
+    "head harness neck extension": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Do not jerk the weight. Extend smoothly to activate the back of the neck."},
+    "plate-loaded neck extension": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Maintain strict control. Focus on the stretch and contraction of the neck extensors."}
 })
 
 WEAK_POINTS_TABLE = {
     "shoulders": {
         "title": "Shoulders",
         "ex1": ["Cuffed Behind-The-Back Lateral Raise", "Machine Lateral Raise", "Dumbbell Lateral Raise"],
-        "ex2": ["Machine Shoulder Press", "Smith Machine Shoulder Press", "Standing DB Arnold Press"]
+        "ex2": ["Machine Shoulder Press", "Smith Machine Shoulder Press", "Standing Dumbbell Arnold Press"]
     },
     "lats": {
         "title": "Lats ('Back Width')",
-        "ex1": ["Cable Lat Prayer", "DB Lat Pullover", "Machine Lat Pullover"],
+        "ex1": ["Straight-Bar Lat Prayer", "Dumbbell Lat Pullover", "Machine Lat Pullover"],
         "ex2": ["Lat-Focused Cable Row", "Elbows-In 1-Arm DB Row", "Half-Kneeling 1-Arm Lat Pulldown"]
     },
     "quads": {
@@ -124,7 +177,7 @@ WEAK_POINTS_TABLE = {
     "glutes": {
         "title": "Glutes",
         "ex1": ["Machine Hip Abduction", "Cable Hip Abduction", "Lateral Band Walk"],
-        "ex2": ["Barbell Hip Thrust", "Single-Leg DB Hip Thrust"]
+        "ex2": ["Barbell Hip Thrust", "Single-Leg Dumbbell Hip Thrust"]
     },
     "chest": {
         "title": "Chest",
@@ -448,14 +501,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/upper_1"):
             upper_1_menu = (
                 "**JEFF NIPPARD UPPER DAY 1 CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
-                "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n"
-                "**cross-body lat pull-around** (10-12 reps) (3 sets)\n"
-                "**low incline smith machine press** (8-10 reps) (4 sets)\n"
-                "**chest-supported machine row** (8-10 reps) (3 sets)\n"
-                "**overhead cable tricep extensions (bar)** (8-10 reps) (2 sets)\n"
-                "**straight-bar lat prayer** (12-15 reps) (3 sets)\n"
-                "**pec deck (with integrated partials)** (12-15 reps) (3 sets)\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+                "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
+                "**cross-body lat pull-around** (10-12 reps) (3 sets)\n\n"
+                "**low incline smith machine press** (8-10 reps) (4 sets)\n\n"
+                "**chest-supported machine row** (8-10 reps) (3 sets)\n\n"
+                "**overhead cable tricep extensions (bar)** (8-10 reps) (2 sets)\n\n"
+                "**straight-bar lat prayer** (12-15 reps) (3 sets)\n\n"
+                "**pec deck (with integrated partials)** (12-15 reps) (3 sets)\n\n"
                 "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             )
             await send_telegram_reply(chat_id, upper_1_menu)
@@ -463,14 +516,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/upper_2"):
             upper_2_menu = (
                 "**JEFF NIPPARD UPPER DAY 2 CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
-                "**super-rom overhand cable row** (10-12 reps) (3 sets)\n"
-                "**machine shoulder press** (10-12 reps) (3 sets)\n"
-                "**assisted pull-up** (8-10 reps) (3 sets)\n"
-                "**paused assisted dip** (8-10 reps) (3 sets)\n"
-                "**inverse db zottman curl** (10-12 reps) (2 sets)\n"
-                "**super-rom db lateral raise** (12-15 reps) (3 sets)\n"
-                "**cable reverse fly (mechanical dropset on all sets)** (5,4,3+ reps) (3 sets)\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+                "**super-rom overhand cable row** (10-12 reps) (3 sets)\n\n"
+                "**machine shoulder press** (10-12 reps) (3 sets)\n\n"
+                "**assisted pull-up** (8-10 reps) (3 sets)\n\n"
+                "**paused assisted dip** (8-10 reps) (3 sets)\n\n"
+                "**inverse db zottman curl** (10-12 reps) (2 sets)\n\n"
+                "**super-rom db lateral raise** (12-15 reps) (3 sets)\n\n"
+                "**cable reverse fly (mechanical dropset on all sets)** (5,4,3+ reps) (3 sets)\n\n"
                 "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             )
             await send_telegram_reply(chat_id, upper_2_menu)
@@ -478,11 +531,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/lower_1"):
             lower_1_menu = (
                 "**JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"                
-                "**seated leg curl** (8-10 reps) (3 sets)\n"
-                "**machine hip adduction** (10-12 reps) (3 sets)\n"
-                "**hack squat** (4,6,8 reps) (3 sets)\n"
-                "**leg extension** (10-12 reps) (3 sets)\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"                
+                "**seated leg curl** (8-10 reps) (3 sets)\n\n"
+                "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
+                "**hack squat** (4,6,8 reps) (3 sets)\n\n"
+                "**leg extension** (10-12 reps) (3 sets)\n\n"
                 "**leg press calf press** (12-15 reps) (3 sets)\n\n"
                 "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
@@ -491,13 +544,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/lower_2"):
             lower_2_menu = (
                 "**JEFF NIPPARD LOWER DAY 2 CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
-                "**lying leg curl** (8-10 reps) (3 sets)\n"
-                "**leg press** (8 reps) (3 sets)\n"
-                "**paused barbell rdl** (8 reps) (2 sets)\n"
-                "**machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n"
+                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+                "**lying leg curl** (8-10 reps) (3 sets)\n\n"
+                "**leg press** (8 reps) (3 sets)\n\n"
+                "**paused barbell rdl** (8 reps) (2 sets)\n\n"
+                "**machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n\n"
                 "**sissy squat (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-                "**standing calf raise** (10-12 reps) (3 sets)\n"
+                "**standing calf raise** (10-12 reps) (3 sets)\n\n"
                 "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
             await send_telegram_reply(chat_id, lower_2_menu)
@@ -506,14 +559,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             arms_menu = (
                 "**JEFF NIPPARD ARMS & WEAK POINTS CHECKLIST**\n\n"
                 "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
-                "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n"
-                "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n"
-                "**bayesian cable curl** (10-12 reps) (3 sets)\n"
-                "**seated db french press** (10 reps) (3 sets)\n"
-                "**bottom-2/3 constant tension preacher curl** (12-15 reps) (2 sets)\n"
-                "**cable triceps kickback** (12-15 reps) (2 sets)\n"
+                "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
+                "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
+                "**bayesian cable curl** (10-12 reps) (3 sets)\n\n"
+                "**seated db french press** (10 reps) (3 sets)\n\n"
+                "**bottom-2/3 constant tension preacher curl** (12-15 reps) (2 sets)\n\n"
+                "**cable triceps kickback** (12-15 reps) (2 sets)\n\n"
                 "**cable crunch** (10-12 reps) (3 sets)\n\n"
-                "**Ready to log!** Just text your sets normally."
+                "**Ready to log!** Just text your sets normally.\n\n"
             )
             await send_telegram_reply(chat_id, arms_menu)
             return {"status": "success"}
@@ -704,7 +757,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     )
                     lift_data = WorkoutStructure.model_validate_json(response.choices[0].message.content)
                     exercise = lift_data.exercise_name.lower().strip()
-                    
+
+                    if exercise not in PROGRESSION_SCHEMA:
+                        error_reply = (
+                            f"**Unrecognized Exercise:** '_{exercise.title()}_'\n\n"
+                            f"That exercise is not currently mapped in your program schema. Please check your spelling or choose an exercise from your workout menu!"
+                        )
+                        await send_telegram_reply(chat_id, error_reply)
+                        return {"status": "success"}
         
                     if lift_data.reps == 0:
                         today_str = date.today().isoformat()
@@ -713,7 +773,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         intensity_advice = coaching_data["advice"]
                         warmup_count = coaching_data.get("warmup_sets", 0)
 
-                        ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+                        ex_schema = PROGRESSION_SCHEMA.get(exercise)
                         schema_text_lines = []
                         for s, targets in ex_schema.items():
                             schema_text_lines.append(f"• Working Set {s}: {targets['max_reps']} reps (+{targets['increment']} lbs incr.)")
@@ -906,7 +966,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     #     intensity_advice = "1-2s pause at bottom. **Last Set: 30s Static Stretch.**"
         
                     # --- DYNAMIC TARGETS & COACHING ENGINE ---
-                    ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+                    ex_schema = PROGRESSION_SCHEMA.get(exercise)
                     total_target_sets = len(ex_schema)
         
                     coaching_data = EXERCISE_COACHING.get(exercise, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
@@ -939,7 +999,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         next_set_count = set_count + 1
                         
                         # Fetch targets based on the set you JUST completed
-                        ex_schema = PROGRESSION_SCHEMA.get(exercise, PROGRESSION_SCHEMA["default"])
+                        ex_schema = PROGRESSION_SCHEMA.get(exercise)
                         current_targets = ex_schema.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
                         min_reps = current_targets['min_reps']
                         max_reps = current_targets['max_reps']
