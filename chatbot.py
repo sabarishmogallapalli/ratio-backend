@@ -306,7 +306,6 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
             "chat_id": chat_id, "text": reminder, "parse_mode": "Markdown"
         })
 
-# --- NEW: Abstracted Saving & Coaching Engine ---
 async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     central_tz = zoneinfo.ZoneInfo("America/Chicago")
     meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
@@ -367,7 +366,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
         daily_summary = (
             f"\n\n **Daily Status:**\n"
             f" Protein: **{total_pro}g** / {target_pro}g *(Need {rem_pro}g more)*\n"
-            f" Calories: **{total_cal}** / {target_cal}\n\n"
+            f" Calories: **{total_cal}** / {round(target_cal)}\n\n"
             f" *{coach_advice}*"
         )
     else:
@@ -382,7 +381,6 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
 
     await send_telegram_reply(chat_id, reply)
 
-# Webhook endpoint
 @app.post("/api/v1/webhook")
 async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
     try:
@@ -393,7 +391,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         return {"status": "error", "message": "Invalid JSON"}
     
     try:
-        # --- NEW: HANDLE BUTTON CLICKS ---
         if "callback_query" in payload:
             callback = payload["callback_query"]
             chat_id = callback["message"]["chat"]["id"]
@@ -405,7 +402,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 
             pending_data = PENDING_LOGS[chat_id]
             raw_text = pending_data["raw_text"]
-            # 1. User clicked a USDA result
             if callback_data.startswith("usda_"):
                 index = int(callback_data.split("_")[1])
                 selected_food = pending_data["usda_options"][index]
@@ -426,7 +422,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 response_dict = json.loads(response.choices[0].message.content)
                 clean_dict = {k: v for k, v in response_dict.items() if v is not None}
                 food_data = FoodStructure.model_validate(clean_dict)
-            # 2. User clicked AI Fallback
             elif callback_data == "ai_fallback":
                 schema_string = json.dumps(FoodStructure.model_json_schema())
                 system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
@@ -447,7 +442,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 wp_data = WEAK_POINTS_TABLE.get(wp_key)
 
                 if isinstance(wp_data, str):
-                    # For Hamstrings, Calves, Mid-Back, etc. where he just gives text advice
                     reply_text = f"**{wp_key.title()} Advice:**\n\n{wp_data}"
                 else:
                     # For muscle groups with specific Ex 1 & Ex 2 options
@@ -461,7 +455,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         f"*Note: Do not do all of them in one day!*"
                     )
 
-                # Edit the message to show the results and remove the keyboard
                 async with httpx.AsyncClient() as http_client:
                     await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
                         "chat_id": chat_id,
@@ -471,11 +464,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     })
                 return {"status": "success"}
 
-            # Clear memory and trigger saving engine
             del PENDING_LOGS[chat_id]
             await process_and_save_meal(chat_id, food_data)
             
-            # Edit the original message to remove the buttons
             async with httpx.AsyncClient() as http_client:
                 await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageReplyMarkup", json={
                     "chat_id": chat_id,
@@ -485,7 +476,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             return {"status": "success"}
 
-        # --- NORMAL MESSAGE LOGIC CONTINUES BELOW ---
         message = payload.get("message", {})
         chat_id = message.get("chat", {}).get("id")
         user_text = message.get("text", "").strip()
@@ -614,7 +604,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower().startswith("profile:"):
             clean_profile_text = user_text.lower().replace("profile:", "").strip()
             
-            # Simplified schema: Groq only needs to find 2 variables now
             class ProfileInput(BaseModel):
                 weight: float
                 goal: str
@@ -658,7 +647,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             bmr = (10 * (weight / 2.2)) + (6.25 * (height * 2.54)) - (5 * age) + 5
             tdee = bmr * 1.55
 
-            # --- THE MACRO MATH ENGINE ---
             if "cut" in goal:
                 cals = tdee - 500
             elif "bulk" in goal:
@@ -796,9 +784,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         
                             history_text = "\n".join([f"• Set {row['set_number']}: {row['weight']} lbs × {row['reps']} reps" for row in sorted(last_session, key=lambda x: x['set_number'])])
         
-                            heaviest_set = max(last_session, key=lambda x: x['weight'])
-                            target_working_weight = heaviest_set['weight']
-        
                             set_1_targets = ex_schema.get(1, {"min_reps": 8, "max_reps": 12, "increment": 5})
                             target_max_reps = set_1_targets['max_reps']
                             target_min_reps = set_1_targets['min_reps']
@@ -807,14 +792,21 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             unique_sessions = len(set(row['created_at'][:10] for row in history.data))
                             is_deload_week = (unique_sessions == 4) # If 4 previous sessions exist, today is session 5!
 
-                            if heaviest_set['reps'] >= target_max_reps:
-                                target_working_weight += increment
-                                rec_text = f"You crushed **{target_max_reps} reps** at {heaviest_set['weight']} lbs last time! Load up **{target_working_weight} lbs** for Set 1 today and aim for **{target_max_reps} reps**!"
-                            elif heaviest_set['reps'] < target_min_reps:
-                                target_working_weight = max(0, target_working_weight - increment)
-                                rec_text = f"You fell below the {target_min_reps} rep floor last time. Drop weight to **{target_working_weight} lbs** for Working Set 1 today to stay in the target zone."
+                            successful_sets = [s for s in last_session if s['reps'] >= target_min_reps]
+
+                            if successful_sets:
+                                best_set = max(successful_sets, key=lambda x: x['weight'])
+                                target_working_weight = best_set['weight']
+                                
+                                if best_set['reps'] >= target_max_reps:
+                                    target_working_weight += increment
+                                    rec_text = f"You crushed **{target_max_reps} reps** at {best_set['weight']} lbs last time! Load up **{target_working_weight} lbs** for Set 1 today and aim for **{target_max_reps} reps**!"
+                                else:
+                                    rec_text = f"Your heaviest successful set last time was **{target_working_weight} lbs** for {best_set['reps']} reps. Stick with **{target_working_weight} lbs** for Set 1 today and push for **{target_max_reps} reps**!"
                             else:
-                                rec_text = f"Your heaviest set last time was **{target_working_weight} lbs** for {heaviest_set['reps']} reps. Stick with **{target_working_weight} lbs** for Set 1 today and push for **{target_max_reps} reps**!"
+                                heaviest_set = max(last_session, key=lambda x: x['weight'])
+                                target_working_weight = max(0, heaviest_set['weight'] - increment)
+                                rec_text = f"You fell below the {target_min_reps} rep floor last time ({heaviest_set['weight']} lbs × {heaviest_set['reps']} reps). Drop weight to **{target_working_weight} lbs** for Working Set 1 today to stay in the target zone."
 
                             if is_deload_week:
                                 schema_text = " **SEMI-DELOAD WEEK (Week 5)** \n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery! Next week starts Next Block so Update Excercises*\n\n" + schema_text
@@ -847,6 +839,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "is_warmup": lift_data.is_warmup,
                         "created_at": datetime.now(central_tz).isoformat()
                     }).execute()
+
+                    if lift_data.is_warmup:
+                        reply_msg = (
+                            f"🔥 **Warm-Up Set Tracked:**\n"
+                            f"*{exercise.title()}* - **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
+                            f"*(This does not trigger rest timers or affect working set counts)*"
+                        )
+                        await send_telegram_reply(chat_id, reply_msg)
+                        return {"status": "success"}
         
                     total_target_sets = 1
                     rep_guideline = "8-12 reps"
@@ -854,116 +855,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     message = ""
         
                     progress_message = ""
-        
-                    # # --- UPPER #1 ---
-                    # if "cuffed behind-the-back lateral raise" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Raise the cables up and out in a 'Y' motion. Connect with middle delt fibers. **Last Set: Myo-reps!**"
-                    # elif "cross-body lat pull-around" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Keep cable and wrist in a straight line. **Last Set: Long-length Partials on all reps.**"
-                    # elif "low incline smith machine press" in exercise:
-                    #     total_target_sets = 4
-                    #     rep_guideline = "8-10 reps"
-                    #     intensity_advice = "15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch hold.**"
-                    # elif "chest-supported machine row" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "8-10 reps"
-                    #     intensity_advice = "Flare elbows ~45°. Squeeze blades hard at top. **Last Set: Long-length Partials.**"
-                    # elif "overhead cable tricep extension" in exercise:
-                    #     total_target_sets = 2
-                    #     rep_guideline = "8-10 reps"
-                    #     intensity_advice = "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**"
-                    # elif "straight-bar lat prayer" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "12-15 reps"
-                    #     intensity_advice = "Deep stretch at top, squeeze lats at bottom. **Last Set: Long-length Partials.**"
-                    # elif "pec deck" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "12-15 reps"
-                    #     intensity_advice = "**Integrated Partials:** Alternate 1 full ROM rep with 1 bottom-half partial rep."
-        
-                    # # --- LOWER #1 ---
-                    # elif "seated leg curl" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "8-10 reps"
-                    #     intensity_advice = "Lean forward to maximize hamstring stretch."
-                    # elif "machine hip adduction" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard."
-                    # elif "hack squat" in exercise:
-                    #     total_target_sets = 3
-                    #     # Reverse Pyramid logic: 4, 6, 8 reps
-                    #     reps_map = {1: 4, 2: 6, 3: 8}
-                    #     rep_guideline = f"{reps_map.get(set_count, 8)} reps (Reverse Pyramid)"
-                    #     intensity_advice = "Set 1: Heaviest. Set 2: -10-15%. Set 3: -10-15%."
-                    # elif "leg extension" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "2-3s negative. Feel quads pulling apart. **Last Set: Long-length Partials.**"
-                    # elif "leg press calf press" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "12-15 reps"
-                    #     intensity_advice = "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Static Stretch.**"
-        
-                    # # --- UPPER #2 ---
-                    # elif "super-rom overhand cable row" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Wide-grip pulldown bar. Lean forward on negative, upright on pull."
-                    # elif "machine shoulder press" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Elbows at 90°. Smooth, controlled reps. **Last Set: Dropset.**"
-                    # elif "assisted pull-up" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "8-10 reps"
-                    #     intensity_advice = "2-3s negative, 0.5s pause at bottom. **Last Set: Long-length Partials.**"
-                    # elif "paused assisted dip" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "8-10 reps"
-                    #     intensity_advice = "2-3s negative, 1-2s pause at bottom. Break 90° elbow angle."
-                    # elif "inverse db zottman curl" in exercise:
-                    #     total_target_sets = 2
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Hammer curl on positive, palms-up grip on the negative."
-                    # elif "super-rom db lateral raise" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "12-15 reps"
-                    #     intensity_advice = "Full ROM to overhead. Squeeze upper traps at the top."
-                    # elif "cable reverse fly" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "5, 4, 3+ reps"
-                    #     intensity_advice = "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps)."
-        
-                    # # --- LOWER #2 ---
-                    # elif "lying leg curl" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "8-10 reps"
-                    #     intensity_advice = "Big stretch at bottom. No butt popping! **Last Set: Long-length Partials.**"
-                    # elif "leg press" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "8 reps"
-                    #     intensity_advice = "Feet low on platform. Deep stretch with 1s pause at bottom."
-                    # elif "paused barbell rdl" in exercise:
-                    #     total_target_sets = 2
-                    #     rep_guideline = "8 reps"
-                    #     intensity_advice = "1s pause at bottom. Bottom 3/4 range of motion only (don't lock out)."
-                    # elif "machine hip adduction" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Mind-muscle connection with inner thighs—push them hard. Without rest super set with sissy squat"
-                    # elif "sissy squat" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "Knees forward past toes. Push hard!"
-                    # elif "standing calf raise" in exercise:
-                    #     total_target_sets = 3
-                    #     rep_guideline = "10-12 reps"
-                    #     intensity_advice = "1-2s pause at bottom. **Last Set: 30s Static Stretch.**"
         
                     # --- DYNAMIC TARGETS & COACHING ENGINE ---
                     ex_schema = PROGRESSION_SCHEMA.get(exercise)
@@ -1007,9 +898,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         
                         is_assisted = any(ex in exercise for ex in ["assisted pull-up", "paused assisted dip"])
                         is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "leg extension"])
-                        if is_reverse_pyramid and set_count > 1:
+                        if is_reverse_pyramid:
+                            next_targets = ex_schema.get(next_set_count, current_targets)
+                            next_max_reps = next_targets['max_reps']
                             drop_weight = max(0, lift_data.weight - increment)
-                            next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off set. Target **{drop_weight} lbs** for {max_reps} reps (Reverse Pyramid)."
+                            next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off set. Target **{drop_weight} lbs** for {next_max_reps} reps (Reverse Pyramid)."
                         elif is_assisted:
                             if lift_data.reps >= max_reps:
                                 next_weight = max(0, lift_data.weight - increment)
