@@ -636,7 +636,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_1"):
             phase_2_lower_1_menu = (
-                "**JEFF NIPPARD LOWER DAY 1 CHECKLIST**\n\n"
+                "**JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST**\n\n"
                 "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"                
                 "**seated leg curl** (8-10 reps) (3 sets)\n\n"
                 "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
@@ -649,7 +649,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_2"):
             phase_2_lower_2_menu = (
-                "**JEFF NIPPARD LOWER DAY 2 CHECKLIST**\n\n"
+                "**JEFF NIPPARD PHASE 2 LOWER DAY 2 CHECKLIST**\n\n"
                 "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
                 "**lying leg curl** (8-10 reps) (3 sets)\n\n"
                 "**smith machine reverse lunge press** (8 reps) (3 sets)\n\n"
