@@ -187,7 +187,7 @@ EXERCISE_COACHING.update({
     "dumbbell lateral raise": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Slight lean forward, lead with the elbows. Stop at shoulder height."},
     "smith machine shoulder press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Set bench to a high incline. Lower bar with control to chin/upper chest level."},
     "standing dumbbell arnold press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Start with palms facing you, rotate palms forward as you press overhead."},
-    "cable lat prayer"
+    "cable lat prayer": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Lean forward for big lat stretch at top, stand upright at bottom. **Last Set: Long-length Partials.**"},
     "dumbbell lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows slightly bent. Feel the stretch in your lats, not your chest."},
     "machine lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Drive elbows down and back. Deep stretch at the top."},
     "elbows-in 1-arm db row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Pull dumbbell toward your hip. Squeeze the lat at the top."},
