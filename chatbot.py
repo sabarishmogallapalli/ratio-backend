@@ -56,7 +56,7 @@ PROGRESSION_SCHEMA = {
     "paused assisted dip": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
     "inverse db zottman curl": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5} },
     "super-rom db lateral raise": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}, 3: {"min_reps": 12, "max_reps": 15, "increment": 5} },
-    "cable reverse fly (mechanical dropset)": { 1: {"min_reps": 5, "max_reps": 5, "increment": 5}, 2: {"min_reps": 4, "max_reps": 4, "increment": 5}, 3: {"min_reps": 3, "max_reps": 3, "increment": 5} },
+    "cable reverse flye (mechanical dropset)": { 1: {"min_reps": 5, "max_reps": 5, "increment": 5}, 2: {"min_reps": 4, "max_reps": 4, "increment": 5}, 3: {"min_reps": 3, "max_reps": 3, "increment": 5} },
 
     "lying leg curl": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
     "leg press": { 1: {"min_reps": 8, "max_reps": 8, "increment": 5}, 2: {"min_reps": 8, "max_reps": 8, "increment": 5}, 3: {"min_reps": 8, "max_reps": 8, "increment": 5} },
@@ -70,30 +70,8 @@ PROGRESSION_SCHEMA = {
     "cable triceps kickback": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5} },
     "cable crunch": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
 
-    "machine lateral raise": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "dumbbell lateral raise": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "smith machine shoulder press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "standing dumbbell arnold press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "dumbbell lat pullover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "machine lat pullover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "lat-focused cable row": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "elbows-in 1-arm db row": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "half-kneeling 1-arm lat pulldown": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "reverse nordics": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "single-leg leg press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 10}, 2: {"min_reps": 8, "max_reps": 12, "increment": 10} },
-    "machine hip abduction": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "cable hip abduction": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },    "lateral band walk": {}, #8-12 reps  3 regular sets
-    "barbell hip thrust": { 1: {"min_reps": 8, "max_reps": 12, "increment": 10}, 2: {"min_reps": 8, "max_reps": 12, "increment": 10} },
-    "single-leg dumbbell hip thrust": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "low incline db flye": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "low-to-high cable crossover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "chest press machine (incline if upper pecs lagging)": { 1: {"min_reps": 8, "max_reps": 12, "increment": 10}, 2: {"min_reps": 8, "max_reps": 12, "increment": 10} },
-    "dumbbell chest press (incline if upper pecs lagging)": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "plate-loaded neck curls": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "head harness neck extension": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-    "plate-loaded neck extension": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5} },
-
     #PHASE 2
+    "lat-focused cable row": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5} },
     "low incline db press": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
     "chest-supported t-bar row + kelso shrug": { 1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5} },
     "bent-over cable pec flye (w/ integrated partials)": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}, 3: {"min_reps": 12, "max_reps": 15, "increment": 5} },
@@ -109,6 +87,36 @@ PROGRESSION_SCHEMA = {
     "rear delt 45 degrees cable flye": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}, 3: {"min_reps": 12, "max_reps": 15, "increment": 5} },
     "smith machine reverse lunge": { 1: {"min_reps": 8, "max_reps": 8, "increment": 5}, 2: {"min_reps": 8, "max_reps": 8, "increment": 5}, 3: {"min_reps": 8, "max_reps": 8, "increment": 5} },
     "glute-ham raise": { 1: {"min_reps": 8, "max_reps": 8, "increment": 5}, 2: {"min_reps": 8, "max_reps": 8, "increment": 5}, 3: {"min_reps": 8, "max_reps": 8, "increment": 5} },
+    "machine hip abduction": { 1: {"min_reps": 10, "max_reps": 12, "increment": 10}, 2: {"min_reps": 10, "max_reps": 12, "increment": 10}, 3: {"min_reps": 10, "max_reps": 12, "increment": 10} },
+    "slow-eccentric ez-bar skull crusher": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
+    "slow-eccentric bayesian curl": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
+    "tricep diverging pressdown (long rope or 2 ropes)": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}},
+    "reverse grip cable curl": { 1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}},
+    "roman chair leg raise": { 1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
+
+    #WEAK POINTS
+    "machine lateral raise": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "dumbbell lateral raise": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "smith machine shoulder press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "standing dumbbell arnold press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "cable lat prayer": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "dumbbell lat pullover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "machine lat pullover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "elbows-in 1-arm db row": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "half-kneeling 1-arm lat pulldown": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "reverse nordics": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "single-leg leg press": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "cable hip abduction": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "lateral band walk": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "barbell hip thrust": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "single-leg db hip thrust": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "low incline db flye": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "low-to-high cable crossover": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "chest press machine (incline if upper pecs are lagging, flat if entire chest is lagging)": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "dumbbell chest press (incline if upper pecs are lagging, flat if entire chest is lagging)": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "plate loaded neck curls": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "head harness neck extension": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+    "plate-loaded neck extension": { 1: {"min_reps": 8, "max_reps": 12, "increment": 5}, 2: {"min_reps": 8, "max_reps": 12, "increment": 5}, 3: {"min_reps": 8, "max_reps": 12, "increment": 5}},
 }
 
 
@@ -142,7 +150,14 @@ EXERCISE_COACHING = {
     "sissy squat": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Knees forward past toes. Push hard!"},
     "standing calf raise": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "1-2s pause at bottom. **Last Set: 30s Calf Static Stretch.**"},
 
+    "bayesian cable curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. **Last Set: Long-length Partials.**"},
+    "seated db french press": {"warmup_sets": 1, "reps": "10 reps", "advice": "Palms under top of dumbbell. Deep stretch at bottom. Avoid pausing at the top of each rep."},
+    "bottom-2/3 constant tension preacher curl": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Stay in bottom 2/3. No pausing at top or bottom—constant tension!"},
+    "cable triceps kickback": {"warmup_sets": 0, "reps": "12-15 reps", "advice": "Upright or bent over. At full squeeze, keep shoulder positioned behind torso."},
+    "cable crunch": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack."},
+
     #PHASE 2
+    "lat-focused cable row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows tucked close to your sides to bias the lats."},
     "low incline db press": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "Set the bench at a 15 degree incline. Do a slight elbow tuck on the negative then flare as you push (assuming this doesn't bother your shoulders). Nice smooth reps here. No pausing at the top or bottom: constant tension on the pecs."},
     "chest-supported t-bar row + kelso shrug": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "Do 8-10 reps as a normal T-Bar row, driving your elbows back at roughly 45 degrees and squeezing your shoulder blades together. Without resting, do another 406 reps as Kelso Shrugs (just squeeze your shoulder blades together without rowing all the way back with your arms)"},
     "bent-over cable pec flye (w/ integrated partials)": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Lean forward until your torso is parallel with the floor, flye straight out and down toward the floor. Stretch and squeeze the pecs. Stay locked in."},
@@ -155,9 +170,15 @@ EXERCISE_COACHING = {
     "decline machine chest press": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "Feel your pecs stretching apart on the negative. Mind-muscle connection with lower pecs."},
     "concentration cable curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Place your working elbow against your knee and perform strict form curls."},
     "cross-body cable y-raise": {"warmup_sets": 3, "reps": "10-12 reps", "advice": "Think about drawing a sword as you do the positive. Sweep your arm up, out, and across your body. It may take a few weeks to get used to these if you haven't done them before, but once they click, they really click."},
-    "rear delt 45 degrees cable flye": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Pull with one arm at a time, bracing with your non-working hand against the machine. Try to align your arm and the cable in a straight line at the bottom of the fly."},
+    "rear dent 45 degrees cable flye": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Pull with one arm at a time, bracing with your non-working hand against the machine. Try to align your arm and the cable in a straight line at the bottom of the fly."},
     "smith machine reverse lunge": {"warmup_sets": 2, "reps": "8 reps", "advice": "Set one leg back on the negative and then drive the weight up using your front leg. Try to minimize assistance from your back leg."},
     "glute-ham raise": {"warmup_sets": 2, "reps": "8 reps", "advice": "Cut out the top 25 percent of the ROM, where there will be minimal tension on the hamstrings. Control the negative and squeeze your hamstrings to pull yourself up."},
+    "machine hip abduction": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Mind-muscle connection with inner thighs. Push hard!"},
+    "slow-eccentric ez-bar skull crusher": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Use a 3-4 second negative. Arc the EZ-bar slightly back behind your head. When you extend, keep the bar behind your eye line. Use the inside (closer) grip option and allow the elbows to flare to a degree that feels comfortable."},
+    "slow-eccentric bayesian curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Use a 3-4 second negative and a slight pause at the bottom of each rep to emphasize stretching your biceps **Last Set: Long-length partials (on all reps of the last set)**"},
+    "triceps diverging pressdown (long rope or 2 ropes)": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Use two long reps or one long rope. Lean slightly forward, flare your elbows slightly out and keep your arms back in line with your torso. Then do triceps pressdowns, getting a full, big squeeze at the bottom."},
+    "reverse grip cable curl": {"warmup_sets": 0, "reps": "12-15 reps", "advice": "Grab a cable bar with your palms facing down and perform curls. These will work the back of your forearm, brachialis and biceps."},
+    "roman chair leg raise": {"warmup_sets": 0, "reps": "10-20 reps", "advice": "Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit RPE 9-10 (0-1 reps shy of failure) with controlled form."},
 }
 
 EXERCISE_COACHING.update({
@@ -166,14 +187,13 @@ EXERCISE_COACHING.update({
     "dumbbell lateral raise": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Slight lean forward, lead with the elbows. Stop at shoulder height."},
     "smith machine shoulder press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Set bench to a high incline. Lower bar with control to chin/upper chest level."},
     "standing dumbbell arnold press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Start with palms facing you, rotate palms forward as you press overhead."},
+    "cable lat prayer"
     "dumbbell lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows slightly bent. Feel the stretch in your lats, not your chest."},
     "machine lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Drive elbows down and back. Deep stretch at the top."},
-    "lat-focused cable row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows tucked close to your sides to bias the lats."},
     "elbows-in 1-arm db row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Pull dumbbell toward your hip. Squeeze the lat at the top."},
     "half-kneeling 1-arm lat pulldown": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Kneel on the same side you are pulling with. Drive elbow straight down."},
     "reverse nordics": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep a straight line from knees to shoulders. Control the descent into a deep quad stretch."},
     "single-leg leg press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Place foot lower on the platform for quad focus. Avoid completely locking out the knee."},
-    "machine hip abduction": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Mind-muscle connection with inner thighs. Push hard!"},
     "cable hip abduction": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep torso stationary. Pull the cable away using only your glutes."},
     "lateral band walk": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep tension on the band at all times. Do not drag the trailing foot."},
     "barbell hip thrust": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Tuck your chin, drive through the heels, and squeeze glutes hard at lockout."},
@@ -185,21 +205,6 @@ EXERCISE_COACHING.update({
     "plate-loaded neck curls": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Use slow, controlled reps. Tuck chin to chest at the top."},
     "head harness neck extension": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Do not jerk the weight. Extend smoothly to activate the back of the neck."},
     "plate-loaded neck extension": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Maintain strict control. Focus on the stretch and contraction of the neck extensors."},
-
-    #WEEK 1
-    "bayesian cable curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. **Last Set: Long-length Partials.**"},
-    "seated db french press": {"warmup_sets": 1, "reps": "10 reps", "advice": "Palms under top of dumbbell. Deep stretch at bottom. Avoid pausing at the top of each rep."},
-    "bottom-2/3 constant tension preacher curl": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Stay in bottom 2/3. No pausing at top or bottom—constant tension!"},
-    "cable triceps kickback": {"warmup_sets": 0, "reps": "12-15 reps", "advice": "Upright or bent over. At full squeeze, keep shoulder positioned behind torso."},
-    "cable crunch": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack."},
-
-
-    #WEEK 2
-    "slow-eccentric ez-bar skull crusher": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Use a 3-4 second negative. Arc the EZ-bar slightly back behind your head. When you extend, keep the bar behind your eye line. Use the inside (closer) grip option and allow the elbows to flare to a degree that feels comfortable."},
-    "slow-eccentric bayesian curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Use a 3-4 second negative and a slight pause at the bottom of each rep to emphasize stretching your biceps **Last Set: Long-length partials (on all reps of the last set)**"},
-    "triceps diverging pressdown (long rope or 2 ropes)": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Use two long reps or one long rope. Lean slightly forward, flare your elbows slightly out and keep your arms back in line with your torso. Then do triceps pressdowns, getting a full, big squeeze at the bottom."},
-    "reverse grip cable curl": {"warmup_sets": 0, "reps": "12-15 reps", "advice": "Grab a cable bar with your palms facing down and perform curls. These will work the back of your forearm, brachialis and biceps."},
-    "roman chair leg raise": {"warmup_sets": 0, "reps": "10-20 reps", "advice": "Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit RPE 9-10 (0-1 reps shy of failure) with controlled form."},
 })
 
 WEAK_POINTS_TABLE = {
