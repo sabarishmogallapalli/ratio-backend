@@ -215,7 +215,7 @@ WEAK_POINTS_TABLE = {
     },
     "lats": {
         "title": "Lats ('Back Width')",
-        "ex1": ["Straight-Bar Lat Prayer", "Dumbbell Lat Pullover", "Machine Lat Pullover"],
+        "ex1": ["Cable Lat Prayer", "Dumbbell Lat Pullover", "Machine Lat Pullover"],
         "ex2": ["Lat-Focused Cable Row", "Elbows-In 1-Arm DB Row", "Half-Kneeling 1-Arm Lat Pulldown"]
     },
     "quads": {
@@ -647,7 +647,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
                 "**smith machine squat** (4,6,8 reps) (3 sets)\n\n"
                 "**leg extension** (10-12 reps) (3 sets)\n\n"
-                "**dumbbell calf lumps** (12-15 reps) (3 sets)\n\n"
+                "**dumbbell calf jumps** (12-15 reps) (3 sets)\n\n"
                 "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             )
             await send_telegram_reply(chat_id, phase_2_lower_1_menu)
@@ -672,8 +672,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
                 "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
                 "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
-                "**slow-ecentric ez-bar skull crusher** (10-12 reps) (3 sets)\n\n"
-                "**slow-ecentric bayesian curl** (10-12 reps) (3 sets)\n\n"
+                "**slow-eccentric ez-bar skull crusher** (10-12 reps) (3 sets)\n\n"
+                "**slow-eccentric bayesian curl** (10-12 reps) (3 sets)\n\n"
                 "**triceps diverging pressdown (long rope or 2 ropes)** (12-15 reps) (2 sets)\n\n"
                 "**reverse grip cable curl** (12-15 reps) (2 sets)\n\n"
                 "**roman chair leg raise crunch** (10-20 reps) (3 sets)\n\n"
