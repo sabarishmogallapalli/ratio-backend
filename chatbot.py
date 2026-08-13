@@ -910,8 +910,20 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             target_min_reps = set_1_targets['min_reps']
                             increment = set_1_targets['increment']
 
-                            unique_sessions = len(set(row['created_at'][:10] for row in history.data))
-                            is_deload_week = (unique_sessions == 4) # If 4 previous sessions exist, today is session 5!
+                            upper_1_anchors = ["low incline smith machine press", "low incline db press"]
+                            end_of_today = f"{today_str}T23:59:59"
+                            
+                            upper_1_logs = supabase.table("exercise_logs") \
+                                .select("created_at") \
+                                .in_("exercise_name", upper_1_anchors) \
+                                .lte("created_at", end_of_today) \
+                                .execute()
+                                
+                            unique_weeks = len(set(row['created_at'][:10] for row in upper_1_logs.data)) if upper_1_logs.data else 1
+                            if unique_weeks == 0:
+                                unique_weeks = 1
+
+                            is_deload_week = (unique_weeks % 5 == 0)
 
                             successful_sets = [s for s in last_session if s['reps'] >= target_min_reps]
 
@@ -1018,7 +1030,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         increment = current_targets['increment']
         
                         is_assisted = any(ex in exercise for ex in ["assisted pull-up", "paused assisted dip"])
-                        is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "leg extension", "smith machine squat"])
+                        is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "smith machine squat"])
                         if is_reverse_pyramid:
                             next_targets = ex_schema.get(next_set_count, current_targets)
                             next_max_reps = next_targets['max_reps']
