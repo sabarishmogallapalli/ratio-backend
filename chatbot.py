@@ -694,47 +694,113 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, phase_1_arms_menu)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_upper_1"):
-            phase_2_upper_1_menu = (
-                "**JEFF NIPPARD PHASE 2 UPPER DAY 1 CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-                "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
-                "**lat-focused cable row** (10-12 reps) (3 sets)\n\n"
-                "**low incline db press** (8-10 reps) (3 sets)\n\n"
-                "**chest-supported t-bar row & kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
-                "**bent-over cable pec flye (w/ integrated partials)** (12-15 reps) (3 sets)\n\n"
-                "**1-arm lat pull-in** (12-15 reps) (2 sets)\n\n"
-                "**dual-cable triceps press** (10-12 reps) (3 sets)\n\n"
-                "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
-            )
-            await send_telegram_reply(chat_id, phase_2_upper_1_menu)
+            # phase_2_upper_1_menu = (
+            #     "**JEFF NIPPARD PHASE 2 UPPER DAY 1 CHECKLIST**\n\n"
+            #     "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            #     "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
+            #     "**lat-focused cable row** (10-12 reps) (3 sets)\n\n"
+            #     "**low incline db press** (8-10 reps) (3 sets)\n\n"
+            #     "**chest-supported t-bar row & kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
+            #     "**bent-over cable pec flye (w/ integrated partials)** (12-15 reps) (3 sets)\n\n"
+            #     "**1-arm lat pull-in** (12-15 reps) (2 sets)\n\n"
+            #     "**dual-cable triceps press** (10-12 reps) (3 sets)\n\n"
+            #     "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            # )
+            # await send_telegram_reply(chat_id, phase_2_upper_1_menu)
+            # return {"status": "success"}
+            msg_text = "**JEFF NIPPARD PHASE 2 UPPER DAY 1 CHECKLIST**\n\n"
+            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
+            "**lat-focused cable row** (10-12 reps) (3 sets)\n\n"
+            "**low incline db press** (8-10 reps) (3 sets)\n\n"
+            "**chest-supported t-bar row & kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
+            "**bent-over cable pec flye (w/ integrated partials)** (12-15 reps) (3 sets)\n\n"
+            "**1-arm lat pull-in** (12-15 reps) (2 sets)\n\n"
+            "**dual-cable triceps press** (10-12 reps) (3 sets)\n\n"
+            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "cuffed behind-the-back Lateral Raise", "callback_data": "p2u1_cuffed-behind-the-back-lateral-raise"},
+                        {"text": "lat-focused cable row", "callback_data": "p2u1_lat-focused-cable-row"}],
+                    [{"text": "low incline db press", "callback_data": "p2u1_low-incline-db-press"}, {
+                        "text": "chest-supported t-bar row & kelso shrug", "callback_data": "p2u1_chest-supported-t-bar-row-&-kelso-shrug"}],
+                    [{"text": "bent-over cable pec flye (w/ integrated partials)", "callback_data": "p2u1_bent-over-cable-pec-flye-(w/-integrated-partials)"}, {
+                        "text": "1-arm lat pull-in", "callback_data": "p2u1_1-arm-lat-pull-in"}],
+                    [{"text": "dual-cable triceps press", "callback_data": "p2u1_dual-cable-triceps-press"}],
+                ]
+            }
+            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_upper_2"):
-            phase_2_upper_2_menu = (
-                "**JEFF NIPPARD PHASE 2 UPPER DAY 2 CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-                "**dual-handle lat pulldown (mid-back + lats)** (10-12 reps) (3 sets)\n\n"
-                "**seated dumbbell shoulder press** (10-12 reps) (3 sets)\n\n"
-                "**chest-supported machine row** (8-10 reps) (3 sets)\n\n"
-                "**decline machine chest press** (8-10 reps) (3 sets)\n\n"
-                "**concentration cable curl** (10-12 reps) (2 sets)\n\n"
-                "**cross-body cable y-raise** (10-12 reps) (3 sets)\n\n"
-                "**rear delt 45 degrees cable flye** (12-15 reps) (3 sets)\n\n"
-                "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
-            )
-            await send_telegram_reply(chat_id, phase_2_upper_2_menu)
+            # phase_2_upper_2_menu = (
+            #     "**JEFF NIPPARD PHASE 2 UPPER DAY 2 CHECKLIST**\n\n"
+            #     "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            #     "**dual-handle lat pulldown (mid-back + lats)** (10-12 reps) (3 sets)\n\n"
+            #     "**seated dumbbell shoulder press** (10-12 reps) (3 sets)\n\n"
+            #     "**chest-supported machine row** (8-10 reps) (3 sets)\n\n"
+            #     "**decline machine chest press** (8-10 reps) (3 sets)\n\n"
+            #     "**concentration cable curl** (10-12 reps) (2 sets)\n\n"
+            #     "**cross-body cable y-raise** (10-12 reps) (3 sets)\n\n"
+            #     "**rear delt 45 degrees cable flye** (12-15 reps) (3 sets)\n\n"
+            #     "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            # )
+            # await send_telegram_reply(chat_id, phase_2_upper_2_menu)
+            # return {"status": "success"}
+            msg_text = "**JEFF NIPPARD PHASE 2 UPPER DAY 2 CHECKLIST**\n\n"
+            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "**dual-handle lat pulldown (mid-back + lats)** (10-12 reps) (3 sets)\n\n"
+            "**seated dumbbell shoulder press** (10-12 reps) (3 sets)\n\n"
+            "**chest-supported machine row** (8-10 reps) (3 sets)\n\n"
+            "**decline machine chest press** (8-10 reps) (3 sets)\n\n"
+            "**concentration cable curl** (10-12 reps) (2 sets)\n\n"
+            "**cross-body cable y-raise** (10-12 reps) (3 sets)\n\n"
+            "**rear delt 45 degrees cable flye** (12-15 reps) (3 sets)\n\n"
+            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "dual-handle lat pulldown", "callback_data": "p2l1_seated-leg-curl"},
+                        {"text": "seated dumbbell shoulder press", "callback_data": "p2l1_machine-hip-adduction"}],
+                    [{"text": "chest-supported machine row", "callback_data": "p2l1_smith-machine-squat"}, {
+                        "text": "decline machine chest press", "callback_data": "p2l1_leg-extension"}],
+                    [{"text": "concentration cable curl", "callback_data": "p2l1_dumbbell-calf-jumps"}, {
+                        "text": "cross-body cable y-raise", "callback_data": "p2l1_leg-extension"}],
+                    [{"text": "rear delt 45 degrees cable flye", "callback_data": "p2l1_dumbbell-calf-jumps"}],
+                ]
+            }
+            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_1"):
-            phase_2_lower_1_menu = (
-                "**JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-                "**seated leg curl** (8-10 reps) (3 sets)\n\n"
-                "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
-                "**smith machine squat** (4,6,8 reps) (3 sets)\n\n"
-                "**leg extension** (10-12 reps) (3 sets)\n\n"
-                "**dumbbell calf jumps** (12-15 reps) (3 sets)\n\n"
-                "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
-            )
-            await send_telegram_reply(chat_id, phase_2_lower_1_menu)
+            # phase_2_lower_1_menu = (
+            #     "**JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST**\n\n"
+            #     "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            #     "**seated leg curl** (8-10 reps) (3 sets)\n\n"
+            #     "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
+            #     "**smith machine squat** (4,6,8 reps) (3 sets)\n\n"
+            #     "**leg extension** (10-12 reps) (3 sets)\n\n"
+            #     "**dumbbell calf jumps** (12-15 reps) (3 sets)\n\n"
+            #     "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+            # )
+            # await send_telegram_reply(chat_id, phase_2_lower_1_menu)
+            # return {"status": "success"}
+
+            msg_text = "**JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST**\n\n"
+            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "**seated leg curl** (8-10 reps) (3 sets)\n\n"
+            "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
+            "**smith machine squat** (4,6,8 reps) (3 sets)\n\n"
+            "**leg extension** (10-12 reps) (3 sets)\n\n"
+            "**dumbbell calf jumps** (12-15 reps) (3 sets)\n\n"
+            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "Seated Leg Curl", "callback_data": "p2l1_seated-leg-curl"},
+                        {"text": "Machine Hip Adduction", "callback_data": "p2l1_machine-hip-adduction"}],
+                    [{"text": "Smith Machine Squat", "callback_data": "p2l1_smith-machine-squat"}, {
+                        "text": "Leg Extension", "callback_data": "p2l1_leg-extension"}],
+                    [{"text": "Dumbbell Calf Jumps", "callback_data": "p2l1_dumbbell-calf-jumps"}],
+                ]
+            }
+            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_2"):
             phase_2_lower_2_menu = (
@@ -751,19 +817,72 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, phase_2_lower_2_menu)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_arms"):
-            phase_2_arms_menu = (
-                "**JEFF NIPPARD ARMS & WEAK POINTS CHECKLIST**\n\n"
-                "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
-                "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
-                "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
-                "**slow-eccentric ez-bar skull crusher** (10-12 reps) (3 sets)\n\n"
-                "**slow-eccentric bayesian curl** (10-12 reps) (3 sets)\n\n"
-                "**triceps diverging pressdown (long rope or 2 ropes)** (12-15 reps) (2 sets)\n\n"
-                "**reverse grip cable curl** (12-15 reps) (2 sets)\n\n"
-                "**roman chair leg raise crunch** (10-20 reps) (3 sets)\n\n"
-                "**Ready to log!** Just text your sets normally.\n\n"
-            )
-            await send_telegram_reply(chat_id, phase_2_arms_menu)
+            # phase_2_arms_menu = (
+            #     "**JEFF NIPPARD ARMS & WEAK POINTS CHECKLIST**\n\n"
+            #     "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
+            #     "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
+            #     "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
+            #     "**slow-eccentric ez-bar skull crusher** (10-12 reps) (3 sets)\n\n"
+            #     "**slow-eccentric bayesian curl** (10-12 reps) (3 sets)\n\n"
+            #     "**triceps diverging pressdown (long rope or 2 ropes)** (12-15 reps) (2 sets)\n\n"
+            #     "**reverse grip cable curl** (12-15 reps) (2 sets)\n\n"
+            #     "**roman chair leg raise crunch** (10-20 reps) (3 sets)\n\n"
+            #     "**Ready to log!** Just text your sets normally.\n\n"
+            # )
+            # await send_telegram_reply(chat_id, phase_2_arms_menu)
+            # return {"status": "success"}
+            msg_text = "**JEFF NIPPARD PHASE 2 ARMS & WEAK POINTS CHECKLIST**\n\n"
+            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
+            "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
+            wp1_keyboard = {
+                "inline_keyboard": [
+                    [{"text": "Shoulders", "callback_data": "wp_shoulders"},
+                        {"text": "Lats", "callback_data": "wp_lats"}],
+                    [{"text": "Quads", "callback_data": "wp_quads"}, {
+                        "text": "Glutes", "callback_data": "wp_glutes"}],
+                    [{"text": "Chest", "callback_data": "wp_chest"}, {
+                        "text": "Neck", "callback_data": "wp_neck"}],
+                    [{"text": "Hamstrings", "callback_data": "wp_hamstrings"}, {
+                        "text": "Calves", "callback_data": "wp_calves"}],
+                    [{"text": "Mid-Back", "callback_data": "wp_mid-back"},
+                        {"text": "Upper Traps", "callback_data": "wp_upper traps"}],
+                    [{"text": "Abs", "callback_data": "wp_abs"}]
+                ]
+            }
+            await send_telegram_reply(chat_id, msg_text, reply_markup=wp1_keyboard)
+            "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
+            wp2_keyboard = {
+                "inline_keyboard": [
+                    [{"text": "Shoulders", "callback_data": "wp_shoulders"},
+                        {"text": "Lats", "callback_data": "wp_lats"}],
+                    [{"text": "Quads", "callback_data": "wp_quads"}, {
+                        "text": "Glutes", "callback_data": "wp_glutes"}],
+                    [{"text": "Chest", "callback_data": "wp_chest"}, {
+                        "text": "Neck", "callback_data": "wp_neck"}],
+                    [{"text": "Hamstrings", "callback_data": "wp_hamstrings"}, {
+                        "text": "Calves", "callback_data": "wp_calves"}],
+                    [{"text": "Mid-Back", "callback_data": "wp_mid-back"},
+                        {"text": "Upper Traps", "callback_data": "wp_upper traps"}],
+                    [{"text": "Abs", "callback_data": "wp_abs"}]
+                ]
+            }
+            await send_telegram_reply(chat_id, msg_text, reply_markup=wp2_keyboard)
+            "**slow-eccentric ez-bar skull crusher** (10-12 reps) (3 sets)\n\n"
+            "**slow-eccentric bayesian curl** (10-12 reps) (3 sets)\n\n"
+            "**triceps diverging pressdown (long rope or 2 ropes)** (12-15 reps) (2 sets)\n\n"
+            "**reverse grip cable curl** (12-15 reps) (2 sets)\n\n"
+            "**roman chair leg raise crunch** (10-20 reps) (3 sets)\n\n"
+            "**Ready to log!** Just text your sets normally.\n\n"
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "slow-eccentric ez-bar skull crusher", "callback_data": "p2a_slow-eccentric-ez-bar-skull-crusher"},
+                        {"text": "slow-eccentric bayesian curl", "callback_data": "p2a_slow-eccentric-bayesian-curl"}],
+                    [{"text": "triceps diverging pressdown (long rope or 2 ropes)", "callback_data": "p2a_triceps-diverging-pressdown-(long-rope-or-2-ropes)"}, {
+                        "text": "reverse grip cable curl", "callback_data": "p2a_reverse-grip-cable-curl"}],
+                    [{"text": "roman chair leg raise crunch", "callback_data": "p2a_roman-chair-leg-raise-crunch"}],
+                ]
+            }
+            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
             return {"status": "success"}
         if user_text.lower() == "/weakpoints":
             msg_text = "**Select your Weak Point for today:**"
