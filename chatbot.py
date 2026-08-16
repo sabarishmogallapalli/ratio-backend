@@ -439,18 +439,47 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         print(f"Error parsing JSON: {e}")
         return {"status": "error", "message": "Invalid JSON"}
     
-    try:
+        try:
         if "callback_query" in payload:
             callback = payload["callback_query"]
             chat_id = callback["message"]["chat"]["id"]
             callback_data = callback["data"]
             
+            # 1. HANDLE WEAK POINTS FIRST (Does not require PENDING_LOGS)
+            if callback_data.startswith("wp_"):
+                wp_key = callback_data.replace("wp_", "")
+                wp_data = WEAK_POINTS_TABLE.get(wp_key)
+
+                if isinstance(wp_data, str):
+                    reply_text = f"**{wp_key.title()} Advice:**\n\n{wp_data}"
+                else:
+                    ex1_list = "\n".join([f"• {ex}" for ex in wp_data['ex1']])
+                    ex2_list = "\n".join([f"• {ex}" for ex in wp_data['ex2']])
+                    
+                    reply_text = (
+                        f"**{wp_data['title']} Weak Point Options**\n\n"
+                        f"**Exercise #1 Options (Pick One):**\n{ex1_list}\n\n"
+                        f"**Exercise #2 Options (Pick One):**\n{ex2_list}\n\n"
+                        f"*Note: Do not do all of them in one day!*"
+                    )
+
+                async with httpx.AsyncClient() as http_client:
+                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
+                        "chat_id": chat_id,
+                        "message_id": callback["message"]["message_id"],
+                        "text": reply_text,
+                        "parse_mode": "Markdown"
+                    })
+                return {"status": "success"}
+
+            # 2. MEAL LOGGING GUARD (Everything below this requires PENDING_LOGS)
             if chat_id not in PENDING_LOGS:
                 await send_telegram_reply(chat_id, "Session expired. Please re-enter your meal.")
                 return {"status": "success"}
                 
             pending_data = PENDING_LOGS[chat_id]
             raw_text = pending_data["raw_text"]
+            
             if callback_data.startswith("usda_"):
                 index = int(callback_data.split("_")[1])
                 selected_food = pending_data["usda_options"][index]
