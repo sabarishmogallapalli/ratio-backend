@@ -523,13 +523,22 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             # 2. HANDLE PHASE WORKOUT CHECKLIST BUTTONS (Does not require PENDING_LOGS)
             workout_prefixes = ["p1u1_", "p1u2_", "p1l1_", "p1l2_", "p1a_", "p2u1_", "p2u2_", "p2l1_", "p2l2_", "p2a_"]
             if any(callback_data.startswith(p) for p in workout_prefixes):
-                exercise_name = callback_data
+                raw_slug = callback_data
                 for prefix in workout_prefixes:
-                    if exercise_name.startswith(prefix):
-                        exercise_name = exercise_name.replace(prefix, "")
+                    if raw_slug.startswith(prefix):
+                        raw_slug = raw_slug.replace(prefix, "")
                         break
 
-                exercise_name = exercise_name.replace("-", " ").lower().strip()
+                matched_exercise = None
+                for ex in PROGRESSION_SCHEMA.keys():
+                    if ex.replace(" ", "-").replace("/", "-").lower() == raw_slug.lower():
+                        matched_exercise = ex
+                        break
+                if matched_exercise:
+                    exercise_name = matched_exercise
+                else:
+                    exercise_name = raw_slug.replace("-", " ").lower().strip()
+
                 today_str = date.today().isoformat()
                 coaching_data = EXERCISE_COACHING.get(exercise_name, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
                 intensity_advice = coaching_data.get("advice", "Normal working set to hypertrophy depth.")
