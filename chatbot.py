@@ -540,8 +540,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ]
                 schema_text = "\n".join(schema_lines) if schema_lines else "• Normal working progression"
 
+                schema = PROGRESSION_SCHEMA[exercise_name]
+                target_sets = schema.get("sets") if isinstance(schema, dict) else schema.sets
+                target_reps = schema.get("reps") if isinstance(schema, dict) else schema.reps
+
                 reply_text = (
                     f"🎯 **Exercise Selected:** *{exercise_name.title()}*\n\n"
+                    f"📊 **Target Volume:** {target_sets} sets × {target_reps} reps\n\n"
                     f"**Progression Targets:**\n{schema_text}\n\n"
                     f"💡 **Technique Cues:** {intensity_advice}\n\n"
                     f"💬 *Type your set when finished (e.g., '{exercise_name} 100 lbs for 10 reps')*"
