@@ -440,10 +440,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         return {"status": "error", "message": "Invalid JSON"}
     
         try:
-        if "callback_query" in payload:
-            callback = payload["callback_query"]
-            chat_id = callback["message"]["chat"]["id"]
-            callback_data = callback["data"]
+            if "callback_query" in payload:
+                callback = payload["callback_query"]
+                chat_id = callback["message"]["chat"]["id"]
+                callback_data = callback["data"]
             
             # 1. HANDLE WEAK POINTS FIRST (Does not require PENDING_LOGS)
             if callback_data.startswith("wp_"):
