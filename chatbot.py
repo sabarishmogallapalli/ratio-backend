@@ -179,6 +179,30 @@ EXERCISE_COACHING = {
     "triceps diverging pressdown (long rope or 2 ropes)": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Use two long reps or one long rope. Lean slightly forward, flare your elbows slightly out and keep your arms back in line with your torso. Then do triceps pressdowns, getting a full, big squeeze at the bottom."},
     "reverse grip cable curl": {"warmup_sets": 0, "reps": "12-15 reps", "advice": "Grab a cable bar with your palms facing down and perform curls. These will work the back of your forearm, brachialis and biceps."},
     "roman chair leg raise": {"warmup_sets": 0, "reps": "10-20 reps", "advice": "Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit RPE 9-10 (0-1 reps shy of failure) with controlled form."},
+
+    # Weak points
+    "machine lateral raise": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Focus on pushing the weight out rather than up. Keep a slight bend in the elbows."},
+    "dumbbell lateral raise": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Slight lean forward, lead with the elbows. Stop at shoulder height."},
+    "smith machine shoulder press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Set bench to a high incline. Lower bar with control to chin/upper chest level."},
+    "standing dumbbell arnold press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Start with palms facing you, rotate palms forward as you press overhead."},
+    "cable lat prayer": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Lean forward for big lat stretch at top, stand upright at bottom. **Last Set: Long-length Partials.**"},
+    "dumbbell lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows slightly bent. Feel the stretch in your lats, not your chest."},
+    "machine lat pullover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Drive elbows down and back. Deep stretch at the top."},
+    "elbows-in 1-arm db row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Pull dumbbell toward your hip. Squeeze the lat at the top."},
+    "half-kneeling 1-arm lat pulldown": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Kneel on the same side you are pulling with. Drive elbow straight down."},
+    "reverse nordics": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep a straight line from knees to shoulders. Control the descent into a deep quad stretch."},
+    "single-leg leg press": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Place foot lower on the platform for quad focus. Avoid completely locking out the knee."},
+    "cable hip abduction": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep torso stationary. Pull the cable away using only your glutes."},
+    "lateral band walk": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep tension on the band at all times. Do not drag the trailing foot."},
+    "barbell hip thrust": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Tuck your chin, drive through the heels, and squeeze glutes hard at lockout."},
+    "single-leg dumbbell hip thrust": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep your core braced and hinge at the hips. Push through the working heel."},
+    "low incline db flye": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Slight bend in elbows. Maximize the stretch at the bottom without shoulder pain."},
+    "low-to-high cable crossover": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Pull from low to high to target the upper pecs. Squeeze at the top."},
+    "chest press machine (incline if upper pecs lagging)": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep chest up and shoulders retracted. Push smoothly through the palms."},
+    "dumbbell chest press (incline if upper pecs lagging)": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Control the negative. Get a deep stretch at the bottom before pressing up."},
+    "plate-loaded neck curls": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Use slow, controlled reps. Tuck chin to chest at the top."},
+    "head harness neck extension": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Do not jerk the weight. Extend smoothly to activate the back of the neck."},
+    "plate-loaded neck extension": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Maintain strict control. Focus on the stretch and contraction of the neck extensors."},
 }
 
 EXERCISE_COACHING.update({
