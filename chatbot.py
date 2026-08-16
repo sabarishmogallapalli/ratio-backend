@@ -530,27 +530,77 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         break
 
                 exercise_name = exercise_name.replace("-", " ").lower().strip()
+                today_str = date.today().isoformat()
                 coaching_data = EXERCISE_COACHING.get(exercise_name, {"reps": "8-12 reps", "advice": "Normal working set to hypertrophy depth."})
                 intensity_advice = coaching_data.get("advice", "Normal working set to hypertrophy depth.")
+                warmup_count = coaching_data.get("warmup_sets", 0)
 
                 ex_schema = PROGRESSION_SCHEMA.get(exercise_name, {})
-                schema_lines = [
-                    f"• Working Set {s}: {targets['max_reps']} reps (+{targets['increment']} lbs incr.)"
-                    for s, targets in ex_schema.items()
-                ]
-                schema_text = "\n".join(schema_lines) if schema_lines else "• Normal working progression"
+                schema_text_lines = []
+                for s, targets in ex_schema.items():
+                    schema_text_lines.append(f"• Working Set {s}: {targets['max_reps']} reps (+{targets['increment']} lbs incr.)")
+                schema_text = "\n".join(schema_text_lines) if schema_text_lines else "• Normal working progression"
 
-                schema = PROGRESSION_SCHEMA[exercise_name]
-                target_sets = schema.get("sets") if isinstance(schema, dict) else schema.sets
-                target_reps = schema.get("reps") if isinstance(schema, dict) else schema.reps
+                # Fetch the most recent past logs for this exercise from Supabase
+                history = supabase.table("exercise_logs") \
+                    .select("weight, reps, set_number, created_at") \
+                    .eq("exercise_name", exercise_name) \
+                    .lt("created_at", today_str) \
+                    .order("created_at", desc=True) \
+                    .limit(25) \
+                    .execute()
 
-                reply_text = (
-                    f"🎯 **Exercise Selected:** *{exercise_name.title()}*\n\n"
-                    f"📊 **Target Volume:** {target_sets} sets × {target_reps} reps\n\n"
-                    f"**Progression Targets:**\n{schema_text}\n\n"
-                    f"💡 **Technique Cues:** {intensity_advice}\n\n"
-                    f"💬 *Type your set when finished (e.g., '{exercise_name} 100 lbs for 10 reps')*"
-                )
+                if not history.data:
+                    reply_text = f"**No history found for {exercise_name.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n**Progression Schema:**\n{schema_text}\n\n *Technique Cues:* {intensity_advice}"
+                else:
+                    last_date = history.data[0]['created_at'][:10]
+                    last_session = [row for row in history.data if row['created_at'].startswith(last_date)]
+
+                    history_text = "\n".join([f"• Set {row['set_number']}: {row['weight']} lbs × {row['reps']} reps" for row in sorted(last_session, key=lambda x: x['set_number'])])
+
+                    set_1_targets = ex_schema.get(1, {"min_reps": 8, "max_reps": 12, "increment": 5})
+                    target_max_reps = set_1_targets.get('max_reps', 12)
+                    target_min_reps = set_1_targets.get('min_reps', 8)
+                    increment = set_1_targets.get('increment', 5)
+
+                    upper_1_anchors = ["low incline smith machine press", "low incline db press"]
+                    end_of_today = f"{today_str}T23:59:59"
+
+                    upper_1_logs = supabase.table("exercise_logs") \
+                        .select("created_at") \
+                        .in_("exercise_name", upper_1_anchors) \
+                        .lte("created_at", end_of_today) \
+                        .execute()
+
+                    unique_weeks = len(set(row['created_at'][:10] for row in upper_1_logs.data)) if upper_1_logs.data else 1
+                    if unique_weeks == 0:
+                        unique_weeks = 1
+
+                    is_deload_week = (unique_weeks % 5 == 0)
+
+                    successful_sets = [s for s in last_session if s['reps'] >= target_min_reps]
+
+                    if successful_sets:
+                        best_set = max(successful_sets, key=lambda x: x['weight'])
+                        target_working_weight = best_set['weight']
+
+                        if best_set['reps'] >= target_max_reps:
+                            target_working_weight += increment
+                            rec_text = f"You crushed **{target_max_reps} reps** at {best_set['weight']} lbs last time! Load up **{target_working_weight} lbs** for Set 1 today and aim for **{target_max_reps} reps**!"
+                        else:
+                            rec_text = f"Your heaviest successful set last time was **{target_working_weight} lbs** for {best_set['reps']} reps. Stick with **{target_working_weight} lbs** for Set 1 today and push for **{target_max_reps} reps**!"
+                    else:
+                        heaviest_set = max(last_session, key=lambda x: x['weight'])
+                        target_working_weight = max(0, heaviest_set['weight'] - increment)
+                        rec_text = f"You fell below the {target_min_reps} rep floor last time ({heaviest_set['weight']} lbs × {heaviest_set['reps']} reps). Drop weight to **{target_working_weight} lbs** for Working Set 1 today to stay in the target zone."
+
+                    if is_deload_week:
+                        schema_text = " **SEMI-DELOAD WEEK (Week 5)** \n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery! Next week starts Next Block so Update Excercises*\n\n" + schema_text
+
+                    warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
+
+                    reply_text = f"**Last Session: {exercise_name.title()}** ({last_date})\n\n{history_text}\n\n **Target Working Weight:** {rec_text}\n\n **Recommended Warm-Up Pyramid ({warmup_count} sets): **\n{warmup_guide}\n\n **Working Progression Schema:**\n{schema_text}\n\n *Technique Cues:* {intensity_advice}"
+
                 async with httpx.AsyncClient() as http_client:
                     await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
                         "chat_id": chat_id,
