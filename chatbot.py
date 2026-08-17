@@ -455,7 +455,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
 
         advice_res = groq_client.chat.completions.create(
             messages=[{"role": "user", "content": advice_prompt}],
-            model="llama-3.1-8b-instant"
+            model="llama-3.3-70b-versatile"
         )
         coach_advice = advice_res.choices[0].message.content.strip()
 
@@ -1357,7 +1357,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 clean_food_text}'. Do not include portions, meal types, or dates. Return just the search string."
             search_res = groq_client.chat.completions.create(
                 messages=[{"role": "user", "content": search_prompt}],
-                model="llama-3.1-8b-instant"
+                model="llama-3.3-70b-versatile"
             )
             search_query = search_res.choices[0].message.content.strip().replace(
                 '"', '')
