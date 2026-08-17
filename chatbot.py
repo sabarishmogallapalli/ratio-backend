@@ -455,7 +455,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
 
         advice_res = groq_client.chat.completions.create(
             messages=[{"role": "user", "content": advice_prompt}],
-            model="llama-3.3-70b-versatile"
+            model="openai/gpt-oss-20b"
         )
         coach_advice = advice_res.choices[0].message.content.strip()
 
@@ -669,7 +669,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions}],
-                    model="llama-3.3-70b-versatile",
+                    model="openai/gpt-oss-120b",
                     response_format={"type": "json_object"}
                 )
                 response_dict = json.loads(response.choices[0].message.content)
@@ -686,7 +686,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         {"role": "system", "content": system_instructions},
                         {"role": "user", "content": f"Analyze this meal text: '{raw_text}'"}
                     ],
-                    model="llama-3.3-70b-versatile",
+                    model="openai/gpt-oss-120b",
                     response_format={"type": "json_object"}
                 )
                 response_dict = json.loads(response.choices[0].message.content)
@@ -881,16 +881,16 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             p1_l2_keyboard = {
                 "inline_keyboard": [
-                    [{"text": "lying leg curl (8-10 reps) (3 sets)", "callback_data": "p2u1_lying-leg-curl"}],
-                    [{"text": "leg press (8 reps) (3 sets)", "callback_data": "p2u1_leg-press"}],
+                    [{"text": "lying leg curl (8-10 reps) (3 sets)", "callback_data": "p1l2_lying-leg-curl"}],
+                    [{"text": "leg press (8 reps) (3 sets)", "callback_data": "p1l2_leg-press"}],
                     [{"text": "paused barbell rdl (8 reps) (2 sets)",
-                        "callback_data": "p2u1_paused-barbell-rdl"}],
+                        "callback_data": "p1l2_paused-barbell-rdl"}],
                     [{"text": "machine hip adduction (super set with sissy squat) (10-12 reps) (3 sets)",
-                      "callback_data": "p2u1_machine-hip-adduction (super set with sissy squat)"}],
+                      "callback_data": "p1l2_machine-hip-adduction (super set with sissy squat)"}],
                     [{"text": "sissy squat (super set with machine hip adduction) (10-12 reps) (3 sets)",
-                      "callback_data": "p2u1_sissy-squat (super set with machine hip adduction)"}],
+                      "callback_data": "p1l2_sissy-squat (super set with machine hip adduction)"}],
                     [{"text": "standing calf raise (10-12 reps) (3 sets)",
-                        "callback_data": "p2u1_standing-calf-raise"}],
+                        "callback_data": "p1l2_standing-calf-raise"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_l2_msg_text, reply_markup=p1_l2_keyboard)
@@ -1001,7 +1001,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "low incline db press (8-10 reps) (3 sets)",
                         "callback_data": "p2u1_low-incline-db-press"}],
                     [{"text": "chest-supported t-bar row & kelso shrug (8-10 + 4-6 reps) (3 sets)",
-                        "callback_data": "p2u1_chest-supported-t-bar-row-&-kelso-shrug"}],
+                        "callback_data": "p2u1_chest-supported t-bar-row + kelso shrug"}],
                     [{"text": "bent-over cable pec flye (w/ integrated partials) (12-15 reps) (3 sets)",
                       "callback_data": "p2u1_bent-over-cable-pec-flye-(w/-integrated-partials)"}],
                     [{"text": "1-arm lat pull-in (12-15 reps) (2 sets)",
@@ -1040,19 +1040,19 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             p2_u2_keyboard = {
                 "inline_keyboard": [
                     [{"text": "dual-handle lat pulldown (mid-back + lats) (10-12 reps) (3 sets)",
-                      "callback_data": "p2l1_dual-handle-lat-pulldown (mid-back + lats)"}],
+                      "callback_data": "p2u2_dual-handle-lat-pulldown (mid-back + lats)"}],
                     [{"text": "seated dumbbell shoulder press (10-12 reps) (3 sets)",
-                        "callback_data": "p2l1_seated-dumbbell-shoulder-press"}],
+                        "callback_data": "p2u2_seated-dumbbell-shoulder-press"}],
                     [{"text": "chest-supported machine row (8-10 reps) (3 sets)",
-                        "callback_data": "p2l1_chest-supported-machine-row"}],
+                        "callback_data": "p2u2_chest-supported-machine-row"}],
                     [{"text": "decline machine chest press (8-10 reps) (3 sets)",
-                        "callback_data": "p2l1_decline-machine-chest-press"}],
+                        "callback_data": "p2u2_decline-machine-chest-press"}],
                     [{"text": "concentration cable curl (10-12 reps) (2 sets)",
-                        "callback_data": "p2l1_concentration-cable-curl"}],
+                        "callback_data": "p2u2_concentration-cable-curl"}],
                     [{"text": "cross-body cable y-raise (10-12 reps) (3 sets)",
-                        "callback_data": "p2l1_cross-body-cable-y-raise"}],
+                        "callback_data": "p2u2_cross-body-cable-y-raise"}],
                     [{"text": "rear delt 45 degrees cable flye (12-15 reps) (3 sets)",
-                        "callback_data": "p2l1_rear-delt-45-degrees-cable-flye"}],
+                        "callback_data": "p2u2_rear-delt-45-degrees-cable-flye"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_u2_msg_text, reply_markup=p2_u2_keyboard)
@@ -1283,7 +1283,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     {"role": "system", "content": system_instructions},
                     {"role": "user", "content": clean_profile_text}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="openai/gpt-oss-120b",
                 response_format={"type": "json_object"}
             )
 
@@ -1357,7 +1357,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 clean_food_text}'. Do not include portions, meal types, or dates. Return just the search string."
             search_res = groq_client.chat.completions.create(
                 messages=[{"role": "user", "content": search_prompt}],
-                model="llama-3.3-70b-versatile"
+                model="openai/gpt-oss-20b"
             )
             search_query = search_res.choices[0].message.content.strip().replace(
                 '"', '')
@@ -1403,7 +1403,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     {"role": "user", "content": f"Extract parameters from this performed set text: '{
                         clean_text}'"}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="openai/gpt-oss-120b",
                 response_format={"type": "json_object"}
             )
             lift_data = WorkoutStructure.model_validate_json(
