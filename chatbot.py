@@ -29,6 +29,8 @@ app = FastAPI()
 
 PENDING_LOGS = {}
 
+ACTIVE_EXERCISE_SESSIONS = {}
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
@@ -36,7 +38,7 @@ USDA_API_KEY = os.getenv("USDA_API_KEY")
 
 PROGRESSION_SCHEMA = {
     # PHASE 1
-    "cuffed behind-the-back lateral raise": {1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
+    "cuffed behind-the-back lateral raise": {1: {"min_reps": 10, "max_reps": 12, "increment": 2.5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 2.5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 2.5}},
     "cross-body lat pull-around": {1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
     "low incline smith machine press": {1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5}, 4: {"max_reps": 10, "increment": 5}},
     "chest-supported machine row": {1: {"min_reps": 8, "max_reps": 10, "increment": 10}, 2: {"min_reps": 8, "max_reps": 10, "increment": 10}, 3: {"min_reps": 8, "max_reps": 10, "increment": 10}},
@@ -73,7 +75,7 @@ PROGRESSION_SCHEMA = {
     # PHASE 2
     "lat-focused cable row": {1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
     "low incline db press": {1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5}},
-    "chest-supported t-bar row + kelso shrug": {1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5}},
+    "machine chest-supported row + kelso shrug": {1: {"min_reps": 8, "max_reps": 10, "increment": 5}, 2: {"min_reps": 8, "max_reps": 10, "increment": 5}, 3: {"min_reps": 8, "max_reps": 10, "increment": 5}},
     "bent-over cable pec flye (w/ integrated partials)": {1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}, 3: {"min_reps": 12, "max_reps": 15, "increment": 5}},
     "1-arm lat pull-in": {1: {"min_reps": 12, "max_reps": 15, "increment": 5}, 2: {"min_reps": 12, "max_reps": 15, "increment": 5}},
     "dual-cable triceps press": {1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
@@ -521,7 +523,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             "chat_id": chat_id,
                             "message_id": callback["message"]["message_id"],
                             "text": reply_text,
-                            "parse_mode": "Markdown"
+                            "parse_mode": "Markdown",
+                            "reply_markup": callback["message"].get("reply_markup")
                         })
                 return {"status": "success"}
 
@@ -544,6 +547,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     exercise_name = matched_exercise
                 else:
                     exercise_name = raw_slug.replace("-", " ").lower().strip()
+
+                ACTIVE_EXERCISE_SESSIONS[chat_id] = exercise_name
 
                 today_str = date.today().isoformat()
                 coaching_data = EXERCISE_COACHING.get(exercise_name, {
@@ -1393,6 +1398,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         elif is_workout:
             clean_text = user_text.replace("workout:", "").replace(
                 "upper", "").replace("lower", "").replace("w", "").strip()
+            active_ex = ACTIVE_EXERCISE_SESSIONS.get(chat_id)
+            if active_ex and not any(ex_word in clean_text.lower() for ex_word in PROGRESSION_SCHEMA.keys()):
+                clean_text = f"{active_ex} {clean_text}"
             schema_string = json.dumps(WorkoutStructure.model_json_schema())
             official_names = ", ".join(PROGRESSION_SCHEMA.keys())
             system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {
@@ -1560,6 +1568,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             intensity_advice = coaching_data["advice"]
             # --- UNIFIED PROGRESSION & TIMER LIFE CYCLE ---
             if set_count >= total_target_sets:
+                ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 advice = f"**Exercise Complete!** All {
                     total_target_sets} configured sets mapped successfully.\n *Next Move:* Proceed directly to your next movement assignment."
             else:
