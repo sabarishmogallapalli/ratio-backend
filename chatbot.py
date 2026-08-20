@@ -645,7 +645,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "chat_id": chat_id,
                         "message_id": callback["message"]["message_id"],
                         "text": reply_text,
-                        "parse_mode": "Markdown"
+                        "parse_mode": "Markdown",
+                        "reply_markup": callback["message"].get("reply_markup")
                     })
                 return {"status": "success"}
 
@@ -891,9 +892,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "paused barbell rdl (8 reps) (2 sets)",
                         "callback_data": "p1l2_paused-barbell-rdl"}],
                     [{"text": "machine hip adduction (super set with sissy squat) (10-12 reps) (3 sets)",
-                      "callback_data": "p1l2_machine-hip-adduction (super set with sissy squat)"}],
+                      "callback_data": "p1l2_machine-hip-adduction"}],
                     [{"text": "sissy squat (super set with machine hip adduction) (10-12 reps) (3 sets)",
-                      "callback_data": "p1l2_sissy-squat (super set with machine hip adduction)"}],
+                      "callback_data": "p1l2_sissy-squat"}],
                     [{"text": "standing calf raise (10-12 reps) (3 sets)",
                         "callback_data": "p1l2_standing-calf-raise"}],
                 ]
@@ -1129,9 +1130,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p2l2_smith-machine-reverse-lunge-press"}],
                     [{"text": "glute-ham raise (8 reps) (3 sets)", "callback_data": "p2l2_glute-ham-raise"}],
                     [{
-                        "text": "machine hip adduction (super set with machine hip abduction) (10-12 reps) (3 sets)", "callback_data": "p2l2_machine-hip-adduction (super set with machine hip abduction)"}],
+                        "text": "machine hip adduction (super set with machine hip abduction) (10-12 reps) (3 sets)", "callback_data": "p2l2_machine-hip-adduction"}],
                     [{"text": "machine hip abduction (super set with machine hip adduction) (10-12 reps) (3 sets)",
-                      "callback_data": "p2l2_machine-hip-abduction (super set with machine hip adduction)"}],
+                      "callback_data": "p2l2_machine-hip-abduction"}],
                     [{"text": "standing calf raise (10-12 reps) (3 sets)",
                         "callback_data": "p2l2_standing-calf-raise"}],
                 ]
