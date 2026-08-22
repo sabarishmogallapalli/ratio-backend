@@ -64,7 +64,7 @@ PROGRESSION_SCHEMA = {
     "leg press": {1: {"min_reps": 8, "max_reps": 8, "increment": 5}, 2: {"min_reps": 8, "max_reps": 8, "increment": 5}, 3: {"min_reps": 8, "max_reps": 8, "increment": 5}},
     "paused barbell rdl": {1: {"min_reps": 8, "max_reps": 8, "increment": 5}, 2: {"min_reps": 8, "max_reps": 8, "increment": 5}},
     "sissy squat": {1: {"min_reps": 10, "max_reps": 12, "increment": 0}, 2: {"min_reps": 10, "max_reps": 12, "increment": 0}, 3: {"min_reps": 10, "max_reps": 12, "increment": 0}},
-    "standing calf raise": {1: {"min_reps": 10, "max_reps": 12, "increment": 15}, 2: {"min_reps": 10, "max_reps": 12, "increment": 15}, 3: {"min_reps": 10, "max_reps": 12, "increment": 15}},
+    "seated calf raise": {1: {"min_reps": 10, "max_reps": 12, "increment": 15}, 2: {"min_reps": 10, "max_reps": 12, "increment": 15}, 3: {"min_reps": 10, "max_reps": 12, "increment": 15}},
 
     "bayesian cable curl": {1: {"min_reps": 10, "max_reps": 12, "increment": 5}, 2: {"min_reps": 10, "max_reps": 12, "increment": 5}, 3: {"min_reps": 10, "max_reps": 12, "increment": 5}},
     "seated db french press": {1: {"min_reps": 10, "max_reps": 10, "increment": 5}, 2: {"min_reps": 10, "max_reps": 10, "increment": 5}, 3: {"min_reps": 10, "max_reps": 10, "increment": 5}},
@@ -150,7 +150,7 @@ EXERCISE_COACHING = {
     "leg press": {"warmup_sets": 2, "reps": "8 reps", "advice": "Feet low for quad focus. Deep stretch with slight pause at bottom."},
     "paused barbell rdl": {"warmup_sets": 2, "reps": "8 reps", "advice": "Low RPE (~6-7). 1s pause at bottom. Stop 75% to lockout to keep tension."},
     "sissy squat": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Knees forward past toes. Push hard!"},
-    "standing calf raise": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "1-2s pause at bottom. **Last Set: 30s Calf Static Stretch.**"},
+    "seated calf raise": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "1-2s pause at bottom. **Last Set: 30s Calf Static Stretch.**"},
 
     "bayesian cable curl": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. **Last Set: Long-length Partials.**"},
     "seated db french press": {"warmup_sets": 1, "reps": "10 reps", "advice": "Palms under top of dumbbell. Deep stretch at bottom. Avoid pausing at the top of each rep."},
@@ -871,7 +871,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             #     "**paused barbell rdl** (8 reps) (2 sets)\n\n"
             #     "**machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n\n"
             #     "**sissy squat (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-            #     "**standing calf raise** (10-12 reps) (3 sets)\n\n"
+            #     "**seated calf raise** (10-12 reps) (3 sets)\n\n"
             #     "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             # )
             # await send_telegram_reply(chat_id, phase_1_lower_2_menu)
@@ -883,7 +883,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             "**paused barbell rdl** (8 reps) (2 sets)\n\n"
             "**machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n\n"
             "**sissy squat (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-            "**standing calf raise** (10-12 reps) (3 sets)\n\n"
+            "**seated calf raise** (10-12 reps) (3 sets)\n\n"
             "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             p1_l2_keyboard = {
                 "inline_keyboard": [
@@ -895,7 +895,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                       "callback_data": "p1l2_machine-hip-adduction"}],
                     [{"text": "sissy squat (super set with machine hip adduction) (10-12 reps) (3 sets)",
                       "callback_data": "p1l2_sissy-squat"}],
-                    [{"text": "standing calf raise (10-12 reps) (3 sets)",
+                    [{"text": "seated calf raise (10-12 reps) (3 sets)",
                         "callback_data": "p1l2_standing-calf-raise"}],
                 ]
             }
@@ -1108,7 +1108,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             #     "**glute-ham raise** (8 reps) (3 sets)\n\n"
             #     "**machine hip adduction (super set with machine hip abduction)** (10-12 reps) (3 sets)\n\n"
             #     "**machine hip abduction (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-            #     "**standing calf raise** (10-12 reps) (3 sets)\n\n"
+            #     "**seated calf raise** (10-12 reps) (3 sets)\n\n"
             #     "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             # )
             # await send_telegram_reply(chat_id, phase_2_lower_2_menu)
@@ -1117,24 +1117,24 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             p2_l2_msg_text = "**JEFF NIPPARD PHASE 2 LOWER DAY 2 CHECKLIST**\n\n"
             "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "**lying leg curl** (8-10 reps) (3 sets)\n\n"
-            "**smith machine reverse lunge press** (8 reps) (3 sets)\n\n"
+            "**smith machine reverse lunge** (8 reps) (3 sets)\n\n"
             "**glute-ham raise** (8 reps) (3 sets)\n\n"
             "**machine hip adduction (super set with machine hip abduction)** (10-12 reps) (3 sets)\n\n"
             "**machine hip abduction (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-            "**standing calf raise** (10-12 reps) (3 sets)\n\n"
+            "**seated calf raise** (10-12 reps) (3 sets)\n\n"
             "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             p2_l2_keyboard = {
                 "inline_keyboard": [
                     [{"text": "lying leg curl (8-10 reps) (3 sets)", "callback_data": "p2l2_lying-leg-curl"}],
-                    [{"text": "smith machine reverse lunge press (8 reps) (3 sets)",
-                        "callback_data": "p2l2_smith-machine-reverse-lunge-press"}],
+                    [{"text": "smith machine reverse lunge (8 reps) (3 sets)",
+                        "callback_data": "p2l2_smith-machine-reverse-lunge"}],
                     [{"text": "glute-ham raise (8 reps) (3 sets)", "callback_data": "p2l2_glute-ham-raise"}],
                     [{
                         "text": "machine hip adduction (super set with machine hip abduction) (10-12 reps) (3 sets)", "callback_data": "p2l2_machine-hip-adduction"}],
                     [{"text": "machine hip abduction (super set with machine hip adduction) (10-12 reps) (3 sets)",
                       "callback_data": "p2l2_machine-hip-abduction"}],
-                    [{"text": "standing calf raise (10-12 reps) (3 sets)",
-                        "callback_data": "p2l2_standing-calf-raise"}],
+                    [{"text": "seated calf raise (10-12 reps) (3 sets)",
+                        "callback_data": "p2l2_seated-calf-raise"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_l2_msg_text, reply_markup=p2_l2_keyboard)
