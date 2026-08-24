@@ -1691,7 +1691,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f" **Set {set_count} Tracked to Supabase:**\n"
                 f" *{exercise.title()}*\n"
                 f" **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
-                f" *Prescription Target:* {rep_guideline}\n\n"
                 f" {intensity_advice}\n\n"
                 f" {next_set_advice}"
             )
