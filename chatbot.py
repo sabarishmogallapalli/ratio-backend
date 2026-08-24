@@ -487,7 +487,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
     try:
         payload = await request.json()
     except Exception as e:
-        # 2. Return a 400 error if JSON is malformed
         print(f"Error parsing JSON: {e}")
         return {"status": "error", "message": "Invalid JSON"}
 
@@ -498,34 +497,35 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             callback_data = callback["data"]
 
             # 1. HANDLE WEAK POINTS FIRST (Does not require PENDING_LOGS)
-            if callback_data.startswith("wp_"):
+            if callback_data.startswith("wp_") and not callback_data.startswith("wp_ex_"):
                 wp_key = callback_data.replace("wp_", "")
                 if wp_key in WEAK_POINTS_TABLE:
                     wp_data = WEAK_POINTS_TABLE[wp_key]
+
                     if isinstance(wp_data, str):
                         reply_text = f"**{wp_key.title()
                                           } Advice:**\n\n{wp_data}"
+                        await send_telegram_reply(chat_id, reply_text)
                     else:
-                        ex1_list = "\n".join(
-                            [f"• {ex}" for ex in wp_data['ex1']])
-                        ex2_list = "\n".join(
-                            [f"• {ex}" for ex in wp_data['ex2']])
-                        reply_text = (
-                            f"**{wp_data['title']} Weak Point Options**\n\n"
-                            f"**Exercise #1 Options (Pick One):**\n{
-                                ex1_list}\n\n"
-                            f"**Exercise #2 Options (Pick One):**\n{
-                                ex2_list}\n\n"
-                            f"*Note: Do not do all of them in one day!*"
-                        )
+                        reply_text = f"**{
+                            wp_data['title']} Weak Point Options**\n\nSelect an exercise below to view its targets and cues. *Do not do all of them in one day!*"
+
+                        keyboard_buttons = []
+                        for ex in wp_data['ex1']:
+                            keyboard_buttons.append(
+                                [{"text": f"Ex 1: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
+                        for ex in wp_data['ex2']:
+                            keyboard_buttons.append(
+                                [{"text": f"Ex 2: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
+
+                        await send_telegram_reply(chat_id, reply_text, reply_markup={"inline_keyboard": keyboard_buttons})
+
                     async with httpx.AsyncClient() as http_client:
-                        await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
-                            "chat_id": chat_id,
-                            "message_id": callback["message"]["message_id"],
-                            "text": reply_text,
-                            "parse_mode": "Markdown",
-                            "reply_markup": callback["message"].get("reply_markup")
-                        })
+                        await http_client.post(
+                            f"https://api.telegram.org/bot{
+                                TELEGRAM_TOKEN}/answerCallbackQuery",
+                            json={"callback_query_id": callback["id"]}
+                        )
                 return {"status": "success"}
 
             # 2. HANDLE PHASE WORKOUT CHECKLIST BUTTONS (Does not require PENDING_LOGS)
@@ -632,22 +632,36 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             heaviest_set['reps']} reps). Drop weight to **{target_working_weight} lbs** for Working Set 1 today to stay in the target zone."
 
                     if is_deload_week:
-                        schema_text = " **SEMI-DELOAD WEEK (Week 5)** \n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery! Next week starts Next Block so Update Excercises*\n\n" + schema_text
+                        schema_text = (
+                            "⚠️ **SEMI-DELOAD WEEK (Week 5)**\n"
+                            "*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery! Next week starts the next block, so update exercises.* \n\n"
+                            + schema_text
+                        )
 
                     warmup_guide = generate_warmup_guide(
                         warmup_count, target_working_weight)
 
-                    reply_text = f"**Last Session: {exercise_name.title()}** ({last_date})\n\n{history_text}\n\n **Target Working Weight:** {rec_text}\n\n **Recommended Warm-Up Pyramid ({
-                        warmup_count} sets): **\n{warmup_guide}\n\n **Working Progression Schema:**\n{schema_text}\n\n *Technique Cues:* {intensity_advice}"
+                    reply_text = (
+                        f"**Last Session: {exercise_name.title()
+                                           }** ({last_date})\n\n"
+                        f"{history_text}\n\n"
+                        f"🎯 **Target Working Weight:** {rec_text}\n\n"
+                        f"🔥 **Recommended Warm-Up Pyramid ({
+                            warmup_count} sets):**\n"
+                        f"{warmup_guide}\n\n"
+                        f"📊 **Working Progression Schema:**\n"
+                        f"{schema_text}\n\n"
+                        f"💡 *Technique Cues:* {intensity_advice}"
+                    )
+
+                await send_telegram_reply(chat_id, reply_text)
 
                 async with httpx.AsyncClient() as http_client:
-                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
-                        "chat_id": chat_id,
-                        "message_id": callback["message"]["message_id"],
-                        "text": reply_text,
-                        "parse_mode": "Markdown",
-                        "reply_markup": callback["message"].get("reply_markup")
-                    })
+                    await http_client.post(
+                        f"https://api.telegram.org/bot{
+                            TELEGRAM_TOKEN}/answerCallbackQuery",
+                        json={"callback_query_id": callback["id"]}
+                    )
                 return {"status": "success"}
 
             # 3. MEAL LOGGING GUARD (Everything below this requires PENDING_LOGS)
@@ -699,70 +713,28 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 clean_dict = {k: v for k,
                               v in response_dict.items() if v is not None}
                 food_data = FoodStructure.model_validate(clean_dict)
-            elif callback_data.startswith("wp_"):
-                wp_key = callback_data.replace("wp_", "")
-                if wp_key in WEAK_POINTS_TABLE:
-                    wp_data = WEAK_POINTS_TABLE.get(wp_key)
 
-                    if isinstance(wp_data, str):
-                        reply_text = f"**{wp_key.title()
-                                          } Advice:**\n\n{wp_data}"
-                        await send_telegram_reply(chat_id, reply_text)
-                    else:
-                        reply_text = f"**{wp_data['title']} Weak Point Options**\n\nSelect an exercise below to view its targets and cues. *Do not do all of them in one day!*"
+            del PENDING_LOGS[chat_id]
+            await process_and_save_meal(chat_id, food_data)
 
-                        keyboard_buttons = []
+            async with httpx.AsyncClient() as http_client:
+                await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageReplyMarkup", json={
+                    "chat_id": chat_id,
+                    "message_id": callback["message"]["message_id"],
+                    "reply_markup": {"inline_keyboard": []}
+                })
 
-                        for ex in wp_data['ex1']:
-                            keyboard_buttons.append([{"text": f"Ex 1: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
-                        for ex in wp_data['ex2']:
-                            keyboard_buttons.append([{"text": f"Ex 2: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
+            return {"status": "success"}
 
-                        await send_telegram_reply(chat_id, reply_text, reply_markup={"inline_keyboard": keyboard_buttons})
+        # --- MESSAGE HANDLING SECTION ---
+        message = payload.get("message", {})
+        chat_id = message.get("chat", {}).get("id")
+        user_text = message.get("text", "").strip()
 
-                        # # For muscle groups with specific Ex 1 & Ex 2 options
-                        # ex1_list = "\n".join(
-                        #     [f"• {ex}" for ex in wp_data['ex1']])
-                        # ex2_list = "\n".join(
-                        #     [f"• {ex}" for ex in wp_data['ex2']])
+        if not user_text or not chat_id:
+            return {"status": "ignored"}
 
-                        # reply_text = (
-                        #     f"**{wp_data['title']} Weak Point Options**\n\n"
-                        #     f"**Exercise #1 Options (Pick One):**\n{
-                        #         ex1_list}\n\n"
-                        #     f"**Exercise #2 Options (Pick One):**\n{
-                        #         ex2_list}\n\n"
-                        #     f"*Note: Do not do all of them in one day!*"
-                        # )
-
-                    async with httpx.AsyncClient() as http_client:
-                        await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
-                            "chat_id": chat_id,
-                            "message_id": callback["message"]["message_id"],
-                            "text": reply_text,
-                            "parse_mode": "Markdown"
-                        })
-                    return {"status": "success"}
-
-                del PENDING_LOGS[chat_id]
-                await process_and_save_meal(chat_id, food_data)
-
-                async with httpx.AsyncClient() as http_client:
-                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageReplyMarkup", json={
-                        "chat_id": chat_id,
-                        "message_id": callback["message"]["message_id"],
-                        "reply_markup": {"inline_keyboard": []}
-                    })
-
-                return {"status": "success"}
-
-            message = payload.get("message", {})
-            chat_id = message.get("chat", {}).get("id")
-            user_text = message.get("text", "").strip()
-
-            if not user_text or not chat_id:
-                return {"status": "ignored"}
-
+        if user_text == "/start":
             if user_text == "/start":
                 welcome_message = "Welcome to the workout or meal tracker: Are you logging a workout or meal? If meal start message with '/meal' If workout start message with '/upper' or '/lower' If updating profile with updated BMR information start message with '/profile'"
                 await send_telegram_reply(chat_id, welcome_message)
@@ -1403,43 +1375,62 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower().startswith("meal:"):
             clean_food_text = user_text.lower().replace(
                 "meal:", "").replace("f:", "").strip()
-            search_prompt = f"Extract ONLY the core food ingredient or restaurant item to search in a database from this text: '{
-                clean_food_text}'. Do not include portions, meal types, or dates. Return just the search string."
+            
+            search_prompt = f"Extract ONLY the core food ingredient or restaurant item to search in a database from this text: '{clean_food_text}'. Do not include portions, meal types, or dates. Return just the search string."
             search_res = groq_client.chat.completions.create(
                 messages=[{"role": "user", "content": search_prompt}],
                 model="openai/gpt-oss-20b"
             )
-            search_query = search_res.choices[0].message.content.strip().replace(
-                '"', '')
+            search_query = search_res.choices[0].message.content.strip().replace('"', '')
 
             usda_results = await get_usda_macros(search_query)
 
-            PENDING_LOGS[chat_id] = {
-                "raw_text": clean_food_text,
-                "usda_options": usda_results
-            }
-
-            keyboard = {"inline_keyboard": []}
-
             if usda_results:
-                msg_text = f" Found {len(usda_results)} results for **{
-                    search_query}**.\nSelect the most accurate option to log it:"
+                # We only need to store Pending Logs if we are making the user click a button!
+                PENDING_LOGS[chat_id] = {
+                    "raw_text": clean_food_text,
+                    "usda_options": usda_results
+                }
+                
+                keyboard = {"inline_keyboard": []}
+                msg_text = f" Found {len(usda_results)} results for **{search_query}**.\nSelect the most accurate option to log it:"
+                
                 for i, item in enumerate(usda_results):
-                    btn_text = f"{item['food_name'][:30]
-                                  }... ({item['calories']} kcal)"
-                    keyboard["inline_keyboard"].append(
-                        [{"text": btn_text, "callback_data": f"usda_{i}"}])
+                    btn_text = f"{item['food_name'][:30]}... ({item['calories']} kcal)"
+                    keyboard["inline_keyboard"].append([{"text": btn_text, "callback_data": f"usda_{i}"}])
+                
+                # Always offer the AI fallback button
+                keyboard["inline_keyboard"].append([{"text": "🤖 Use AI Estimation instead", "callback_data": "ai_fallback"}])
+                await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+                
             else:
-                msg_text = f" No exact USDA match found for **{
-                    search_query}**. Would you like the AI to estimate the macros?"
+                # No USDA results? Skip asking and trigger AI instantly.
+                schema_string = json.dumps(FoodStructure.model_json_schema())
+                system_instructions = (
+                    f"You are an expert nutritionist and precise calorie calculator. "
+                    f"The user will provide a meal description. Calculate the macros step-by-step: "
+                    f"identify each distinct ingredient, recall its nutritional values for the exact quantity/measurement provided, "
+                    f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. "
+                    f"CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. "
+                    f"IMPORTANT: If the user specifies a past date (like 6/10/26) or meal type (like lunch), extract them into 'extracted_date' (YYYY-MM-DD) and 'extracted_meal_type'."
+                )
+                
+                response = groq_client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": system_instructions},
+                        {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
+                    ],
+                    model="openai/gpt-oss-120b",
+                    response_format={"type": "json_object"}
+                )
+                
+                response_dict = json.loads(response.choices[0].message.content)
+                clean_dict = {k: v for k, v in response_dict.items() if v is not None}
+                food_data = FoodStructure.model_validate(clean_dict)
 
-            # Always offer the AI fallback button
-            keyboard["inline_keyboard"].append(
-                [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
-
-            # Send the approval request
-            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
-
+                await process_and_save_meal(chat_id, food_data)
+                
+            return {"status": "success"}
         elif is_workout:
             clean_text = user_text.replace("workout:", "").replace(
                 "upper", "").replace("lower", "").replace("w", "").strip()
