@@ -1331,7 +1331,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "dry_lean_mass": profile_data.dry_lean_mass,
                 "skeletal_muscle_mass": profile_data.skeletal_muscle_mass,
                 "bmi": profile_data.bmi,
-                "segmental_lean_data": profile_data.segmental_lean_data
+                "segmental_lean_data": profile_data.segmental_lean_data,
+                "created_at": datetime.now(central_tz).isoformat()
             }).execute()
 
             reply = (
