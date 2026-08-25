@@ -161,7 +161,7 @@ EXERCISE_COACHING = {
     # PHASE 2
     "lat-focused cable row": {"warmup_sets": 1, "reps": "8-12 reps", "advice": "Keep elbows tucked close to your sides to bias the lats."},
     "low incline dumbbell press": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "Set the bench at a 15 degree incline. Do a slight elbow tuck on the negative then flare as you push (assuming this doesn't bother your shoulders). Nice smooth reps here. No pausing at the top or bottom: constant tension on the pecs."},
-    "chest-supported t-bar row + kelso shrug": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "Do 8-10 reps as a normal T-Bar row, driving your elbows back at roughly 45 degrees and squeezing your shoulder blades together. Without resting, do another 406 reps as Kelso Shrugs (just squeeze your shoulder blades together without rowing all the way back with your arms)"},
+    "chest-supported machine row + kelso shrug": {"warmup_sets": 2, "reps": "8-10 reps", "advice": "Do 8-10 reps as a normal T-Bar row, driving your elbows back at roughly 45 degrees and squeezing your shoulder blades together. Without resting, do another 406 reps as Kelso Shrugs (just squeeze your shoulder blades together without rowing all the way back with your arms)"},
     "bent-over cable pec flye (w/ integrated partials)": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Lean forward until your torso is parallel with the floor, flye straight out and down toward the floor. Stretch and squeeze the pecs. Stay locked in."},
     "1-arm lat pull-in": {"warmup_sets": 1, "reps": "12-15 reps", "advice": "Pull the cable in from the side. Keep a mind-muscle connection with your lats and try to prevent your biceps from taking over. Palpate (feel) your lats with your other hand if that helps you connect with them better."},
     "dual-cable triceps press": {"warmup_sets": 1, "reps": "10-12 reps", "advice": "Hold the cables without a handle and get them into position just above your shoulders (around chin level). Press the weight forward (straight out in front of you), not up overhead like in a standard overhead triceps extension."},
@@ -539,8 +539,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         break
 
                 matched_exercise = None
+                clean_slug = raw_slug.replace("-", "").replace(" ", "").replace("/", "").lower()
                 for ex in PROGRESSION_SCHEMA.keys():
-                    if ex.replace(" ", "-").replace("/", "-").lower() == raw_slug.lower():
+                    clean_ex = ex.replace("-", "").replace(" ", "").replace("/", "").lower()
+                    if clean_slug == clean_ex:
                         matched_exercise = ex
                         break
                 if matched_exercise:
@@ -561,9 +563,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 schema_text_lines = []
                 for s, targets in ex_schema.items():
                     schema_text_lines.append(f"• Working Set {s}: {
-                                             targets['max_reps']} reps (+{targets['increment']} lbs incr.)")
+                                             targets['max_reps', 'no reps found']} reps (+{targets['increment', 0]} lbs incr.)")
                 schema_text = "\n".join(
-                    schema_text_lines) if schema_text_lines else "• Normal working progression"
+                    schema_text_lines)
 
                 # Fetch the most recent past logs for this exercise from Supabase
                 history = supabase.table("exercise_logs") \
@@ -575,8 +577,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     .execute()
 
                 if not history.data:
-                    reply_text = f"**No history found for {exercise_name.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n**Progression Schema:**\n{
-                        schema_text}\n\n *Technique Cues:* {intensity_advice}"
+                    set_1_targets = ex_schema.get(1, {"min_reps": 8, "max_reps": 12})
+                    target_max_reps = set_1_targets.get('max_reps', 12)
+                    reply_text = (
+                        f"**No history found for {exercise_name.title()}!**\n"
+                        f"Start with a light warm-up weight to establish your baseline today.\n\n"
+                        f"**Target Working Weight:** Load up **0 lbs** for Set 1 today and aim for **{target_max_reps} reps**!\n\n"
+                        f"**Working Progression Schema:**\n{schema_text}\n\n"
+                        f"*Technique Cues:* {intensity_advice}"
+                    )
                 else:
                     last_date = history.data[0]['created_at'][:10]
                     last_session = [
@@ -633,7 +642,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                     if is_deload_week:
                         schema_text = (
-                            "⚠️ **SEMI-DELOAD WEEK (Week 5)**\n"
+                            "**SEMI-DELOAD WEEK (Week 5)**\n"
                             "*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery! Next week starts the next block, so update exercises.* \n\n"
                             + schema_text
                         )
@@ -645,13 +654,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         f"**Last Session: {exercise_name.title()
                                            }** ({last_date})\n\n"
                         f"{history_text}\n\n"
-                        f"🎯 **Target Working Weight:** {rec_text}\n\n"
-                        f"🔥 **Recommended Warm-Up Pyramid ({
+                        f"**Target Working Weight:** {rec_text}\n\n"
+                        f"**Recommended Warm-Up Pyramid ({
                             warmup_count} sets):**\n"
                         f"{warmup_guide}\n\n"
-                        f"📊 **Working Progression Schema:**\n"
+                        f"**Working Progression Schema:**\n"
                         f"{schema_text}\n\n"
-                        f"💡 *Technique Cues:* {intensity_advice}"
+                        f"*Technique Cues:* {intensity_advice}"
                     )
 
                 await send_telegram_reply(chat_id, reply_text)
@@ -1008,7 +1017,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
             "**lat-focused cable row** (10-12 reps) (3 sets)\n\n"
             "**low incline db press** (8-10 reps) (3 sets)\n\n"
-            "**chest-supported t-bar row & kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
+            "**chest-supported machine row & kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
             "**bent-over cable pec flye (w/ integrated partials)** (12-15 reps) (3 sets)\n\n"
             "**1-arm lat pull-in** (12-15 reps) (2 sets)\n\n"
             "**dual-cable triceps press** (10-12 reps) (3 sets)\n\n"
@@ -1021,8 +1030,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p2u1_lat-focused-cable-row"}],
                     [{"text": "low incline db press (8-10 reps) (3 sets)",
                         "callback_data": "p2u1_low-incline-db-press"}],
-                    [{"text": "chest-supported t-bar row & kelso shrug (8-10 + 4-6 reps) (3 sets)",
-                        "callback_data": "p2u1_chest-supported t-bar-row + kelso shrug"}],
+                    [{"text": "chest-supported machine row & kelso shrug (8-10 + 4-6 reps) (3 sets)",
+                        "callback_data": "p2u1_chest-supported machine-row + kelso shrug"}],
                     [{"text": "bent-over cable pec flye (w/ integrated partials) (12-15 reps) (3 sets)",
                       "callback_data": "p2u1_bent-over-cable-pec-flye-(w/-integrated-partials)"}],
                     [{"text": "1-arm lat pull-in (12-15 reps) (2 sets)",
@@ -1487,7 +1496,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     .execute()
 
                 if not history.data:
-                    reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n**Progression Schema:**\n{
+                    reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n**Working Progression Schema:**\n{
                         schema_text}\n\n *Technique Cues:* {intensity_advice}"
                 else:
                     last_date = history.data[0]['created_at'][:10]
