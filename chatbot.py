@@ -1479,14 +1479,12 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 intensity_advice = coaching_data["advice"]
                 warmup_count = coaching_data.get("warmup_sets", 0)
 
-                ex_schema = PROGRESSION_SCHEMA.get(exercise)
+                                ex_schema = PROGRESSION_SCHEMA.get(exercise, {})
                 schema_text_lines = []
                 for s, targets in ex_schema.items():
-                    schema_text_lines.append(f"• Working Set {s}: {
-                                             targets['max_reps']} reps (+{targets['increment']} lbs incr.)")
-                schema_text = "\n".join(schema_text_lines)
+                    schema_text_lines.append(f"• Working Set {s}: {targets.get('max_reps', 12)} reps (+{targets.get('increment', 5)} lbs incr.)")
+                schema_text = "\n".join(schema_text_lines) if schema_text_lines else "• Normal working progression"
 
-                # Fetch the most recent past logs for this exercise
                 history = supabase.table("exercise_logs") \
                     .select("weight, reps, set_number, created_at") \
                     .eq("exercise_name", exercise) \
@@ -1496,8 +1494,17 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     .execute()
 
                 if not history.data:
-                    reply = f"**No history found for {exercise.title()}!**\nStart with a light warm-up weight to establish your baseline today.\n\n**Working Progression Schema:**\n{
-                        schema_text}\n\n *Technique Cues:* {intensity_advice}"
+                    set_1_targets = ex_schema.get(1, {"min_reps": 8, "max_reps": 12, "increment": 5})
+                    target_max_reps = set_1_targets.get("max_reps", 12)
+                    
+                    reply = (
+                        f"**No history found for {exercise.title()}!**\n"
+                        f"Start with a light warm-up weight to establish your baseline today.\n\n"
+                        f"🎯 **Target Working Weight:** Load up **0 lbs** for Set 1 today and aim for **{target_max_reps} reps**!\n\n"
+                        f"📊 **Working Progression Schema:**\n"
+                        f"{schema_text}\n\n"
+                        f"💡 *Technique Cues:* {intensity_advice}"
+                    )
                 else:
                     last_date = history.data[0]['created_at'][:10]
                     last_session = [
