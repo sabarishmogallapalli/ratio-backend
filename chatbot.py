@@ -1097,7 +1097,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             response = groq_client.chat.completions.create(
                     messages=[
-                        {"role": "system", "content": system_instructions}],
+                        {"role": "system", "content": system_instructions},
+                        {"role": "user", "content": f"Analyze this meal text: '{raw_text}'"}],
                     model="openai/gpt-oss-120b",
                     response_format={"type": "json_object"}
                 )
@@ -1678,6 +1679,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions},
+                        {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
                     ],
                     model="openai/gpt-oss-120b",
                     response_format={"type": "json_object"}
