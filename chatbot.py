@@ -36,6 +36,9 @@ TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
 USDA_API_KEY = os.getenv("USDA_API_KEY")
 
+@app.get("/")
+def keep_alive():
+    return {"status": "awake"}
 
 EXERCISE_REGISTRY = {
     # PHASE 1
@@ -1596,6 +1599,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             # Carbs = (Total Calories - Protein Calories - Fat Calories) / 4
             carbs = int((cals - (protein * 4) - (fat * 9)) / 4)
+
+            central_tz = zoneinfo.ZoneInfo("America/Chicago")
 
             # Upsert directly to Supabase using the math we just did
             supabase.table("user_profiles").upsert({
