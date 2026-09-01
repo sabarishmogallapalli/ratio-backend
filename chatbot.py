@@ -1329,8 +1329,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
             "**lat-focused cable row** (10-12 reps) (3 sets)\n\n"
-            "**low incline db press** (8-10 reps) (3 sets)\n\n"
-            "**chest-supported machine row & kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
+            "**low incline dumbbell press** (8-10 reps) (3 sets)\n\n"
+            "**chest-supported machine row + kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
             "**bent-over cable pec flye (w/ integrated partials)** (12-15 reps) (3 sets)\n\n"
             "**1-arm lat pull-in** (12-15 reps) (2 sets)\n\n"
             "**dual-cable triceps press** (10-12 reps) (3 sets)\n\n"
@@ -1341,9 +1341,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p2u1_cuffed-behind-the-back-lateral-raise"}],
                     [{"text": "lat-focused cable row (10-12 reps) (3 sets)",
                         "callback_data": "p2u1_lat-focused-cable-row"}],
-                    [{"text": "low incline db press (8-10 reps) (3 sets)",
+                    [{"text": "low incline dumbbell press (8-10 reps) (3 sets)",
                         "callback_data": "p2u1_low-incline-db-press"}],
-                    [{"text": "chest-supported machine row & kelso shrug (8-10 + 4-6 reps) (3 sets)",
+                    [{"text": "chest-supported machine row + kelso shrug (8-10 + 4-6 reps) (3 sets)",
                         "callback_data": "p2u1_chest-supported machine-row + kelso shrug"}],
                     [{"text": "bent-over cable pec flye (w/ integrated partials) (12-15 reps) (3 sets)",
                       "callback_data": "p2u1_bent-over-cable-pec-flye-(w/-integrated-partials)"}],
