@@ -1046,7 +1046,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             keyboard_buttons.append(
                                 [{"text": f"Ex 2: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
                         await send_telegram_reply(chat_id, reply_text, reply_markup={"inline_keyboard": keyboard_buttons})
-
+                    async with httpx.AsyncClient() as http_client:
+                        await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
+                            "chat_id": chat_id,
+                            "message_id": callback["message"]["message_id"],
+                            "text": reply_text,
+                            "parse_mode": "Markdown",
+                            "reply_markup": {"inline_keyboard": keyboard_buttons}
+                        })
                     async with httpx.AsyncClient() as http_client:
                         await http_client.post(
                             f"https://api.telegram.org/bot{
@@ -1068,6 +1075,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 reply_text = await build_exercise_session_targets(exercise_name)
                 await send_telegram_reply(chat_id, reply_text)
+
+                async with httpx.AsyncClient() as http_client:
+                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
+                        "chat_id": chat_id,
+                        "message_id": callback["message"]["message_id"],
+                        "text": reply_text,
+                        "parse_mode": "Markdown",
+                        "reply_markup": callback["message"].get("reply_markup")
+                    })
 
                 async with httpx.AsyncClient() as http_client:
                     await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery", json={"callback_query_id": callback["id"]})
@@ -1440,10 +1456,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_l2_msg_text, reply_markup=p2_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_arms"):
-            p2_wp1_msg_text = "**JEFF NIPPARD PHASE 2 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)**\n\n"
+            p2_wp_msg_text = "**JEFF NIPPARD PHASE 2 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)**\n\n"
             "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
-            "**Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
-            p2_wp1_keyboard = {
+            "**Weak Point Exercise** (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
+            p2_wp_keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders", "callback_data": "wp_shoulders"},
                         {"text": "Lats", "callback_data": "wp_lats"}],
@@ -1458,31 +1474,31 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "Abs", "callback_data": "wp_abs"}]
                 ]
             }
-            await send_telegram_reply(chat_id, p2_wp1_msg_text, reply_markup=p2_wp1_keyboard)
-            p2_wp2_msg_text = "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
-            p2_wp2_keyboard = {
-                "inline_keyboard": [
-                    [{"text": "Shoulders", "callback_data": "wp_shoulders"}],
-                    [{"text": "Lats", "callback_data": "wp_lats"}],
-                    [{"text": "Quads", "callback_data": "wp_quads"}],
-                    [{
-                        "text": "Glutes", "callback_data": "wp_glutes"}],
-                    [{"text": "Chest", "callback_data": "wp_chest"}], [{
-                        "text": "Neck", "callback_data": "wp_neck"}],
-                    [{"text": "Hamstrings", "callback_data": "wp_hamstrings"}], [{
-                        "text": "Calves", "callback_data": "wp_calves"}],
-                    [{"text": "Mid-Back", "callback_data": "wp_mid-back"}],
-                    [{"text": "Upper Traps", "callback_data": "wp_upper traps"}],
-                    [{"text": "Abs", "callback_data": "wp_abs"}]
-                ]
-            }
-            await send_telegram_reply(chat_id, p2_wp2_msg_text, reply_markup=p2_wp2_keyboard)
+            await send_telegram_reply(chat_id, p2_wp_msg_text, reply_markup=p2_wp_keyboard)
+            # p2_wp2_msg_text = "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
+            # p2_wp2_keyboard = {
+            #     "inline_keyboard": [
+            #         [{"text": "Shoulders", "callback_data": "wp_shoulders"}],
+            #         [{"text": "Lats", "callback_data": "wp_lats"}],
+            #         [{"text": "Quads", "callback_data": "wp_quads"}],
+            #         [{
+            #             "text": "Glutes", "callback_data": "wp_glutes"}],
+            #         [{"text": "Chest", "callback_data": "wp_chest"}], [{
+            #             "text": "Neck", "callback_data": "wp_neck"}],
+            #         [{"text": "Hamstrings", "callback_data": "wp_hamstrings"}], [{
+            #             "text": "Calves", "callback_data": "wp_calves"}],
+            #         [{"text": "Mid-Back", "callback_data": "wp_mid-back"}],
+            #         [{"text": "Upper Traps", "callback_data": "wp_upper traps"}],
+            #         [{"text": "Abs", "callback_data": "wp_abs"}]
+            #     ]
+            # }
+            # await send_telegram_reply(chat_id, p2_wp2_msg_text, reply_markup=p2_wp2_keyboard)
             p2_arms_msg_text = "**Arms**"
             p2_arms_keyboard = {
                 "inline_keyboard": [
-                    [{"text": "slow-eccentric ez-bar skull crusher (10-12 reps) (3 sets)", "callback_data": "p2a_slow-eccentric-ez-bar-skull-crusher"},
-                        {"text": "slow-eccentric bayesian curl (10-12 reps) (3 sets)", "callback_data": "p2a_slow-eccentric-bayesian-curl"}],
-                    [{"text": "triceps diverging pressdown (long rope or 2 ropes) (12-15 reps) (2 sets)", "callback_data": "p2a_triceps-diverging-pressdown-(long-rope-or-2-ropes)"}, {
+                    [{"text": "slow-eccentric ez-bar skull crusher (10-12 reps) (3 sets)", "callback_data": "p2a_slow-eccentric-ez-bar-skull-crusher"}],
+                        [{"text": "slow-eccentric bayesian curl (10-12 reps) (3 sets)", "callback_data": "p2a_slow-eccentric-bayesian-curl"}],
+                    [{"text": "triceps diverging pressdown (long rope or 2 ropes) (12-15 reps) (2 sets)", "callback_data": "p2a_triceps-diverging-pressdown-(long-rope-or-2-ropes)"}], [{
                         "text": "reverse grip cable curl (12-15 reps) (2 sets)", "callback_data": "p2a_reverse-grip-cable-curl"}],
                     [{"text": "roman chair leg raise crunch (10-20 reps) (3 sets)",
                         "callback_data": "p2a_roman-chair-leg-raise-crunch"}],
