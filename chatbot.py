@@ -758,7 +758,9 @@ class WorkoutStructure(BaseModel):
         default=False, description="True if the user indicates this is a warm-up set.")
 
 def normalize_str(s: str) -> str:
-    return s.replace("-", "").replace(" ", "").replace("/", "").replace("_", "").lower()
+    s = s.lower().replace("-", " ").replace("/", " ").replace("_", " ")
+    words = ["dumbbell" if w == "db" else w for w in s.split()]
+    return "".join(words)
 
 def match_exercise(raw_name: str) -> Optional[str]:
     clean = normalize_str(raw_name)
@@ -1074,7 +1076,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ACTIVE_EXERCISE_SESSIONS[chat_id] = exercise_name
 
                 reply_text = await build_exercise_session_targets(exercise_name)
-                await send_telegram_reply(chat_id, reply_text)
 
                 async with httpx.AsyncClient() as http_client:
                     await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
@@ -1359,7 +1360,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p2u1_lat-focused-cable-row"}],
                     [{"text": "low incline dumbbell press (8-10 reps) (3 sets)",
                         "callback_data": "p2u1_low-incline-db-press"}],
-                    [{"text": "chest-supported machine row + kelso shrug (8-10 + 4-6 reps) (3 sets)",
+                    [{"text": "machine chest-supported row + kelso shrug (8-10 + 4-6 reps) (3 sets)",
                         "callback_data": "p2u1_chest-supported machine-row + kelso shrug"}],
                     [{"text": "bent-over cable pec flye (w/ integrated partials) (12-15 reps) (3 sets)",
                       "callback_data": "p2u1_bent-over-cable-pec-flye-(w/-integrated-partials)"}],
