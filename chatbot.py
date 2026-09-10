@@ -826,9 +826,13 @@ async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None
                 raise e
 
 
-async def get_usda_macros(food_query: str):
-    url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={
-        food_query}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
+async def get_usda_macros(food_query: str, upc: Optional[str] = None):
+    if upc:
+        url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={
+            USDA_API_KEY}&query={upc}&dataType=Branded&pageSize=1"
+    else:
+        url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={
+            food_query}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(url)
@@ -921,7 +925,8 @@ async def build_exercise_session_targets(exercise_name: str) -> str:
         return (
             f"**No history found for {exercise_name.title()}!**\n"
             f"Start with a light weight to establish your baseline today.\n\n"
-            f"Target Working Weight: Load up 0 lbs for Set 1 today and aim for {target_max_reps} reps!\n\n"
+            f"Target Working Weight: Load up 0 lbs for Set 1 today and aim for {
+                target_max_reps} reps!\n\n"
             f"Working Progression Schema:**\n{schema_text}\n\n"
             f"*Technique Cues:* {intensity_advice}"
         )
@@ -966,7 +971,8 @@ async def build_exercise_session_targets(exercise_name: str) -> str:
         f"**Last Session: {exercise_name.title()}** ({last_date})\n\n"
         f"{history_text}\n\n"
         f"Target Working Weight: {rec_text}\n\n"
-        f"Recommended Warm-Up Pyramid ({warmup_count} sets):\n{warmup_guide}\n\n"
+        f"Recommended Warm-Up Pyramid ({warmup_count} sets):\n{
+            warmup_guide}\n\n"
         f"Working Progression Schema:\n{deload_banner}{schema_text}\n\n"
         f"Technique Cues: {intensity_advice}"
     )
@@ -1696,7 +1702,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
 
         if user_text.lower().startswith("meal:") or user_text.lower().startswith("m:"):
-            clean_food_text = user_text.lower().replace("meal:", "").replace("m:", "").strip()
+            clean_food_text = user_text.lower().replace(
+                "meal:", "").replace("m:", "").strip()
             classification_prompt = (
                 "You are an expert food query router for a nutrition engine. "
                 f"The user logged: '{clean_food_text}'.\n"
@@ -1732,9 +1739,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 keyboard = {"inline_keyboard": []}
 
-                msg_text = f" Found {len(usda_results)} results for **{search_query}**.\nSelect the most accurate option to log it:"
+                msg_text = f" Found {len(usda_results)} results for **{
+                    search_query}**.\nSelect the most accurate option to log it:"
                 for i, item in enumerate(usda_results):
-                    btn_text = f"{item['food_name'][:30]}... ({item['calories']} kcal)"
+                    btn_text = f"{item['food_name'][:30]
+                                  }... ({item['calories']} kcal)"
                     keyboard["inline_keyboard"].append(
                         [{"text": btn_text, "callback_data": f"usda_{i}"}])
                 keyboard["inline_keyboard"].append(
@@ -1746,27 +1755,32 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 system_instructions = (
                     f"You are an expert nutritionist and precise calorie calculator. "
-                    f"The user will provide a meal description. Calculate the macros step-by-step for '{clean_food_text}': "
+                    f"The user will provide a meal description. Calculate the macros step-by-step for '{
+                        clean_food_text}': "
                     f"identify each distinct ingredient, recall its nutritional values for the exact quantity/measurement provided, "
-                    f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. "
-                    f"CRITICAL: Return ONLY a flat JSON object matching schema: {schema_string}. Do NOT wrap your response in a 'properties' key. "
+                    f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {
+                        schema_string}. "
+                    f"CRITICAL: Return ONLY a flat JSON object matching schema: {
+                        schema_string}. Do NOT wrap your response in a 'properties' key. "
                     f"IMPORTANT: If the user specifies a past date (like 6/10/26) or meal type (like lunch), extract them into 'extracted_date' (YYYY-MM-DD) and 'extracted_meal_type'."
                 )
 
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions},
-                        {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
+                        {"role": "user", "content": f"Analyze this meal text: '{
+                            clean_food_text}'"}
                     ],
                     model="openai/gpt-oss-120b",
                     response_format={"type": "json_object"}
                 )
 
                 response_dict = json.loads(response.choices[0].message.content)
-                clean_dict = {k: v for k, v in response_dict.items() if v is not None}
+                clean_dict = {k: v for k,
+                              v in response_dict.items() if v is not None}
                 food_data = FoodStructure.model_validate(clean_dict)
                 await process_and_save_meal(chat_id, food_data)
-            return {"status": "success"} 
+            return {"status": "success"}
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
         is_workout = any(w in user_text.lower() for w in base_keywords) or any(normalize_str(k) in normalize_str(user_text)
