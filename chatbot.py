@@ -827,38 +827,51 @@ async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None
 
 
 async def get_usda_macros(food_query: str, upc: Optional[str] = None):
+    # Determine candidate queries
+    queries_to_try = []
     if upc:
-        url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={
-            USDA_API_KEY}&query={upc}&dataType=Branded&pageSize=1"
+        clean_upc = upc.strip()
+        queries_to_try.append(clean_upc)
+        # 14-digit GTIN padded variant
+        padded_14 = clean_upc.zfill(14)
+        if padded_14 not in queries_to_try:
+            queries_to_try.append(padded_14)
+        # Extra fallback for datasets padding with 3 zeros
+        if len(clean_upc) == 12:
+            queries_to_try.append(f"000{clean_upc}")
     else:
-        url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={
-            food_query}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
+        queries_to_try.append(food_query)
+
     async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(url)
-            data = response.json()
-            options = []
-            if data.get('foods'):
-                food = data['foods'][0]
-                calories = next(
-                    (n['value'] for n in food['foodNutrients'] if 'Energy' in n['nutrientName']), 0)
-                protein = next(
-                    (n['value'] for n in food['foodNutrients'] if 'Protein' in n['nutrientName']), 0)
-                carbs = next((n['value'] for n in food['foodNutrients']
-                             if 'Carbohydrate' in n['nutrientName']), 0)
-                fat = next((n['value'] for n in food['foodNutrients']
-                           if 'Total lipid' in n['nutrientName']), 0)
-                options.append({
-                    "food_name": food['description'],
-                    "calories": int(calories),
-                    "protein": int(protein),
-                    "carbs": int(carbs),
-                    "fat": int(fat)
-                })
-                return options
-        except Exception as e:
-            print(f"USDA API Error: {e}")
-            return []
+        for q in queries_to_try:
+            if upc:
+                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={q}&dataType=Branded&pageSize=3"
+            else:
+                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={q}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
+
+            try:
+                response = await client.get(url)
+                data = response.json()
+                options = []
+                if data.get('foods'):
+                    for food in data['foods'][:3]:
+                        nutrients = food.get('foodNutrients', [])
+                        calories = next((n['value'] for n in nutrients if 'Energy' in n.get('nutrientName', '')), 0)
+                        protein = next((n['value'] for n in nutrients if 'Protein' in n.get('nutrientName', '')), 0)
+                        carbs = next((n['value'] for n in nutrients if 'Carbohydrate' in n.get('nutrientName', '')), 0)
+                        fat = next((n['value'] for n in nutrients if 'Total lipid' in n.get('nutrientName', '')), 0)
+                        options.append({
+                            "food_name": food.get('description', 'Unknown Food'),
+                            "calories": int(calories),
+                            "protein": int(protein),
+                            "carbs": int(carbs),
+                            "fat": int(fat)
+                        })
+                    if options:
+                        return options
+            except Exception as e:
+                print(f"USDA API Error: {e}")
+                return []
     return []
 
 
