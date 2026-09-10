@@ -1704,33 +1704,51 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower().startswith("meal:") or user_text.lower().startswith("m:"):
             clean_food_text = user_text.lower().replace(
                 "meal:", "").replace("m:", "").strip()
-            classification_prompt = (
-                "You are an expert food query router for a nutrition engine. "
-                f"The user logged: '{clean_food_text}'.\n"
-                "Analyze the meal and decide if it is likely in the USDA FoodData Central database "
-                "(branded grocery items, raw produce, staple meats, common commercial items, foundation foods, sr legacy, fndds, experimental foods, branded foods) "
-                "or if it is a complex home-cooked/cultural dish not standardized in USDA "
-                "(e.g., specific Indian curries like 'spinach dal', 'fish pulusu', 'carrot fry', biryani, homemade desserts).\n\n"
-                "Return a JSON object with two fields:\n"
-                "- 'is_usda_compatible': boolean (true if in USDA FoodData Central Database, false if regional/home-cooked curry/dish)\n"
-                "- 'search_query': standardized commercial search term if true (fix typos, expand brand names, strip portions), "
-                "or empty string if false.\n"
-                "Example JSON: {\"is_usda_compatible\": false, \"search_query\": \"\"}"
-            )
-            classifier_res = groq_client.chat.completions.create(
-                messages=[{"role": "user", "content": classification_prompt}],
-                model="openai/gpt-oss-20b",
-                response_format={"type": "json_object"}
-            )
-            route_data = json.loads(classifier_res.choices[0].message.content)
-            is_usda = route_data.get("is_usda_compatible", False)
-            search_query = route_data.get("search_query", "").strip()
+            import re
+
+            # Check for barcode first
+            raw_upc_match = re.search(r'\b\d{12,14}\b', clean_food_text)
+            direct_upc = raw_upc_match.group(0) if raw_upc_match else None
 
             usda_results = []
+            display_query = ""
 
-            if is_usda and search_query:
-                usda_results = await get_usda_macros(search_query)
+            # --- TIER 1: UPC Direct Lookup ---
+            if direct_upc:
+                usda_results = await get_usda_macros("", upc=direct_upc)
+                display_query = f"UPC {direct_upc}"
 
+            # --- TIER 2: LLM Classifier & Text Search (Only if no UPC match) ---
+            if not usda_results:
+                classification_prompt = (
+                    "You are an expert food query router for a nutrition engine. "
+                    f"The user logged: '{clean_food_text}'.\n"
+                    "Analyze the meal and decide if it is likely in the USDA FoodData Central database "
+                    "(branded grocery items, raw produce, staple meats, common commercial items, foundation foods, sr legacy, fndds, experimental foods, branded foods) "
+                    "or if it is a complex home-cooked/cultural dish not standardized in USDA "
+                    "(e.g., specific Indian curries like 'spinach dal', 'fish pulusu', 'carrot fry', biryani, homemade desserts).\n\n"
+                    "Return a JSON object with two fields:\n"
+                    "- 'is_usda_compatible': boolean (true if in USDA FoodData Central Database, false if regional/home-cooked curry/dish)\n"
+                    "- 'search_query': standardized commercial search term if true (fix typos, expand brand names, strip portions), "
+                    "or empty string if false.\n"
+                    "Example JSON: {\"is_usda_compatible\": false, \"search_query\": \"\"}"
+                )
+                classifier_res = groq_client.chat.completions.create(
+                    messages=[
+                        {"role": "user", "content": classification_prompt}],
+                    model="openai/gpt-oss-20b",
+                    response_format={"type": "json_object"}
+                )
+                route_data = json.loads(
+                    classifier_res.choices[0].message.content)
+                is_usda = route_data.get("is_usda_compatible", False)
+                search_query = route_data.get("search_query", "").strip()
+
+                if is_usda and search_query:
+                    usda_results = await get_usda_macros(search_query)
+                    display_query = search_query
+
+            # --- TIER 3: Results or AI Fallback ---
             if usda_results:
                 PENDING_LOGS[chat_id] = {
                     "raw_text": clean_food_text,
@@ -1740,15 +1758,17 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 keyboard = {"inline_keyboard": []}
 
                 msg_text = f" Found {len(usda_results)} results for **{
-                    search_query}**.\nSelect the most accurate option to log it:"
+                    display_query}**.\nSelect the most accurate option to log it:"
                 for i, item in enumerate(usda_results):
                     btn_text = f"{item['food_name'][:30]
                                   }... ({item['calories']} kcal)"
                     keyboard["inline_keyboard"].append(
                         [{"text": btn_text, "callback_data": f"usda_{i}"}])
+
                 keyboard["inline_keyboard"].append(
                     [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
                 await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+
             else:
                 # Direct AI fallback for cultural dishes or 0-result items
                 schema_string = json.dumps(FoodStructure.model_json_schema())
