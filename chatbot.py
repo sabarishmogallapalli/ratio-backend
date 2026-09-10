@@ -991,7 +991,9 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     supabase.table("food_logs").insert(insert_payload).execute()
 
     central_tz = zoneinfo.ZoneInfo("America/Chicago")
-    today_str = datetime.now(central_tz).date().isoformat()
+    now = datetime.now(central_tz)
+    start_of_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_str = start_of_today.isoformat()
     daily_logs = supabase.table("food_logs") \
         .select("calories, protein, carbs, fat") \
         .gte("created_at", today_str) \
