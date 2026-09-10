@@ -1032,8 +1032,8 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
             f"\n\n **Daily Status:**\n"
             f" Protein: **{total_pro}g** / {
                 target_pro}g *(Need {rem_pro}g more)*\n"
-            f" Carbohydrates: **{total_carb}** / {round(target_carb)}\n\n"
-            f" Fat: **{total_fat}** / {round(target_fat)}\n\n"
+            f" Carbohydrates: **{total_carb}** / {round(target_carb)}\n"
+            f" Fat: **{total_fat}** / {round(target_fat)}\n"
             f" Calories: **{total_cal}** / {round(target_cal)}\n\n"
             f" *{coach_advice}*"
         )
@@ -1150,8 +1150,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 )
             else:
                 schema_string = json.dumps(FoodStructure.model_json_schema())
-                system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {
-                    schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
+                system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal or food, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {
+                    schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'. IMPORTANT: If the food item is branded query for documented nutritional facts regarding that item and adjust based on quantity."
 
             response = groq_client.chat.completions.create(
                 messages=[
@@ -1693,68 +1693,77 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
 
         if user_text.lower().startswith("meal:") or user_text.lower().startswith("m:"):
-            clean_food_text = user_text.lower().replace(
-                "meal:", "").replace("m:", "").strip()
-
-            search_prompt = f"Extract ONLY the core food ingredient or restaurant item to search in a database from this text: '{
-                clean_food_text}'. Do not include portions, meal types, or dates. Return just the search string."
-            search_res = groq_client.chat.completions.create(
-                messages=[{"role": "user", "content": search_prompt}],
-                model="openai/gpt-oss-20b"
+            clean_food_text = user_text.lower().replace("meal:", "").replace("m:", "").strip()
+            classification_prompt = (
+                "You are an expert food query router for a nutrition engine. "
+                f"The user logged: '{clean_food_text}'.\n"
+                "Analyze the meal and decide if it is likely in the USDA FoodData Central database "
+                "(branded grocery items, raw produce, staple meats, common commercial items, foundation foods, sr legacy, fndds, experimental foods, branded foods) "
+                "or if it is a complex home-cooked/cultural dish not standardized in USDA "
+                "(e.g., specific Indian curries like 'spinach dal', 'fish pulusu', 'carrot fry', biryani, homemade desserts).\n\n"
+                "Return a JSON object with two fields:\n"
+                "- 'is_usda_compatible': boolean (true if in USDA FoodData Central Database, false if regional/home-cooked curry/dish)\n"
+                "- 'search_query': standardized commercial search term if true (fix typos, expand brand names, strip portions), "
+                "or empty string if false.\n"
+                "Example JSON: {\"is_usda_compatible\": false, \"search_query\": \"\"}"
             )
-            search_query = search_res.choices[0].message.content.strip().replace(
-                '"', '')
+            classifier_res = groq_client.chat.completions.create(
+                messages=[{"role": "user", "content": classification_prompt}],
+                model="openai/gpt-oss-20b",
+                response_format={"type": "json_object"}
+            )
+            route_data = json.loads(classifier_res.choices[0].message.content)
+            is_usda = route_data.get("is_usda_compatible", False)
+            search_query = route_data.get("search_query", "").strip()
 
-            usda_results = await get_usda_macros(search_query)
+            usda_results = []
+
+            if is_usda and search_query:
+                usda_results = await get_usda_macros(search_query)
 
             if usda_results:
-                # We only need to store Pending Logs if we are making the user click a button!
                 PENDING_LOGS[chat_id] = {
                     "raw_text": clean_food_text,
                     "usda_options": usda_results
                 }
+
                 keyboard = {"inline_keyboard": []}
-                msg_text = f" Found {len(usda_results)} results for **{
-                    search_query}**.\nSelect the most accurate option to log it:"
+
+                msg_text = f" Found {len(usda_results)} results for **{search_query}**.\nSelect the most accurate option to log it:"
                 for i, item in enumerate(usda_results):
-                    btn_text = f"{item['food_name'][:30]
-                                  }... ({item['calories']} kcal)"
+                    btn_text = f"{item['food_name'][:30]}... ({item['calories']} kcal)"
                     keyboard["inline_keyboard"].append(
                         [{"text": btn_text, "callback_data": f"usda_{i}"}])
-
-                # Always offer the AI fallback button
                 keyboard["inline_keyboard"].append(
                     [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
                 await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
             else:
-                # No USDA results? Skip asking and trigger AI instantly.
+                # Direct AI fallback for cultural dishes or 0-result items
                 schema_string = json.dumps(FoodStructure.model_json_schema())
+
                 system_instructions = (
                     f"You are an expert nutritionist and precise calorie calculator. "
-                    f"The user will provide a meal description. Calculate the macros step-by-step for '{
-                        clean_food_text}': "
+                    f"The user will provide a meal description. Calculate the macros step-by-step for '{clean_food_text}': "
                     f"identify each distinct ingredient, recall its nutritional values for the exact quantity/measurement provided, "
-                    f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {
-                        schema_string}. "
-                    f"CRITICAL: Return ONLY a flat JSON object matching schema: {
-                        schema_string}. Do NOT wrap your response in a 'properties' key. "
+                    f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. "
+                    f"CRITICAL: Return ONLY a flat JSON object matching schema: {schema_string}. Do NOT wrap your response in a 'properties' key. "
                     f"IMPORTANT: If the user specifies a past date (like 6/10/26) or meal type (like lunch), extract them into 'extracted_date' (YYYY-MM-DD) and 'extracted_meal_type'."
                 )
+
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions},
-                        {"role": "user", "content": f"Analyze this meal text: '{
-                            clean_food_text}'"}
+                        {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
                     ],
                     model="openai/gpt-oss-120b",
                     response_format={"type": "json_object"}
                 )
+
                 response_dict = json.loads(response.choices[0].message.content)
-                clean_dict = {k: v for k,
-                              v in response_dict.items() if v is not None}
+                clean_dict = {k: v for k, v in response_dict.items() if v is not None}
                 food_data = FoodStructure.model_validate(clean_dict)
                 await process_and_save_meal(chat_id, food_data)
-            return {"status": "success"}
+            return {"status": "success"} 
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
         is_workout = any(w in user_text.lower() for w in base_keywords) or any(normalize_str(k) in normalize_str(user_text)
