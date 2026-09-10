@@ -36,9 +36,11 @@ TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
 USDA_API_KEY = os.getenv("USDA_API_KEY")
 
+
 @app.get("/")
 def keep_alive():
     return {"status": "awake"}
+
 
 EXERCISE_REGISTRY = {
     # PHASE 1
@@ -303,7 +305,7 @@ EXERCISE_REGISTRY = {
 
     # PHASE 2
 
-"lat-focused cable row": {
+    "lat-focused cable row": {
         "warmup_sets": 1,
         "advice": "Keep elbows tucked close to your sides to bias the lats.",
         "sets": {
@@ -498,7 +500,7 @@ EXERCISE_REGISTRY = {
         },
     },
 
-    #WEAK POINTS
+    # WEAK POINTS
 
     "machine lateral raise": {
         "warmup_sets": 1,
@@ -757,10 +759,12 @@ class WorkoutStructure(BaseModel):
     is_warmup: bool = Field(
         default=False, description="True if the user indicates this is a warm-up set.")
 
+
 def normalize_str(s: str) -> str:
     s = s.lower().replace("-", " ").replace("/", " ").replace("_", " ")
     words = ["dumbbell" if w == "db" else w for w in s.split()]
     return "".join(words)
+
 
 def match_exercise(raw_name: str) -> Optional[str]:
     clean = normalize_str(raw_name)
@@ -768,6 +772,7 @@ def match_exercise(raw_name: str) -> Optional[str]:
         if normalize_str(ex) == clean:
             return ex
     return None
+
 
 def define_meal() -> str:
     central_tz = zoneinfo.ZoneInfo("America/Chicago")
@@ -872,6 +877,7 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
         next_set}** of *{exercise_name.title()}*.\n Target: {target_desc}"
     await send_telegram_reply(chat_id, reminder)
 
+
 async def build_exercise_session_targets(exercise_name: str) -> str:
     ex_info = EXERCISE_REGISTRY.get(exercise_name, {
         "warmup_sets": 1,
@@ -882,13 +888,31 @@ async def build_exercise_session_targets(exercise_name: str) -> str:
     intensity_advice = ex_info.get("advice", "Hypertrophy depth working set.")
     warmup_count = ex_info.get("warmup_sets", 0)
 
-    schema_lines = [f"• Working Set {s}: {data['max_reps']} reps (+{data['increment']} lbs incr.)" for s, data in sets_config.items()]
-    schema_text = "\n".join(schema_lines) if schema_lines else "• Working sets: 8-12 reps"
+    distinct_targets = {
+        (data.get("max_reps", 12), data.get("increment", 5))
+        for data in sets_config.values()
+    }
+
+    if len(distinct_targets) <= 1 and sets_config:
+        rep_target = sets_config[1].get("max_reps", 12)
+        incr = sets_config[1].get("increment", 5)
+        schema_text = f"• {len(sets_config)} Working Sets: {
+            rep_target} reps (+{incr} lbs incr.)"
+    else:
+        schema_lines = [
+            f"• Working Set {s}: {
+                data.get('max_reps', 12)} reps (+{data.get('increment', 5)} lbs incr.)"
+            for s, data in sets_config.items()
+        ]
+        schema_text = "\n".join(
+            schema_lines) if schema_lines else "• Working sets: 8-12 reps"
 
     today_str = date.today().isoformat()
-    history = supabase.table("exercise_logs").select("weight, reps, set_number, created_at").eq("exercise_name", exercise_name).lt("created_at", today_str).order("created_at", desc=True).limit(25).execute()
+    history = supabase.table("exercise_logs").select("weight, reps, set_number, created_at").eq(
+        "exercise_name", exercise_name).lt("created_at", today_str).order("created_at", desc=True).limit(25).execute()
 
-    set_1_targets = sets_config.get(1, {"min_reps": 8, "max_reps": 12, "increment": 5})
+    set_1_targets = sets_config.get(
+        1, {"min_reps": 8, "max_reps": 12, "increment": 5})
     target_max_reps = set_1_targets.get("max_reps", 12)
     target_min_reps = set_1_targets.get("min_reps", 8)
     increment = set_1_targets.get("increment", 5)
@@ -897,32 +921,40 @@ async def build_exercise_session_targets(exercise_name: str) -> str:
         return (
             f"**No history found for {exercise_name.title()}!**\n"
             f"Start with a light weight to establish your baseline today.\n\n"
-            f"🎯 **Target Working Weight:** Load up **0 lbs** for Set 1 today and aim for **{target_max_reps} reps**!\n\n"
-            f"📊 **Working Progression Schema:**\n{schema_text}\n\n"
-            f"💡 *Technique Cues:* {intensity_advice}"
+            f"Target Working Weight: Load up 0 lbs for Set 1 today and aim for {target_max_reps} reps!\n\n"
+            f"Working Progression Schema:**\n{schema_text}\n\n"
+            f"*Technique Cues:* {intensity_advice}"
         )
 
     last_date = history.data[0]["created_at"][:10]
-    last_session = [r for r in history.data if r["created_at"].startswith(last_date)]
-    history_text = "\n".join([f"• Set {r['set_number']}: {r['weight']} lbs × {r['reps']} reps" for r in sorted(last_session, key=lambda x: x["set_number"])])
+    last_session = [
+        r for r in history.data if r["created_at"].startswith(last_date)]
+    history_text = "\n".join([f"• Set {r['set_number']}: {r['weight']} lbs × {
+                             r['reps']} reps" for r in sorted(last_session, key=lambda x: x["set_number"])])
 
     # Check deload week
-    upper_anchors = ["low incline smith machine press", "low incline dumbbell press"]
-    upper_logs = supabase.table("exercise_logs").select("created_at").in_("exercise_name", upper_anchors).lte("created_at", f"{today_str}T23:59:59").execute()
-    unique_weeks = max(len(set(r["created_at"][:10] for r in upper_logs.data)), 1) if upper_logs.data else 1
+    upper_anchors = ["low incline smith machine press",
+                     "low incline dumbbell press"]
+    upper_logs = supabase.table("exercise_logs").select("created_at").in_(
+        "exercise_name", upper_anchors).lte("created_at", f"{today_str}T23:59:59").execute()
+    unique_weeks = max(len(set(r["created_at"][:10]
+                       for r in upper_logs.data)), 1) if upper_logs.data else 1
     is_deload_week = (unique_weeks % 5 == 0)
 
     # Double progression calculation
     heaviest_set = max(last_session, key=lambda x: x["weight"])
-    successful_at_top = [s for s in last_session if s["reps"] >= target_max_reps]
+    successful_at_top = [
+        s for s in last_session if s["reps"] >= target_max_reps]
 
     if successful_at_top:
         best_top_set = max(successful_at_top, key=lambda x: x["weight"])
         target_working_weight = best_top_set["weight"] + increment
-        rec_text = f"You hit **{best_top_set['reps']} reps** at {best_top_set['weight']} lbs last time! Bump to **{target_working_weight} lbs** for Set 1 today and aim for **{target_max_reps} reps**!"
+        rec_text = f"**{target_working_weight} lbs** for **{
+            target_max_reps} reps** Set 1 today!"
     else:
         target_working_weight = heaviest_set["weight"]
-        rec_text = f"Your working weight is **{target_working_weight} lbs** ({heaviest_set['reps']} reps last session). Keep working with **{target_working_weight} lbs** today until you hit **{target_max_reps} reps**!"
+        rec_text = f"Your working weight is **{target_working_weight} lbs** ({heaviest_set['reps']} reps last session). Keep working with **{
+            target_working_weight} lbs** today until you hit **{target_max_reps} reps**!"
 
     deload_banner = ""
     if is_deload_week:
@@ -933,17 +965,18 @@ async def build_exercise_session_targets(exercise_name: str) -> str:
     return (
         f"**Last Session: {exercise_name.title()}** ({last_date})\n\n"
         f"{history_text}\n\n"
-        f"🎯 **Target Working Weight:** {rec_text}\n\n"
-        f"🔥 **Recommended Warm-Up Pyramid ({warmup_count} sets):**\n{warmup_guide}\n\n"
-        f"📊 **Working Progression Schema:**\n{deload_banner}{schema_text}\n\n"
-        f"💡 *Technique Cues:* {intensity_advice}"
-    )    
+        f"Target Working Weight: {rec_text}\n\n"
+        f"Recommended Warm-Up Pyramid ({warmup_count} sets):\n{warmup_guide}\n\n"
+        f"Working Progression Schema:\n{deload_banner}{schema_text}\n\n"
+        f"Technique Cues: {intensity_advice}"
+    )
 
 
 async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     central_tz = zoneinfo.ZoneInfo("America/Chicago")
     meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
-    created_timestamp = f"{food_data.extracted_date}T12:00:00-05:00" if food_data.extracted_date else datetime.now(central_tz).isoformat()
+    created_timestamp = f"{
+        food_data.extracted_date}T12:00:00-05:00" if food_data.extracted_date else datetime.now(central_tz).isoformat()
 
     insert_payload = {
         "meal_type": meal_type,
@@ -975,6 +1008,8 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     if profile.data:
         target_pro = profile.data[0]['target_protein']
         target_cal = profile.data[0]['target_calories']
+        target_carb = profile.data[0]['target_carbohydrates']
+        target_fat = profile.data[0]['target_fat']
         goal = profile.data[0]['goal']
 
         rem_pro = target_pro - total_pro
@@ -997,6 +1032,8 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
             f"\n\n **Daily Status:**\n"
             f" Protein: **{total_pro}g** / {
                 target_pro}g *(Need {rem_pro}g more)*\n"
+            f" Carbohydrates: **{total_carb}** / {round(target_carb)}\n\n"
+            f" Fat: **{total_fat}** / {round(target_fat)}\n\n"
             f" Calories: **{total_cal}** / {round(target_cal)}\n\n"
             f" *{coach_advice}*"
         )
@@ -1072,7 +1109,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     if raw_slug.startswith(prefix):
                         raw_slug = raw_slug.replace(prefix, "")
                         break
-                exercise_name = match_exercise(raw_slug) or raw_slug.replace("-", " ").lower().strip()
+                exercise_name = match_exercise(
+                    raw_slug) or raw_slug.replace("-", " ").lower().strip()
                 ACTIVE_EXERCISE_SESSIONS[chat_id] = exercise_name
 
                 reply_text = await build_exercise_session_targets(exercise_name)
@@ -1113,18 +1151,18 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             else:
                 schema_string = json.dumps(FoodStructure.model_json_schema())
                 system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {
-                                    schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
+                    schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'."
 
             response = groq_client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": system_instructions},
-                        {"role": "user", "content": f"Analyze this meal text: '{raw_text}'"}],
-                    model="openai/gpt-oss-120b",
-                    response_format={"type": "json_object"}
-                )
+                messages=[
+                    {"role": "system", "content": system_instructions},
+                    {"role": "user", "content": f"Analyze this meal text: '{raw_text}'"}],
+                model="openai/gpt-oss-120b",
+                response_format={"type": "json_object"}
+            )
             response_dict = json.loads(response.choices[0].message.content)
             clean_dict = {k: v for k,
-                              v in response_dict.items() if v is not None}
+                          v in response_dict.items() if v is not None}
             food_data = FoodStructure.model_validate(clean_dict)
             del PENDING_LOGS[chat_id]
             await process_and_save_meal(chat_id, food_data)
@@ -1497,8 +1535,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             p2_arms_msg_text = "**Arms**"
             p2_arms_keyboard = {
                 "inline_keyboard": [
-                    [{"text": "slow-eccentric ez-bar skull crusher (10-12 reps) (3 sets)", "callback_data": "p2a_slow-eccentric-ez-bar-skull-crusher"}],
-                        [{"text": "slow-eccentric bayesian curl (10-12 reps) (3 sets)", "callback_data": "p2a_slow-eccentric-bayesian-curl"}],
+                    [{"text": "slow-eccentric ez-bar skull crusher (10-12 reps) (3 sets)",
+                      "callback_data": "p2a_slow-eccentric-ez-bar-skull-crusher"}],
+                    [{"text": "slow-eccentric bayesian curl (10-12 reps) (3 sets)",
+                      "callback_data": "p2a_slow-eccentric-bayesian-curl"}],
                     [{"text": "triceps diverging pressdown (long rope or 2 ropes) (12-15 reps) (2 sets)", "callback_data": "p2a_triceps-diverging-pressdown-(long-rope-or-2-ropes)"}], [{
                         "text": "reverse grip cable curl (12-15 reps) (2 sets)", "callback_data": "p2a_reverse-grip-cable-curl"}],
                     [{"text": "roman chair leg raise crunch (10-20 reps) (3 sets)",
@@ -1691,17 +1731,20 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 schema_string = json.dumps(FoodStructure.model_json_schema())
                 system_instructions = (
                     f"You are an expert nutritionist and precise calorie calculator. "
-                    f"The user will provide a meal description. Calculate the macros step-by-step for '{clean_food_text}': "
+                    f"The user will provide a meal description. Calculate the macros step-by-step for '{
+                        clean_food_text}': "
                     f"identify each distinct ingredient, recall its nutritional values for the exact quantity/measurement provided, "
                     f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {
                         schema_string}. "
-                    f"CRITICAL: Return ONLY a flat JSON object matching schema: {schema_string}. Do NOT wrap your response in a 'properties' key. "
+                    f"CRITICAL: Return ONLY a flat JSON object matching schema: {
+                        schema_string}. Do NOT wrap your response in a 'properties' key. "
                     f"IMPORTANT: If the user specifies a past date (like 6/10/26) or meal type (like lunch), extract them into 'extracted_date' (YYYY-MM-DD) and 'extracted_meal_type'."
                 )
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions},
-                        {"role": "user", "content": f"Analyze this meal text: '{clean_food_text}'"}
+                        {"role": "user", "content": f"Analyze this meal text: '{
+                            clean_food_text}'"}
                     ],
                     model="openai/gpt-oss-120b",
                     response_format={"type": "json_object"}
@@ -1712,9 +1755,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 food_data = FoodStructure.model_validate(clean_dict)
                 await process_and_save_meal(chat_id, food_data)
             return {"status": "success"}
-        base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout", "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
-        is_workout = any(w in user_text.lower() for w in base_keywords) or any(normalize_str(k) in normalize_str(user_text) for k in EXERCISE_REGISTRY.keys()) or user_text.lower().startswith("w:") or "upper:" in user_text.lower() or "lower:" in user_text.lower()
-        
+        base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
+                         "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
+        is_workout = any(w in user_text.lower() for w in base_keywords) or any(normalize_str(k) in normalize_str(user_text)
+                                                                               for k in EXERCISE_REGISTRY.keys()) or user_text.lower().startswith("w:") or "upper:" in user_text.lower() or "lower:" in user_text.lower()
+
         if is_workout:
             clean_text = user_text.replace("workout:", "").replace(
                 "upper", "").replace("lower", "").replace("w", "").strip()
@@ -1736,11 +1781,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             )
             lift_data = WorkoutStructure.model_validate_json(
                 response.choices[0].message.content)
-            exercise = match_exercise(lift_data.exercise_name) or lift_data.exercise_name.lower().strip()
+            exercise = match_exercise(
+                lift_data.exercise_name) or lift_data.exercise_name.lower().strip()
 
             if exercise not in EXERCISE_REGISTRY:
                 error_reply = (
-                    f"**Unrecognized Exercise:** '_{exercise.title()}_' Check spelling or select via workout menu.\n\n"
+                    f"**Unrecognized Exercise:** '_{
+                        exercise.title()}_' Check spelling or select via workout menu.\n\n"
                 )
                 await send_telegram_reply(chat_id, error_reply)
                 return {"status": "success"}
@@ -1756,7 +1803,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 .eq("exercise_name", exercise) \
                 .gte("created_at", today_str) \
                 .execute()
-            set_count = 0 if lift_data.is_warmup else len(existing_sets.data) + 1
+            set_count = 0 if lift_data.is_warmup else len(
+                existing_sets.data) + 1
 
             central_tz = zoneinfo.ZoneInfo("America/Chicago")
             supabase.table("exercise_logs").insert({
@@ -1788,30 +1836,39 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     total_target_sets} configured sets mapped successfully.\n *Next Move:* Proceed directly to your next movement assignment."
             else:
                 next_set_count = set_count + 1
-                curr_targets = sets_config.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
+                curr_targets = sets_config.get(
+                    set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
                 increment = curr_targets.get("increment", 5)
                 max_reps = curr_targets.get("max_reps", 12)
 
-                is_reverse_pyramid = any(ex in exercise for ex in ["hack squat", "smith machine squat"])
-                is_assisted = any(ex in exercise for ex in ["assisted pull-up", "paused assisted dip"])
+                is_reverse_pyramid = any(ex in exercise for ex in [
+                                         "hack squat", "smith machine squat"])
+                is_assisted = any(ex in exercise for ex in [
+                                  "assisted pull-up", "paused assisted dip"])
 
                 if is_reverse_pyramid:
-                    next_targets = sets_config.get(next_set_count, curr_targets)
+                    next_targets = sets_config.get(
+                        next_set_count, curr_targets)
                     drop_weight = max(0, lift_data.weight - increment)
-                    next_set_advice = f"\n\n🎯 *Next Set Target:* Drop weight for back-off. Target **{drop_weight} lbs** for {next_targets['max_reps']} reps."
+                    next_set_advice = f"\n\n🎯 *Next Set Target:* Drop weight for back-off. Target **{
+                        drop_weight} lbs** for {next_targets['max_reps']} reps."
                 elif is_assisted:
                     if lift_data.reps >= max_reps:
                         next_weight = max(0, lift_data.weight - increment)
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hit rep cap! Reduce assistance to **{next_weight} lbs**."
+                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hit rep cap! Reduce assistance to **{
+                            next_weight} lbs**."
                     else:
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hold **{lift_data.weight} lbs** assistance and push closer to {max_reps} reps."
+                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hold **{
+                            lift_data.weight} lbs** assistance and push closer to {max_reps} reps."
                 else:
                     if lift_data.reps >= max_reps:
                         next_weight = lift_data.weight + increment
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hit rep cap! Bump to **{next_weight} lbs** for Set {next_set_count}."
+                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hit rep cap! Bump to **{
+                            next_weight} lbs** for Set {next_set_count}."
                     else:
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hold **{lift_data.weight} lbs** and push closer to {max_reps} reps."
-                
+                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hold **{
+                            lift_data.weight} lbs** and push closer to {max_reps} reps."
+
                 # Append the background rest task for incomplete arrays
                 background_tasks.add_task(
                     delayed_rest_reminder,
