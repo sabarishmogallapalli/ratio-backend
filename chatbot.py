@@ -1008,7 +1008,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     if profile.data:
         target_pro = profile.data[0]['target_protein']
         target_cal = profile.data[0]['target_calories']
-        target_carb = profile.data[0]['target_carbohydrates']
+        target_carb = profile.data[0]['target_carbs']
         target_fat = profile.data[0]['target_fat']
         goal = profile.data[0]['goal']
 
