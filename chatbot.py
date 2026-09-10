@@ -1719,8 +1719,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "meal:", "").replace("m:", "").strip()
             import re
 
-            # Check for barcode first
-            raw_upc_match = re.search(r'\b\d{12,14}\b', clean_food_text)
+            # Catch 8 to 14 digit barcodes
+            raw_upc_match = re.search(r'\b\d{8,14}\b', clean_food_text)
             direct_upc = raw_upc_match.group(0) if raw_upc_match else None
 
             usda_results = []
@@ -1730,6 +1730,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             if direct_upc:
                 usda_results = await get_usda_macros("", upc=direct_upc)
                 display_query = f"UPC {direct_upc}"
+                
+                # SAFETY NET: Prevent the AI from hallucinating if USDA doesn't know the barcode
+                if not usda_results and clean_food_text.replace(direct_upc, "").strip() == "":
+                    await send_telegram_reply(chat_id, f"⚠️ **Barcode {direct_upc} not found!**\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
+                    return {"status": "success"}
 
             # --- TIER 2: LLM Classifier & Text Search (Only if no UPC match) ---
             if not usda_results:
