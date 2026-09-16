@@ -1421,7 +1421,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "low incline dumbbell press (8-10 reps) (3 sets)",
                         "callback_data": "p2u1_low-incline-db-press"}],
                     [{"text": "machine chest-supported row + kelso shrug (8-10 + 4-6 reps) (3 sets)",
-                        "callback_data": "p2u1_chest-supported machine-row + kelso shrug"}],
+                        "callback_data": "p2u1_machine chest-supported row + kelso shrug"}],
                     [{"text": "bent-over cable pec flye (w/ integrated partials) (12-15 reps) (3 sets)",
                       "callback_data": "p2u1_bent-over-cable-pec-flye-(w/-integrated-partials)"}],
                     [{"text": "1-arm lat pull-in (12-15 reps) (2 sets)",
