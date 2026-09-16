@@ -1609,10 +1609,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
         if user_text.lower() == "/profile":
             profile_instructions = (
-                "Profile Setup \n\n"
+                "**Profile Setup**\n\n"
                 "You can log your Body Scan results and goal to save it and train the machine learning model. "
                 "The system will automatically use your goal and categories your food based on the time of day and calculate your macros into Supabase.\n\n"
-                "Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets: Body Composition: [Water], [Dry Lean Mass], [Fat Mass], [Weight]; Muscle-Fat: [Weight], [SMM], [Body Fat Mass]; Obesity: [BMI], [PBF]; Segmental Lean: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; BMR: [Height in inches, Age], Goal: [bulk/cut/recomposition]"
+                "Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets:\n"
+                "InBody Analysis: [Height (in)], [Age]; Body Composition Analysis: [Total Body Water (lb)], [Dry Lean Mass (lb)], [Body Fat Mass (lb)], [Weight (lb)]; Muscle-Fat Analysis: [Weight (lb)], [SMM (lb)], [Body Fat Mass (lb)]; Obesity Analysis: [BMI (KG/M2)], [PBF (%)]; Segmental Lean Analysis: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; Research Parameters: [Lean Body Mass (lb)], [Basal Metabolic Rate (kcal)], [SMI (kg/m^2)]; Impedance: 20kHz: [RA], [LA], [TR], [RL], [LL], 100kHz: [RA], [LA], [TR], [RL], [LL]; Goal: [bulk/cut/recomposition]"
             )
             await send_telegram_reply(chat_id, profile_instructions)
             return {"status": "success"}
@@ -1620,27 +1621,35 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             clean_profile_text = user_text.lower().replace("profile:", "").strip()
 
             class ProfileInput(BaseModel):
-                weight: float
-                goal: str
-                body_fat_percentage: float
+                height: float
+                age: float
                 total_body_water: float
                 dry_lean_mass: float
+                body_fat_mass: float
+                weight: float
                 skeletal_muscle_mass: float  # SMM
                 bmi: float
+                body_fat_percentage: float
                 segmental_lean_data: list[float]
-                age: float
-                height: float
+                lean_body_mass: float
+                inbody_bmr: float
+                smi: float
+                impedance_20khz: list[float]
+                impedance_100khz: list[float]
+                goal: str
 
             schema_string = json.dumps(ProfileInput.model_json_schema())
             system_instructions = (
                 "You are an expert fitness data parser. "
                 "The user will provide data in these categories: "
-                "1. Body Composition (Total Body Water, Dry Lean Mass, Fat Mass, Weight). "
-                "2. Muscle-Fat Analysis (Weight, SMM, Fat Mass). "
-                "3. Obesity Analysis (BMI, PBF). "
-                "4. Segmental Lean Analysis (Left Arm %, Right Arm %, Left Leg %, Right Leg %). "
-                "5. BMR Analysis (height, age)"
-                "5. Goal (bulk, cut, maintenance, recomposition)"
+"1. InBody Analysis (Height, Age). "
+                "2. Body Composition (Total Body Water, Dry Lean Mass, Body Fat Mass, Weight). "
+                "3. Muscle-Fat Analysis (Weight, SMM, Body Fat Mass). "
+                "4. Obesity Analysis (BMI, PBF / body_fat_percentage). "
+                "5. Segmental Lean Analysis (Left Arm %, Right Arm %, Left Leg %, Right Leg %). "
+                "6. Research Parameters (Lean Body Mass, Basal Metabolic Rate -> inbody_bmr, SMI). "
+                "7. Impedance 20kHz (RA, LA, TR, RL, LL) and 100kHz (RA, LA, TR, RL, LL). "
+                "8. Goal (bulk, cut, maintenance, recomposition). "
                 "Extract all fields into the ProfileInput schema. "
                 f"Return ONLY valid JSON: {schema_string}"
             )
@@ -1657,11 +1666,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             profile_data = ProfileInput.model_validate_json(
                 response.choices[0].message.content)
             weight = profile_data.weight
-            height = profile_data.height
-            age = profile_data.age
             goal = profile_data.goal.lower()
-            bmr = (10 * (weight / 2.2)) + \
-                (6.25 * (height * 2.54)) - (5 * age) + 5
+            bmr = profile_data.inbody_bmr
             tdee = bmr * 1.55
 
             if "cut" in goal:
@@ -1693,8 +1699,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "total_body_water": profile_data.total_body_water,
                 "dry_lean_mass": profile_data.dry_lean_mass,
                 "skeletal_muscle_mass": profile_data.skeletal_muscle_mass,
+                "body_fat_mass": profile_data.body_fat_mass,
+                "body_fat_percentage": profile_data.body_fat_percentage,
                 "bmi": profile_data.bmi,
                 "segmental_lean_data": profile_data.segmental_lean_data,
+                "lean_body_mass": profile_data.lean_body_mass,
+                "inbody_bmr": profile_data.inbody_bmr,
+                "smi": profile_data.smi,
+                "impedance_20khz": profile_data.impedance_20khz,
+                "impedance_100khz": profile_data.impedance_100khz,
                 "created_at": datetime.now(central_tz).isoformat()
             }).execute()
 
@@ -1708,7 +1721,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f"Fat: {fat}g\n"
                 f"**Scan Metrics Logged:**\n"
                 f"SMM: {profile_data.skeletal_muscle_mass}kg\n"
-                f"BMI: {profile_data.bmi}"
+                f"Body Fat: {profile_data.body_fat_percentage}%\n"
+                f"SMI: {profile_data.smi}"
             )
 
             await send_telegram_reply(chat_id, reply)
