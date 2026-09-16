@@ -845,9 +845,11 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
     async with httpx.AsyncClient() as client:
         for q in queries_to_try:
             if upc:
-                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={q}&dataType=Branded&pageSize=3"
+                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={
+                    USDA_API_KEY}&query={q}&dataType=Branded&pageSize=3"
             else:
-                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={q}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
+                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={
+                    q}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
 
             try:
                 response = await client.get(url)
@@ -856,10 +858,14 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
                 if data.get('foods'):
                     for food in data['foods'][:3]:
                         nutrients = food.get('foodNutrients', [])
-                        calories = next((n['value'] for n in nutrients if 'Energy' in n.get('nutrientName', '')), 0)
-                        protein = next((n['value'] for n in nutrients if 'Protein' in n.get('nutrientName', '')), 0)
-                        carbs = next((n['value'] for n in nutrients if 'Carbohydrate' in n.get('nutrientName', '')), 0)
-                        fat = next((n['value'] for n in nutrients if 'Total lipid' in n.get('nutrientName', '')), 0)
+                        calories = next(
+                            (n['value'] for n in nutrients if 'Energy' in n.get('nutrientName', '')), 0)
+                        protein = next(
+                            (n['value'] for n in nutrients if 'Protein' in n.get('nutrientName', '')), 0)
+                        carbs = next((n['value'] for n in nutrients if 'Carbohydrate' in n.get(
+                            'nutrientName', '')), 0)
+                        fat = next((n['value'] for n in nutrients if 'Total lipid' in n.get(
+                            'nutrientName', '')), 0)
                         options.append({
                             "food_name": food.get('description', 'Unknown Food'),
                             "calories": int(calories),
@@ -895,7 +901,42 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
     await send_telegram_reply(chat_id, reminder)
 
 
-async def build_exercise_session_targets(exercise_name: str) -> str:
+async def handle_workout_completion(chat_id: int) -> str:
+    # Handles the +1 counter and rollover logic for completed workouts.
+
+    profile_res = supabase.table("user_profiles").select(
+        "workouts_completed_this_week, current_week, current_phase"
+    ).eq("chat_id", chat_id).execute()
+
+    if not profile_res.data:
+        return "Profile not found. Please set up your baseline first!"
+
+    profile = profile_res.data[0]
+    workouts_completed = profile.get("workouts_completed_this_week", 0) + 1
+    current_week = profile.get("current_week", 1)
+    current_phase = profile.get("current_phase", 1)
+
+    # 2. The Rollover Rule (Assuming 4 workouts/week target)
+    if workouts_completed >= 4:
+        workouts_completed = 0
+        current_week += 1
+
+        # Phase rollover (Assuming 5 weeks per phase)
+        if current_week > 5:
+            current_week = 1
+            current_phase += 1
+
+    # 3. Update the database
+    supabase.table("user_profiles").update({
+        "workouts_completed_this_week": workouts_completed,
+        "current_week": current_week,
+        "current_phase": current_phase
+    }).eq("chat_id", chat_id).execute()
+
+    return f" **Workout Complete!**\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/4"
+
+
+async def build_exercise_session_targets(exercise_name: str, current_phase: str, current_week: str,) -> str:
     ex_info = EXERCISE_REGISTRY.get(exercise_name, {
         "warmup_sets": 1,
         "advice": "Hypertrophy depth working set.",
@@ -950,14 +991,14 @@ async def build_exercise_session_targets(exercise_name: str) -> str:
     history_text = "\n".join([f"• Set {r['set_number']}: {r['weight']} lbs × {
                              r['reps']} reps" for r in sorted(last_session, key=lambda x: x["set_number"])])
 
-    # Check deload week
-    upper_anchors = ["low incline smith machine press",
-                     "low incline dumbbell press"]
-    upper_logs = supabase.table("exercise_logs").select("created_at").in_(
-        "exercise_name", upper_anchors).lte("created_at", f"{today_str}T23:59:59").execute()
-    unique_weeks = max(len(set(r["created_at"][:10]
-                       for r in upper_logs.data)), 1) if upper_logs.data else 1
-    is_deload_week = (unique_weeks % 5 == 0)
+    # # Check deload week
+    # upper_anchors = ["low incline smith machine press",
+    #                  "low incline dumbbell press"]
+    # upper_logs = supabase.table("exercise_logs").select("created_at").in_(
+    #     "exercise_name", upper_anchors).lte("created_at", f"{today_str}T23:59:59").execute()
+    # unique_weeks = max(len(set(r["created_at"][:10]
+    #                    for r in upper_logs.data)), 1) if upper_logs.data else 1
+    # is_deload_week = (unique_weeks % 5 == 0)
 
     # Double progression calculation
     heaviest_set = max(last_session, key=lambda x: x["weight"])
@@ -974,9 +1015,9 @@ async def build_exercise_session_targets(exercise_name: str) -> str:
         rec_text = f"Your working weight is **{target_working_weight} lbs** ({heaviest_set['reps']} reps last session). Keep working with **{
             target_working_weight} lbs** today until you hit **{target_max_reps} reps**!"
 
-    deload_banner = ""
-    if is_deload_week:
-        deload_banner = "⚠️ **SEMI-DELOAD WEEK (Week 5)**\n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery!*\n\n"
+    # deload_banner = ""
+    # if is_deload_week:
+    #     deload_banner = "⚠️ **SEMI-DELOAD WEEK (Week 5)**\n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery!*\n\n"
 
     warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
 
@@ -1087,26 +1128,53 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             chat_id = callback["message"]["chat"]["id"]
             callback_data = callback["data"]
 
+            if callback_data == "action_finish_workout":
+                # 1. Call the rollover function
+                reply_text = await handle_workout_completion(chat_id)
+
+                # 2. Send the success message back to the user
+                await send_telegram_reply(chat_id, reply_text)
+
+                message_id = callback["message"]["message_id"]
+
+                # 3. Answer the callback query to stop the loading spinner
+                async with httpx.AsyncClient() as http_client:
+                    await http_client.post(
+                        f"https://api.telegram.org/bot{
+                            TELEGRAM_TOKEN}/answerCallbackQuery",
+                        json={"callback_query_id": callback["id"]}
+                    )
+
+                    await http_client.post(
+                        f"https://api.telegram.org/bot{
+                            TELEGRAM_TOKEN}/editMessageReplyMarkup",
+                        json={
+                            "chat_id": chat_id,
+                            "message_id": message_id,
+                            "reply_markup": {"inline_keyboard": []}
+                        }
+                    )
+                return {"status": "success"}
+
             # 1. HANDLE WEAK POINTS FIRST (Does not require PENDING_LOGS)
             if callback_data.startswith("wp_") and not callback_data.startswith("wp_ex_"):
                 wp_key = callback_data.replace("wp_", "")
                 if wp_key in WEAK_POINTS_TABLE:
                     wp_data = WEAK_POINTS_TABLE[wp_key]
+
+                    keyboard_buttons = []
                     if isinstance(wp_data, str):
                         reply_text = f"**{wp_key.title()
                                           } Advice:**\n\n{wp_data}"
-                        await send_telegram_reply(chat_id, reply_text)
                     else:
                         reply_text = f"**{
                             wp_data['title']} Weak Point Options**\n\nSelect an exercise below to view its targets and cues. *Do not do all of them in one day!*"
-                        keyboard_buttons = []
                         for ex in wp_data['ex1']:
                             keyboard_buttons.append(
                                 [{"text": f"Ex 1: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
                         for ex in wp_data['ex2']:
                             keyboard_buttons.append(
                                 [{"text": f"Ex 2: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
-                        await send_telegram_reply(chat_id, reply_text, reply_markup={"inline_keyboard": keyboard_buttons})
                     async with httpx.AsyncClient() as http_client:
                         await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
                             "chat_id": chat_id,
@@ -1115,7 +1183,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             "parse_mode": "Markdown",
                             "reply_markup": {"inline_keyboard": keyboard_buttons}
                         })
-                    async with httpx.AsyncClient() as http_client:
                         await http_client.post(
                             f"https://api.telegram.org/bot{
                                 TELEGRAM_TOKEN}/answerCallbackQuery",
@@ -1236,6 +1303,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                       "callback_data": "p2u1_straight-bar-lat-prayer"}],
                     [{"text": "pec deck (with integrated partials)",
                       "callback_data": "p2u1_pec-deck (with integrated partials)"}],
+
+                    [{"text": "Finish Workout",
+                        "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_u1_msg_text, reply_markup=p1_u1_keyboard)
@@ -1267,6 +1337,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p1u2_super-rom db lateral raise"}],
                     [{"text": "cable reverse fly (mechanical dropset on all sets)",
                       "callback_data": "p1u2_cable reverse fly (mechanical dropset on all sets)"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_u2_msg_text, reply_markup=p1_u2_keyboard)
@@ -1289,6 +1362,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "leg extension", "callback_data": "p1l1_leg-extension"}],
                     [{"text": "leg press calf press",
                         "callback_data": "p1l1_leg-press-calf-press"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_l1_msg_text, reply_markup=p1_l1_keyboard)
@@ -1317,6 +1393,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                       "callback_data": "p1l2_sissy-squat"}],
                     [{"text": "seated calf raise (10-12 reps) (3 sets)",
                         "callback_data": "p1l2_standing-calf-raise"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_l2_msg_text, reply_markup=p1_l2_keyboard)
@@ -1347,6 +1426,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                       "callback_data": "wp_upper traps"}],
                     [{"text": "Abs (8-12 reps) (3 sets)",
                       "callback_data": "wp_abs"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_wp1_msg_text, reply_markup=p1_wp1_keyboard)
@@ -1374,7 +1456,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "Upper Traps (8-12 reps) (2 sets)",
                       "callback_data": "wp_upper traps"}],
                     [{"text": "Abs (8-12 reps) (2 sets)",
-                      "callback_data": "wp_abs"}]
+                      "callback_data": "wp_abs"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_wp2_msg_text, reply_markup=p1_wp2_keyboard)
@@ -1396,6 +1481,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p1a_cable-triceps-kickback"}],
                     [{"text": "cable crunch (10-12 reps) (3 sets)",
                       "callback_data": "p1a_cable-crunch"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p1_arms_text, reply_markup=p1_arms_keyboard)
@@ -1428,6 +1516,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p2u1_1-arm-lat-pull-in"}],
                     [{"text": "dual-cable triceps press (10-12 reps) (3 sets)",
                         "callback_data": "p2u1_dual-cable-triceps-press"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_u1_msg_text, reply_markup=p2_u1_keyboard)
@@ -1459,6 +1550,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p2u2_cross-body-cable-y-raise"}],
                     [{"text": "rear delt 45 degrees cable flye (12-15 reps) (3 sets)",
                         "callback_data": "p2u2_rear-delt-45-degrees-cable-flye"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_u2_msg_text, reply_markup=p2_u2_keyboard)
@@ -1484,6 +1578,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                       "callback_data": "p2l1_leg-extension"}],
                     [{"text": "Dumbbell Calf Jumps (12-15 reps) (3 sets)",
                         "callback_data": "p2l1_dumbbell-calf-jumps"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_l1_msg_text, reply_markup=p2_l1_keyboard)
@@ -1512,6 +1609,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                       "callback_data": "p2l2_machine-hip-abduction"}],
                     [{"text": "seated calf raise (10-12 reps) (3 sets)",
                         "callback_data": "p2l2_seated-calf-raise"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_l2_msg_text, reply_markup=p2_l2_keyboard)
@@ -1532,7 +1632,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "text": "Calves", "callback_data": "wp_calves"}],
                     [{"text": "Mid-Back", "callback_data": "wp_mid-back"},
                         {"text": "Upper Traps", "callback_data": "wp_upper traps"}],
-                    [{"text": "Abs", "callback_data": "wp_abs"}]
+                    [{"text": "Abs", "callback_data": "wp_abs"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_wp_msg_text, reply_markup=p2_wp_keyboard)
@@ -1565,6 +1668,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "text": "reverse grip cable curl (12-15 reps) (2 sets)", "callback_data": "p2a_reverse-grip-cable-curl"}],
                     [{"text": "roman chair leg raise crunch (10-20 reps) (3 sets)",
                         "callback_data": "p2a_roman-chair-leg-raise-crunch"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, p2_arms_msg_text, reply_markup=p2_arms_keyboard)
@@ -1584,7 +1690,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "text": "Calves", "callback_data": "wp_calves"}],
                     [{"text": "Mid-Back", "callback_data": "wp_mid-back"}],
                     [{"text": "Upper Traps", "callback_data": "wp_upper traps"}],
-                    [{"text": "Abs", "callback_data": "wp_abs"}]
+                    [{"text": "Abs", "callback_data": "wp_abs"}],
+
+                    [{"text": "Finish Workout",
+                      "callback_data": "action_finish_workout"}],
                 ]
             }
             await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
@@ -1642,7 +1751,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             system_instructions = (
                 "You are an expert fitness data parser. "
                 "The user will provide data in these categories: "
-"1. InBody Analysis (Height, Age). "
+                "1. InBody Analysis (Height, Age). "
                 "2. Body Composition (Total Body Water, Dry Lean Mass, Body Fat Mass, Weight). "
                 "3. Muscle-Fat Analysis (Weight, SMM, Body Fat Mass). "
                 "4. Obesity Analysis (BMI, PBF / body_fat_percentage). "
@@ -1744,7 +1853,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             if direct_upc:
                 usda_results = await get_usda_macros("", upc=direct_upc)
                 display_query = f"UPC {direct_upc}"
-                
+
                 # SAFETY NET: Prevent the AI from hallucinating if USDA doesn't know the barcode
                 if not usda_results and clean_food_text.replace(direct_upc, "").strip() == "":
                     await send_telegram_reply(chat_id, f"⚠️ **Barcode {direct_upc} not found!**\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
