@@ -936,7 +936,15 @@ async def handle_workout_completion(chat_id: int) -> str:
     return f" **Workout Complete!**\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/4"
 
 
-async def build_exercise_session_targets(exercise_name: str, current_phase: str, current_week: str,) -> str:
+async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> str:
+    profile_res = supabase.table("user_profiles").select("current_phase, current_week").eq("telegram_chat_id", chat_id).execute()
+    
+    if profile_res.data:
+        current_phase = profile_res.data[0].get("current_phase")
+        current_week = profile_res.data[0].get("current_week")
+    else:
+        current_phase = "Phase 1"
+        current_week = 1
     ex_info = EXERCISE_REGISTRY.get(exercise_name, {
         "warmup_sets": 1,
         "advice": "Hypertrophy depth working set.",
@@ -975,8 +983,11 @@ async def build_exercise_session_targets(exercise_name: str, current_phase: str,
     target_min_reps = set_1_targets.get("min_reps", 8)
     increment = set_1_targets.get("increment", 5)
 
+    phase_header = f"**Current Plan:** {current_phase} (Week {current_week})\n"
+
     if not history.data:
         return (
+            f"{phase_header}"
             f"**No history found for {exercise_name.title()}!**\n"
             f"Start with a light weight to establish your baseline today.\n\n"
             f"Target Working Weight: Load up 0 lbs for Set 1 today and aim for {
@@ -1022,12 +1033,13 @@ async def build_exercise_session_targets(exercise_name: str, current_phase: str,
     warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
 
     return (
+        f"{phase_header}"
         f"**Last Session: {exercise_name.title()}** ({last_date})\n\n"
         f"{history_text}\n\n"
         f"Target Working Weight: {rec_text}\n\n"
         f"Recommended Warm-Up Pyramid ({warmup_count} sets):\n{
             warmup_guide}\n\n"
-        f"Working Progression Schema:\n{deload_banner}{schema_text}\n\n"
+        f"Working Progression Schema:\n{schema_text}\n\n"
         f"Technique Cues: {intensity_advice}"
     )
 
@@ -1202,7 +1214,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     raw_slug) or raw_slug.replace("-", " ").lower().strip()
                 ACTIVE_EXERCISE_SESSIONS[chat_id] = exercise_name
 
-                reply_text = await build_exercise_session_targets(exercise_name)
+                reply_text = await build_exercise_session_targets(exercise_name, chat_id)
 
                 async with httpx.AsyncClient() as http_client:
                     await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
