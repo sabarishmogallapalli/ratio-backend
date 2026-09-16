@@ -937,8 +937,8 @@ async def handle_workout_completion(chat_id: int) -> str:
 
 
 async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> str:
-    profile_res = supabase.table("user_profiles").select("current_phase, current_week").eq("telegram_chat_id", chat_id).execute()
-    
+    profile_res = supabase.table("user_profiles").select(
+        "current_phase, current_week").eq("chat_id", chat_id).execute()
     if profile_res.data:
         current_phase = profile_res.data[0].get("current_phase")
         current_week = profile_res.data[0].get("current_week")
