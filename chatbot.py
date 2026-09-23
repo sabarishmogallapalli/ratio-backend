@@ -1281,6 +1281,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         chat_id = message.get("chat", {}).get("id")
         user_text = message.get("text", "").strip()
 
+        current_phase = 1
+        current_week = 1
+
+        profile_res = supabase.table("user_profiles").select(
+        "current_phase, current_week").eq("chat_id", chat_id).execute()
+        if profile_res.data:
+            current_phase = profile_res.data[0].get("current_phase", 1)
+            current_week = profile_res.data[0].get("current_week", 1)
+
         if not user_text or not chat_id:
             return {"status": "ignored"}
 
@@ -1290,6 +1299,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_upper_1"):
             p1_u1_msg_text = "**JEFF NIPPARD PHASE 1 UPPER DAY 1 CHECKLIST**\n\n"
+            f"**Current Plan:** {current_phase} (Week {current_week})\n"
             "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
             "**cross-body lat pull-around** (10-12 reps) (3 sets)\n\n"
@@ -1359,6 +1369,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/phase_1_lower_1"):
             p1_l1_msg_text = "**JEFF NIPPARD PHASE 1 LOWER DAY 1 CHECKLIST**\n\n"
             "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            f"**Current Plan:** {current_phase} (Week {current_week})\n"
             "**seated leg curl** (8-10 reps) (3 sets)\n\n"
             "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
             "**hack squat** (4,6,8 reps) (3 sets)\n\n"
@@ -1384,6 +1395,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower() == ("/phase_1_lower_2"):
             p1_l2_msg_text = "**JEFF NIPPARD PHASE 1 LOWER DAY 2 CHECKLIST**\n\n"
             "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            f"**Current Plan:** {current_phase} (Week {current_week})\n"
             "**lying leg curl** (8-10 reps) (3 sets)\n\n"
             "**leg press** (8 reps) (3 sets)\n\n"
             "**paused barbell rdl** (8 reps) (2 sets)\n\n"
@@ -1413,7 +1425,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_l2_msg_text, reply_markup=p1_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_arms"):
-            p1_wp1_msg_text = "**JEFF NIPPARD PHASE 1 ARMS & WEAK POINTS CHECKLIST**\n\n **Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n **Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
+            p1_wp1_msg_text = f"**JEFF NIPPARD PHASE 1 ARMS & WEAK POINTS CHECKLIST**\n\n **Current Plan:** {current_phase} (Week {current_week})\n **Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n **Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
             p1_wp1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders (8-12 reps) (3 sets)",
@@ -2049,23 +2061,23 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     next_targets = sets_config.get(
                         next_set_count, curr_targets)
                     drop_weight = max(0, lift_data.weight - increment)
-                    next_set_advice = f"\n\n🎯 *Next Set Target:* Drop weight for back-off. Target **{
+                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target **{
                         drop_weight} lbs** for {next_targets['max_reps']} reps."
                 elif is_assisted:
                     if lift_data.reps >= max_reps:
                         next_weight = max(0, lift_data.weight - increment)
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hit rep cap! Reduce assistance to **{
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to **{
                             next_weight} lbs**."
                     else:
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hold **{
+                        next_set_advice = f"\n\n *Next Set Target:* Hold **{
                             lift_data.weight} lbs** assistance and push closer to {max_reps} reps."
                 else:
                     if lift_data.reps >= max_reps:
                         next_weight = lift_data.weight + increment
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hit rep cap! Bump to **{
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to **{
                             next_weight} lbs** for Set {next_set_count}."
                     else:
-                        next_set_advice = f"\n\n🎯 *Next Set Target:* Hold **{
+                        next_set_advice = f"\n\n *Next Set Target:* Hold **{
                             lift_data.weight} lbs** and push closer to {max_reps} reps."
 
                 # Append the background rest task for incomplete arrays
