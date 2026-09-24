@@ -937,7 +937,10 @@ async def handle_workout_completion(chat_id: int) -> str:
         # Phase rollover (Assuming 5 weeks per phase)
         if current_week > 5:
             current_week = 1
-            current_phase += 1
+            if current_phase == "Phase 1":
+                current_phase = "Phase 2"
+            elif current_phase == "Phase 2":
+                current_phase = "Phase 1"
 
     # 3. Update the database
     supabase.table("user_profiles").update({
