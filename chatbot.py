@@ -857,21 +857,34 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
                 options = []
                 if data.get('foods'):
                     for food in data['foods'][:3]:
-                        nutrients = food.get('foodNutrients', [])
-                        calories = next(
-                            (n['value'] for n in nutrients if 'Energy' in n.get('nutrientName', '')), 0)
-                        protein = next(
-                            (n['value'] for n in nutrients if 'Protein' in n.get('nutrientName', '')), 0)
-                        carbs = next((n['value'] for n in nutrients if 'Carbohydrate' in n.get(
-                            'nutrientName', '')), 0)
-                        fat = next((n['value'] for n in nutrients if 'Total lipid' in n.get(
-                            'nutrientName', '')), 0)
+                        label_nuts = food.get('labelNutrients')
+                        if label_nuts and 'calories' in label_nuts:
+                            calories = label_nuts['calories'].get('value', 0)
+                            protein = label_nuts.get('protein', {}).get('value', 0)
+                            carbs = label_nuts.get('carbohydrates', {}).get('value', 0)
+                            fat = label_nuts.get('fat', {}).get('value', 0)
+                        else:
+                            nutrients = food.get('foodNutrients', [])
+                            raw_calories = next((n['value'] for n in nutrients if 'Energy' in n.get('nutrientName', '')), 0)
+                            raw_protein = next((n['value'] for n in nutrients if 'Protein' in n.get('nutrientName', '')), 0)
+                            raw_carbs = next((n['value'] for n in nutrients if 'Carbohydrate' in n.get('nutrientName', '')), 0)
+                            raw_fat = next((n['value'] for n in nutrients if 'Total lipid' in n.get('nutrientName', '')), 0)
+
+                            serving_grams = food.get('servingSize', 100.0)
+                            scale_factor = serving_grams / 100.0
+
+                            calories = raw_calories * scale_factor
+                            protein = raw_protein * scale_factor
+                            carbs = raw_carbs * scale_factor
+                            fat = raw_fat * scale_factor
+                        serving_unit = food.get('householdServingFullText') or f"{food.get('servingSize', 100)} {food.get('servingSizeUnit', 'g')}"
                         options.append({
                             "food_name": food.get('description', 'Unknown Food'),
-                            "calories": int(calories),
-                            "protein": int(protein),
-                            "carbs": int(carbs),
-                            "fat": int(fat)
+                            "serving_size": serving_unit,
+                            "calories": round(calories),
+                            "protein": round(protein, 1),
+                            "carbs": round(carbs, 1),
+                            "fat": round(fat, 1)
                         })
                     if options:
                         return options
