@@ -930,7 +930,7 @@ async def handle_workout_completion(chat_id: int) -> str:
     current_phase = profile.get("current_phase", 1)
 
     # 2. The Rollover Rule (Assuming 4 workouts/week target)
-    if workouts_completed >= 4:
+    if workouts_completed >= 5:
         workouts_completed = 0
         current_week += 1
 
