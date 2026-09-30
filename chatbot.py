@@ -47,7 +47,7 @@ EXERCISE_REGISTRY = {
 
     "cuffed behind-the-back lateral raise": {
         "warmup_sets": 1,
-        "advice": "Raise cables up/out in a 'Y' motion. Connect with middle delts. **Last Set: Myo-reps!**",
+        "advice": "Raise cables up/out in a 'Y' motion. Connect with middle delts. *Last Set: Myo-reps!*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
@@ -56,7 +56,7 @@ EXERCISE_REGISTRY = {
     },
     "cross-body lat pull-around": {
         "warmup_sets": 1,
-        "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top. **Last Set: Long-length Partials.**",
+        "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -65,7 +65,7 @@ EXERCISE_REGISTRY = {
     },
     "low incline smith machine press": {
         "warmup_sets": 2,
-        "advice": "~15° incline. 1s pause on chest. **Last Set: 30s Pec Static Stretch.**",
+        "advice": "~15° incline. 1s pause on chest. *Last Set: 30s Pec Static Stretch.*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -75,7 +75,7 @@ EXERCISE_REGISTRY = {
     },
     "chest-supported machine row": {
         "warmup_sets": 1,
-        "advice": "Flare elbows ~45° and squeeze blades hard at top. **Last Set: Long-length Partials.**",
+        "advice": "Flare elbows ~45° and squeeze blades hard at top. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 10},
             2: {"min_reps": 8, "max_reps": 10, "increment": 10},
@@ -84,7 +84,7 @@ EXERCISE_REGISTRY = {
     },
     "overhead cable tricep extensions (bar)": {
         "warmup_sets": 1,
-        "advice": "Nasty stretch on negative, 1s pause at bottom. **Last Set: Dropset.**",
+        "advice": "Nasty stretch on negative, 1s pause at bottom. *Last Set: Dropset.*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -92,7 +92,7 @@ EXERCISE_REGISTRY = {
     },
     "straight-bar lat prayer": {
         "warmup_sets": 1,
-        "advice": "Lean forward for big lat stretch at top, stand upright at bottom. **Last Set: Long-length Partials.**",
+        "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -137,7 +137,7 @@ EXERCISE_REGISTRY = {
     },
     "leg extension": {
         "warmup_sets": 1,
-        "advice": "Pull butt down into seat. 2-3s negative. **Last Set: Long-length Partials.**",
+        "advice": "Pull butt down into seat. 2-3s negative. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -146,7 +146,7 @@ EXERCISE_REGISTRY = {
     },
     "leg press calf press": {
         "warmup_sets": 1,
-        "advice": "1-2s pause at bottom. Roll ankles on balls of feet. **Last Set: 30s Calf Static Stretch.**",
+        "advice": "1-2s pause at bottom. Roll ankles on balls of feet. *Last Set: 30s Calf Static Stretch.*",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 20},
             2: {"min_reps": 12, "max_reps": 15, "increment": 20},
@@ -164,7 +164,7 @@ EXERCISE_REGISTRY = {
     },
     "machine shoulder press": {
         "warmup_sets": 2,
-        "advice": "Elbows break 90°. Smooth, controlled reps. **Last Set: Dropset.**",
+        "advice": "Elbows break 90°. Smooth, controlled reps. *Last Set: Dropset.*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -173,7 +173,7 @@ EXERCISE_REGISTRY = {
     },
     "assisted pull-up": {
         "warmup_sets": 1,
-        "advice": "Slow 2-3s negative. 0.5-1s pause at bottom. **Last Set: Long-length Partials.**",
+        "advice": "Slow 2-3s negative. 0.5-1s pause at bottom. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -217,7 +217,7 @@ EXERCISE_REGISTRY = {
     },
     "lying leg curl": {
         "warmup_sets": 1,
-        "advice": "Big stretch at bottom. Keep hips down. **Last Set: Long-length Partials.**",
+        "advice": "Big stretch at bottom. Keep hips down. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -252,7 +252,7 @@ EXERCISE_REGISTRY = {
     },
     "seated calf raise": {
         "warmup_sets": 1,
-        "advice": "1-2s pause at bottom. **Last Set: 30s Calf Static Stretch.**",
+        "advice": "1-2s pause at bottom. *Last Set: 30s Calf Static Stretch.*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 15},
             2: {"min_reps": 10, "max_reps": 12, "increment": 15},
@@ -261,7 +261,7 @@ EXERCISE_REGISTRY = {
     },
     "bayesian cable curl": {
         "warmup_sets": 1,
-        "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. **Last Set: Long-length Partials.**",
+        "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -467,7 +467,7 @@ EXERCISE_REGISTRY = {
     },
     "slow-eccentric bayesian curl": {
         "warmup_sets": 1,
-        "advice": "3-4s negative with bottom pause. **Last Set: Long-length partials on all reps.**",
+        "advice": "3-4s negative with bottom pause. *Last Set: Long-length partials on all reps.*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -540,7 +540,7 @@ EXERCISE_REGISTRY = {
     },
     "cable lat prayer": {
         "warmup_sets": 1,
-        "advice": "Lean forward for big lat stretch at top, stand upright at bottom. **Last Set: Long-length Partials.**",
+        "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -999,7 +999,8 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
     target_min_reps = set_1_targets.get("min_reps", 8)
     increment = set_1_targets.get("increment", 5)
 
-    phase_header = f"**Current Plan:** {current_phase} (Week {current_week})\n"
+    deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+    phase_header = f"**Current Plan:** {current_phase} (Week {current_week}{deload_label})\n"
 
     if not history.data:
         return (
@@ -1132,7 +1133,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
         daily_summary = "\n\n *Profile not found in database. Add your baseline to get macro coaching!*"
 
     reply = (
-        f" **Logged for {meal_type.capitalize()}!**\n"
+        f" **{meal_type.capitalize()}:**\n"
         f" *{food_data.food_name.title()}*\n"
         f" **{food_data.calories} kcal** | {food_data.protein}g P | {
             food_data.carbs}g C | {food_data.fat}g F"
@@ -1438,8 +1439,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_l2_msg_text, reply_markup=p1_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_arms"):
-            p1_wp1_msg_text = f"**JEFF NIPPARD PHASE 1 ARMS & WEAK POINTS CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n **Weak Point Exercise 1** (8-12 reps) (3 sets)\n\n"
+            p1_wp1_msg_text = f"**JEFF NIPPARD PHASE 1 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)**\n\n **Phase:** {current_phase} (Week {current_week})\n"
+            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n **Weak Point Exercise** (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
             p1_wp1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders (8-12 reps) (3 sets)",
@@ -1470,37 +1471,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ]
             }
             await send_telegram_reply(chat_id, p1_wp1_msg_text, reply_markup=p1_wp1_keyboard)
-            # p1_wp2_msg_text = "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
-            # p1_wp2_keyboard = {
-            #     "inline_keyboard": [
-            #         [{"text": "Shoulders (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_shoulders"}],
-            #         [{"text": "Lats (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_lats"}],
-            #         [{"text": "Quads (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_quads"}],
-            #         [{"text": "Glutes (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_glutes"}],
-            #         [{"text": "Chest (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_chest"}],
-            #         [{"text": "Neck (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_neck"}],
-            #         [{"text": "Hamstrings (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_hamstrings"}],
-            #         [{"text": "Calves (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_calves"}],
-            #         [{"text": "Mid-Back (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_mid-back"}],
-            #         [{"text": "Upper Traps (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_upper traps"}],
-            #         [{"text": "Abs (8-12 reps) (2 sets)",
-            #           "callback_data": "wp_abs"}],
-
-            #         [{"text": "Finish Workout",
-            #           "callback_data": "action_finish_workout"}],
-            #     ]
-            # }
-            # await send_telegram_reply(chat_id, p1_wp2_msg_text, reply_markup=p1_wp2_keyboard)
             p1_arms_text = "**bayesian cable curl** (10-12 reps) (3 sets)\n\n"
             "**seated db french press** (10 reps) (3 sets)\n\n"
             "**bottom-2/3 constant tension preacher curl** (12-15 reps) (2 sets)\n\n"
@@ -1677,24 +1647,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ]
             }
             await send_telegram_reply(chat_id, p2_wp_msg_text, reply_markup=p2_wp_keyboard)
-            # p2_wp2_msg_text = "**Weak Point Exercise 2 (Optional)** (8-12 reps) (2 sets)\n\n"
-            # p2_wp2_keyboard = {
-            #     "inline_keyboard": [
-            #         [{"text": "Shoulders", "callback_data": "wp_shoulders"}],
-            #         [{"text": "Lats", "callback_data": "wp_lats"}],
-            #         [{"text": "Quads", "callback_data": "wp_quads"}],
-            #         [{
-            #             "text": "Glutes", "callback_data": "wp_glutes"}],
-            #         [{"text": "Chest", "callback_data": "wp_chest"}], [{
-            #             "text": "Neck", "callback_data": "wp_neck"}],
-            #         [{"text": "Hamstrings", "callback_data": "wp_hamstrings"}], [{
-            #             "text": "Calves", "callback_data": "wp_calves"}],
-            #         [{"text": "Mid-Back", "callback_data": "wp_mid-back"}],
-            #         [{"text": "Upper Traps", "callback_data": "wp_upper traps"}],
-            #         [{"text": "Abs", "callback_data": "wp_abs"}]
-            #     ]
-            # }
-            # await send_telegram_reply(chat_id, p2_wp2_msg_text, reply_markup=p2_wp2_keyboard)
             p2_arms_msg_text = "**Arms**"
             p2_arms_keyboard = {
                 "inline_keyboard": [
@@ -1859,14 +1811,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             }).execute()
 
             reply = (
-                f"**Smart Profile Generated!**\n"
+                f"*Smart Profile Generated!*\n"
                 f"Weight: {weight} lbs | Goal: {goal.title()}\n\n"
-                f"**Your Daily Targets:**\n"
-                f"**{cals} kcal**\n"
+                f"*Your Daily Targets:*\n"
+                f"{cals} kcal\n"
                 f"Protein: {protein}g\n"
                 f"Carbs: {carbs}g\n"
                 f"Fat: {fat}g\n"
-                f"**Scan Metrics Logged:**\n"
+                f"*Scan Metrics Logged:*\n"
                 f"SMM: {profile_data.skeletal_muscle_mass}kg\n"
                 f"Body Fat: {profile_data.body_fat_percentage}%\n"
                 f"SMI: {profile_data.smi}"
@@ -2057,8 +2009,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             intensity_advice = ex_info.get("advice", "")
             if set_count >= total_target_sets:
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
-                next_set_advice = f"**Exercise Complete!** All {
-                    total_target_sets} configured sets mapped successfully.\n *Next Move:* Proceed directly to your next movement assignment."
+                next_set_advice = f"*Exercise Complete!* {
+                    total_target_sets} sets logged."
             else:
                 next_set_count = set_count + 1
                 curr_targets = sets_config.get(
@@ -2105,8 +2057,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             # Update your final reply to include the dynamic next set advice
             reply_msg = (
-                f" **Set {set_count} Tracked to Supabase:**\n"
-                f" *{exercise.title()}*\n"
+                f" *{exercise.title()}* - Set {set_count}\n"
                 f" **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
                 f" {intensity_advice}\n\n"
                 f" {next_set_advice}"
