@@ -1724,7 +1724,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, meal_instructions)
             return {"status": "success"}
 
-        if user_text.lower().contains("note:") or user_text.lower().contains("note:"):
+        if "note" in user_text.lower():
             raw_note = user_text.split("note:", 1)[1].strip()
             if raw_note:
                 supabase.table("user_exercise_notes").upsert({
