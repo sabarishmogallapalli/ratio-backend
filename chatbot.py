@@ -1,6 +1,6 @@
 # Meal tracker
 # Auto-categorization (breakfast, lunch, dinner)
-# Excercise tracker
+# Exercise tracker
 # History Dashboard -- React
 from fastapi import FastAPI, Request, BackgroundTasks
 from google import genai
@@ -101,7 +101,7 @@ EXERCISE_REGISTRY = {
     },
     "pec deck (with integrated partials)": {
         "warmup_sets": 1,
-        "advice": "**Integrated Partials:** Alternate 1 full-ROM rep with 1 half-ROM rep in stretched position.",
+        "advice": "*Integrated Partials:* Alternate 1 full-ROM rep with 1 half-ROM rep in stretched position.",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 15},
             2: {"min_reps": 12, "max_reps": 15, "increment": 15},
@@ -131,8 +131,8 @@ EXERCISE_REGISTRY = {
         "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps).",
         "sets": {
             1: {"min_reps": 4, "max_reps": 4, "increment": 5},
-            2: {"min_reps": 6, "max_reps": 6, "increment": 5},
-            3: {"min_reps": 8, "max_reps": 8, "increment": 5},
+            2: {"min_reps": 6, "max_reps": 6, "drop_percent": 0.12},
+            3: {"min_reps": 8, "max_reps": 8, "drop_percent": 0.12},
         },
     },
     "leg extension": {
@@ -208,7 +208,7 @@ EXERCISE_REGISTRY = {
     },
     "cable reverse flye (mechanical dropset)": {
         "warmup_sets": 0,
-        "advice": "**Mechanical Dropset:** 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
+        "advice": "*Mechanical Dropset:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
         "sets": {
             1: {"min_reps": 5, "max_reps": 5, "increment": 5},
             2: {"min_reps": 4, "max_reps": 4, "increment": 5},
@@ -363,8 +363,8 @@ EXERCISE_REGISTRY = {
         "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps).",
         "sets": {
             1: {"min_reps": 4, "max_reps": 4, "increment": 5},
-            2: {"min_reps": 6, "max_reps": 6, "increment": 5},
-            3: {"min_reps": 8, "max_reps": 8, "increment": 5},
+            2: {"min_reps": 6, "max_reps": 6, "drop_percent": 0.12},
+            3: {"min_reps": 8, "max_reps": 8, "drop_percent": 0.12},
         },
     },
     "dumbbell calf jumps": {
@@ -792,16 +792,16 @@ def generate_warmup_guide(warmup_count: int, working_weight: float) -> str:
         return "• *No warm-up sets required—jump straight into Working Set 1!*"
     elif warmup_count == 1:
         w1 = round((working_weight * 0.60) / 5) * 5
-        return f"• Warm-Up Set 1: **{w1} lbs** × 6-10 reps (~60%)"
+        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps (~60%)"
     elif warmup_count == 2:
         w1 = round((working_weight * 0.50) / 5) * 5
         w2 = round((working_weight * 0.70) / 5) * 5
-        return f"• Warm-Up Set 1: **{w1} lbs** × 6-10 reps (~50%)\n• Warm-Up Set 2: **{w2} lbs** × 4-6 reps (~70%)"
+        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps (~50%)\n• Warm-Up Set 2: {w2} lbs × 4-6 reps (~70%)"
     elif warmup_count >= 3:
         w1 = round((working_weight * 0.45) / 5) * 5
         w2 = round((working_weight * 0.65) / 5) * 5
         w3 = round((working_weight * 0.85) / 5) * 5
-        return f"• Warm-Up Set 1: **{w1} lbs** × 6-10 reps (~45%)\n• Warm-Up Set 2: **{w2} lbs** × 4-6 reps (~65%)\n• Warm-Up Set 3: **{w3} lbs** × 3-4 reps (~85%)"
+        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps (~45%)\n• Warm-Up Set 2: {w2} lbs × 4-6 reps (~65%)\n• Warm-Up Set 3: {w3} lbs × 3-4 reps (~85%)"
 
 
 async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None):
@@ -909,8 +909,8 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
     if len(existing_sets.data) >= next_set:
         return
 
-    reminder = f"**3-Minute Rest Over!**\nTime for **Set {
-        next_set}** of *{exercise_name.title()}*.\n Target: {target_desc}"
+    reminder = f"3-Minute Rest Over!\nTime for *Set {
+        next_set}* of *{exercise_name.title()}*.\n Target: {target_desc}"
     await send_telegram_reply(chat_id, reminder)
 
 
@@ -949,115 +949,133 @@ async def handle_workout_completion(chat_id: int) -> str:
         "current_phase": current_phase
     }).eq("chat_id", chat_id).execute()
 
-    return f" **Workout Complete!**\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/4"
+    return f" *Workout Complete!*\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/4"
 
 
 async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> str:
-    profile_res = supabase.table("user_profiles").select(
-        "current_phase, current_week").eq("chat_id", chat_id).execute()
+    profile_res = (
+        supabase.table("user_profiles")
+        .select("current_phase, current_week")
+        .eq("chat_id", chat_id)
+        .execute()
+    )
     if profile_res.data:
-        current_phase = profile_res.data[0].get("current_phase")
-        current_week = profile_res.data[0].get("current_week")
+        current_phase = profile_res.data[0].get("current_phase", "Phase 1")
+        current_week = profile_res.data[0].get("current_week", 1)
     else:
         current_phase = "Phase 1"
         current_week = 1
-    ex_info = EXERCISE_REGISTRY.get(exercise_name, {
-        "warmup_sets": 1,
-        "advice": "Hypertrophy depth working set.",
-        "sets": {1: {"min_reps": 8, "max_reps": 12, "increment": 5}}
-    })
+
+    ex_info = EXERCISE_REGISTRY.get(
+        exercise_name,
+        {
+            "warmup_sets": 1,
+            "advice": "Hypertrophy depth working set.",
+            "sets": {1: {"min_reps": 8, "max_reps": 12, "increment": 5}},
+        },
+    )
     sets_config = ex_info.get("sets", {})
     intensity_advice = ex_info.get("advice", "Hypertrophy depth working set.")
     warmup_count = ex_info.get("warmup_sets", 0)
 
-    distinct_targets = {
-        (data.get("max_reps", 12), data.get("increment", 5))
-        for data in sets_config.values()
-    }
-
-    if len(distinct_targets) <= 1 and sets_config:
-        rep_target = sets_config[1].get("max_reps", 12)
-        incr = sets_config[1].get("increment", 5)
-        schema_text = f"• {len(sets_config)} Working Sets: {
-            rep_target} reps (+{incr} lbs incr.)"
-    else:
-        schema_lines = [
-            f"• Working Set {s}: {
-                data.get('max_reps', 12)} reps (+{data.get('increment', 5)} lbs incr.)"
-            for s, data in sets_config.items()
-        ]
-        schema_text = "\n".join(
-            schema_lines) if schema_lines else "• Working sets: 8-12 reps"
-
-    today_str = date.today().isoformat()
-    history = supabase.table("exercise_logs").select("weight, reps, set_number, created_at").eq(
-        "exercise_name", exercise_name).lt("created_at", today_str).order("created_at", desc=True).limit(25).execute()
-
-    set_1_targets = sets_config.get(
-        1, {"min_reps": 8, "max_reps": 12, "increment": 5})
+    set_1_targets = sets_config.get(1, {"min_reps": 8, "max_reps": 12, "increment": 5})
     target_max_reps = set_1_targets.get("max_reps", 12)
-    target_min_reps = set_1_targets.get("min_reps", 8)
     increment = set_1_targets.get("increment", 5)
 
     deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
-    phase_header = f"**Current Plan:** {current_phase} (Week {current_week}{deload_label})\n"
+    phase_header = f"Current Plan: {current_phase} (Week {current_week}{deload_label})\n"
 
+    note_res = (
+        supabase.table("user_exercise_notes")
+        .select("note")
+        .eq("chat_id", chat_id)
+        .eq("exercise_name", exercise_name)
+        .execute()
+    )
+    custom_note = note_res.data[0]["note"] if note_res.data else None
+
+    today_str = date.today().isoformat()
+    history = (
+        supabase.table("exercise_logs")
+        .select("weight, reps, set_number, created_at")
+        .eq("exercise_name", exercise_name)
+        .lt("created_at", today_str)
+        .order("created_at", desc=True)
+        .limit(25)
+        .execute()
+    )
+
+    # 1. Determine Target Working Weight for Set 1
     if not history.data:
-        return (
-            f"{phase_header}"
-            f"**No history found for {exercise_name.title()}!**\n"
-            f"Start with a light weight to establish your baseline today.\n\n"
-            f"Target Working Weight: Load up 0 lbs for Set 1 today and aim for {
-                target_max_reps} reps!\n\n"
-            f"Working Progression Schema:**\n{schema_text}\n\n"
-            f"*Technique Cues:* {intensity_advice}"
+        target_working_weight = 0
+        rec_text = f"Load up 0 lbs for Set 1 today and aim for {target_max_reps} reps!"
+        last_session_block = (
+            f"No history found for {exercise_name.title()}!\n"
+            "Start with a light weight to establish your baseline today.\n\n"
         )
-
-    last_date = history.data[0]["created_at"][:10]
-    last_session = [
-        r for r in history.data if r["created_at"].startswith(last_date)]
-    history_text = "\n".join([f"• Set {r['set_number']}: {r['weight']} lbs × {
-                             r['reps']} reps" for r in sorted(last_session, key=lambda x: x["set_number"])])
-
-    # # Check deload week
-    # upper_anchors = ["low incline smith machine press",
-    #                  "low incline dumbbell press"]
-    # upper_logs = supabase.table("exercise_logs").select("created_at").in_(
-    #     "exercise_name", upper_anchors).lte("created_at", f"{today_str}T23:59:59").execute()
-    # unique_weeks = max(len(set(r["created_at"][:10]
-    #                    for r in upper_logs.data)), 1) if upper_logs.data else 1
-    # is_deload_week = (unique_weeks % 5 == 0)
-
-    # Double progression calculation
-    heaviest_set = max(last_session, key=lambda x: x["weight"])
-    successful_at_top = [
-        s for s in last_session if s["reps"] >= target_max_reps]
-
-    if successful_at_top:
-        best_top_set = max(successful_at_top, key=lambda x: x["weight"])
-        target_working_weight = best_top_set["weight"] + increment
-        rec_text = f"**{target_working_weight} lbs** for **{
-            target_max_reps} reps** Set 1 today!"
     else:
-        target_working_weight = heaviest_set["weight"]
-        rec_text = f"Your working weight is **{target_working_weight} lbs** ({heaviest_set['reps']} reps last session). Keep working with **{
-            target_working_weight} lbs** today until you hit **{target_max_reps} reps**!"
+        last_date = history.data[0]["created_at"][:10]
+        last_session = [r for r in history.data if r["created_at"].startswith(last_date)]
+        history_text = "\n".join(
+            f"• Set {r['set_number']}: {r['weight']} lbs × {r['reps']} reps"
+            for r in sorted(last_session, key=lambda x: x["set_number"])
+        )
+        last_session_block = f"*Last Session: {exercise_name.title()}* ({last_date})\n\n{history_text}\n\n"
 
-    # deload_banner = ""
-    # if is_deload_week:
-    #     deload_banner = "⚠️ **SEMI-DELOAD WEEK (Week 5)**\n*Avoid failure (RPE 7-8) and drop 1 total working set today to promote recovery!*\n\n"
+        heaviest_set = max(last_session, key=lambda x: x["weight"])
+        successful_at_top = [s for s in last_session if s["reps"] >= target_max_reps]
 
-    warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
+        if successful_at_top:
+            best_top_set = max(successful_at_top, key=lambda x: x["weight"])
+            target_working_weight = best_top_set["weight"] + increment
+            rec_text = f"*{target_working_weight} lbs* for *{target_max_reps} reps* Set 1 today!"
+        else:
+            target_working_weight = heaviest_set["weight"]
+            rec_text = (
+                f"Your working weight is *{target_working_weight} lbs* "
+                f"({heaviest_set['reps']} reps last session). Keep working with "
+                f"*{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
+            )
+
+    # 2. Dynamic Progression Schema (Runs for both new & existing histories)
+    schema_lines = []
+    current_weight = target_working_weight
+
+    for s, data in sorted(sets_config.items()):
+        reps = data.get("max_reps", 12)
+        if s == 1:
+            weight_str = f" @ {current_weight} lbs" if current_weight > 0 else ""
+            schema_lines.append(f"• Working Set 1: {reps} reps{weight_str} (+{data.get('increment', 5)} lbs progression)")
+        elif "drop_percent" in data:
+            if current_weight > 0:
+                drop_pct = data["drop_percent"]
+                current_weight = round((current_weight * (1 - drop_pct)) / 5) * 5
+                schema_lines.append(f"• Working Set {s}: {reps} reps @ {current_weight} lbs (-{int(drop_pct * 100)}% drop)")
+            else:
+                schema_lines.append(f"• Working Set {s}: {reps} reps (-{int(data['drop_percent'] * 100)}% drop from previous set)")
+        else:
+            schema_lines.append(f"• Working Set {s}: {reps} reps (+{data.get('increment', 5)} lbs progression)")
+
+    schema_text = "\n".join(schema_lines)
+
+    # 3. Handle Warmup Guide & Final Formatting
+    if not history.data:
+        warmup_block = ""
+    else:
+        warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
+        warmup_block = f"Recommended Warm-Up Pyramid ({warmup_count} sets):\n{warmup_guide}\n\n"
+    
+    cues_block = f"Technique Cues: {intensity_advice}"
+    if custom_note:
+        cues_block += f"\n **Setup Note:** {custom_note}"
 
     return (
         f"{phase_header}"
-        f"**Last Session: {exercise_name.title()}** ({last_date})\n\n"
-        f"{history_text}\n\n"
+        f"{last_session_block}"
         f"Target Working Weight: {rec_text}\n\n"
-        f"Recommended Warm-Up Pyramid ({warmup_count} sets):\n{
-            warmup_guide}\n\n"
+        f"{warmup_block}"
         f"Working Progression Schema:\n{schema_text}\n\n"
-        f"Technique Cues: {intensity_advice}"
+        f"{cues_block}"
     )
 
 
@@ -1121,21 +1139,21 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
         )
         coach_advice = advice_res.choices[0].message.content.strip()
         daily_summary = (
-            f"\n\n **Daily Status:**\n"
-            f" Protein: **{total_pro}g** / {
+            f"\n\n *Daily Status:*\n"
+            f" Protein: {total_pro}g / {
                 target_pro}g *(Need {rem_pro}g more)*\n"
-            f" Carbohydrates: **{total_carb}** / {round(target_carb)}\n"
-            f" Fat: **{total_fat}** / {round(target_fat)}\n"
-            f" Calories: **{total_cal}** / {round(target_cal)}\n\n"
+            f" Carbohydrates: *{total_carb}* / {round(target_carb)}\n"
+            f" Fat: *{total_fat}* / {round(target_fat)}\n"
+            f" Calories: *{total_cal}* / {round(target_cal)}\n\n"
             f" *{coach_advice}*"
         )
     else:
         daily_summary = "\n\n *Profile not found in database. Add your baseline to get macro coaching!*"
 
     reply = (
-        f" **{meal_type.capitalize()}:**\n"
+        f" {meal_type.capitalize()}:\n"
         f" *{food_data.food_name.title()}*\n"
-        f" **{food_data.calories} kcal** | {food_data.protein}g P | {
+        f" {food_data.calories} kcal | {food_data.protein}g P | {
             food_data.carbs}g C | {food_data.fat}g F"
         f"{daily_summary}"
     )
@@ -1315,16 +1333,16 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, welcome_message)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_upper_1"):
-            p1_u1_msg_text = f"**JEFF NIPPARD PHASE 1 UPPER DAY 1 CHECKLIST**\n\n **Phase** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
-            "**cross-body lat pull-around** (10-12 reps) (3 sets)\n\n"
-            "**low incline smith machine press** (8-10 reps) (4 sets)\n\n"
-            "**chest-supported machine row** (8-10 reps) (3 sets)\n\n"
-            "**overhead cable tricep extensions (bar)** (8-10 reps) (2 sets)\n\n"
-            "**straight-bar lat prayer** (12-15 reps) (3 sets)\n\n"
-            "**pec deck (with integrated partials)** (12-15 reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            p1_u1_msg_text = f"JEFF NIPPARD PHASE 1 UPPER DAY 1 CHECKLIST\n\n Phase {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "cuffed behind-the-back Lateral Raise (10-12 reps) (3 sets)\n\n"
+            "cross-body lat pull-around (10-12 reps) (3 sets)\n\n"
+            "low incline smith machine press (8-10 reps) (4 sets)\n\n"
+            "chest-supported machine row (8-10 reps) (3 sets)\n\n"
+            "overhead cable tricep extensions (bar) (8-10 reps) (2 sets)\n\n"
+            "straight-bar lat prayer (12-15 reps) (3 sets)\n\n"
+            "pec deck (with integrated partials) (12-15 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             p1_u1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "cuffed behind-the-back Lateral Raise",
@@ -1349,16 +1367,16 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_u1_msg_text, reply_markup=p1_u1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_upper_2"):
-            p1_u2_msg_text = f"**JEFF NIPPARD PHASE 1 UPPER DAY 2 CHECKLIST**\n\n **Phase** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**super-rom overhand cable row** (10-12 reps) (3 sets)\n\n"
-            "**machine shoulder press** (10-12 reps) (3 sets)\n\n"
-            "**assisted pull-up** (8-10 reps) (3 sets)\n\n"
-            "**paused assisted dip** (8-10 reps) (3 sets)\n\n"
-            "**inverse db zottman curl** (10-12 reps) (2 sets)\n\n"
-            "**super-rom db lateral raise** (12-15 reps) (3 sets)\n\n"
-            "**cable reverse fly (mechanical dropset on all sets)** (5,4,3+ reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            p1_u2_msg_text = f"JEFF NIPPARD PHASE 1 UPPER DAY 2 CHECKLIST\n\n Phase {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "super-rom overhand cable row (10-12 reps) (3 sets)\n\n"
+            "machine shoulder press (10-12 reps) (3 sets)\n\n"
+            "assisted pull-up (8-10 reps) (3 sets)\n\n"
+            "paused assisted dip (8-10 reps) (3 sets)\n\n"
+            "inverse db zottman curl (10-12 reps) (2 sets)\n\n"
+            "super-rom db lateral raise (12-15 reps) (3 sets)\n\n"
+            "cable reverse fly (mechanical dropset on all sets) (5,4,3+ reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             p1_u2_keyboard = {
                 "inline_keyboard": [
                     [{"text": "super-rom overhand cable row",
@@ -1383,14 +1401,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_u2_msg_text, reply_markup=p1_u2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_lower_1"):
-            p1_l1_msg_text = f"**JEFF NIPPARD PHASE 1 LOWER DAY 1 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**seated leg curl** (8-10 reps) (3 sets)\n\n"
-            "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
-            "**hack squat** (4,6,8 reps) (3 sets)\n\n"
-            "**leg extension** (10-12 reps) (3 sets)\n\n"
-            "**leg press calf press** (12-15 reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+            p1_l1_msg_text = f"JEFF NIPPARD PHASE 1 LOWER DAY 1 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "seated leg curl (8-10 reps) (3 sets)\n\n"
+            "machine hip adduction (10-12 reps) (3 sets)\n\n"
+            "hack squat (4,6,8 reps) (3 sets)\n\n"
+            "leg extension (10-12 reps) (3 sets)\n\n"
+            "leg press calf press (12-15 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             p1_l1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "seated leg curl", "callback_data": "p1l1_seated-leg-curl"}],
@@ -1408,15 +1426,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_l1_msg_text, reply_markup=p1_l1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_lower_2"):
-            p1_l2_msg_text = f"**JEFF NIPPARD PHASE 1 LOWER DAY 2 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**lying leg curl** (8-10 reps) (3 sets)\n\n"
-            "**leg press** (8 reps) (3 sets)\n\n"
-            "**paused barbell rdl** (8 reps) (2 sets)\n\n"
-            "**machine hip adduction (super set with sissy squat)** (10-12 reps) (3 sets)\n\n"
-            "**sissy squat (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-            "**seated calf raise** (10-12 reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+            p1_l2_msg_text = f"JEFF NIPPARD PHASE 1 LOWER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "lying leg curl (8-10 reps) (3 sets)\n\n"
+            "leg press (8 reps) (3 sets)\n\n"
+            "paused barbell rdl (8 reps) (2 sets)\n\n"
+            "machine hip adduction (super set with sissy squat) (10-12 reps) (3 sets)\n\n"
+            "sissy squat (super set with machine hip adduction) (10-12 reps) (3 sets)\n\n"
+            "seated calf raise (10-12 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             p1_l2_keyboard = {
                 "inline_keyboard": [
                     [{"text": "lying leg curl (8-10 reps) (3 sets)",
@@ -1439,8 +1457,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_l2_msg_text, reply_markup=p1_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_arms"):
-            p1_wp1_msg_text = f"**JEFF NIPPARD PHASE 1 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n **Weak Point Exercise** (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
+            p1_wp1_msg_text = f"JEFF NIPPARD PHASE 1 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n Weak Point Exercise (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
             p1_wp1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders (8-12 reps) (3 sets)",
@@ -1471,12 +1489,12 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ]
             }
             await send_telegram_reply(chat_id, p1_wp1_msg_text, reply_markup=p1_wp1_keyboard)
-            p1_arms_text = "**bayesian cable curl** (10-12 reps) (3 sets)\n\n"
-            "**seated db french press** (10 reps) (3 sets)\n\n"
-            "**bottom-2/3 constant tension preacher curl** (12-15 reps) (2 sets)\n\n"
-            "**cable triceps kickback** (12-15 reps) (2 sets)\n\n"
-            "**cable crunch** (10-12 reps) (3 sets)\n\n"
-            "**Ready to log!** Just text your sets normally.\n\n"
+            p1_arms_text = "bayesian cable curl (10-12 reps) (3 sets)\n\n"
+            "seated db french press (10 reps) (3 sets)\n\n"
+            "bottom-2/3 constant tension preacher curl (12-15 reps) (2 sets)\n\n"
+            "cable triceps kickback (12-15 reps) (2 sets)\n\n"
+            "cable crunch (10-12 reps) (3 sets)\n\n"
+            "Ready to log! Just text your sets normally.\n\n"
             p1_arms_keyboard = {
                 "inline_keyboard": [
                     [{"text": "bayesian cable curl (10-12 reps) (3 sets)",
@@ -1499,15 +1517,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
         if user_text.lower() == ("/phase_2_upper_1"):
             p2_u1_msg_text = f"**JEFF NIPPARD PHASE 2 UPPER DAY 1 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**cuffed behind-the-back Lateral Raise** (10-12 reps) (3 sets)\n\n"
-            "**lat-focused cable row** (10-12 reps) (3 sets)\n\n"
-            "**low incline dumbbell press** (8-10 reps) (3 sets)\n\n"
-            "**chest-supported machine row + kelso shrug** (8-10 + 4-6 reps) (3 sets)\n\n"
-            "**bent-over cable pec flye (w/ integrated partials)** (12-15 reps) (3 sets)\n\n"
-            "**1-arm lat pull-in** (12-15 reps) (2 sets)\n\n"
-            "**dual-cable triceps press** (10-12 reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "cuffed behind-the-back Lateral Raise (10-12 reps) (3 sets)\n\n"
+            "lat-focused cable row (10-12 reps) (3 sets)\n\n"
+            "low incline dumbbell press (8-10 reps) (3 sets)\n\n"
+            "chest-supported machine row + kelso shrug (8-10 + 4-6 reps) (3 sets)\n\n"
+            "bent-over cable pec flye (w/ integrated partials) (12-15 reps) (3 sets)\n\n"
+            "1-arm lat pull-in (12-15 reps) (2 sets)\n\n"
+            "dual-cable triceps press (10-12 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             p2_u1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "cuffed behind-the-back Lateral Raise (10-12 reps) (3 sets)",
@@ -1532,16 +1550,16 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_u1_msg_text, reply_markup=p2_u1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_upper_2"):
-            p2_u2_msg_text = f"**JEFF NIPPARD PHASE 2 UPPER DAY 2 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**dual-handle lat pulldown (mid-back + lats)** (10-12 reps) (3 sets)\n\n"
-            "**seated dumbbell shoulder press** (10-12 reps) (3 sets)\n\n"
-            "**chest-supported machine row** (8-10 reps) (3 sets)\n\n"
-            "**decline machine chest press** (8-10 reps) (3 sets)\n\n"
-            "**concentration cable curl** (10-12 reps) (2 sets)\n\n"
-            "**cross-body cable y-raise** (10-12 reps) (3 sets)\n\n"
-            "**rear delt 45 degrees cable flye** (12-15 reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            p2_u2_msg_text = f"JEFF NIPPARD PHASE 2 UPPER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "dual-handle lat pulldown (mid-back + lats) (10-12 reps) (3 sets)\n\n"
+            "seated dumbbell shoulder press (10-12 reps) (3 sets)\n\n"
+            "chest-supported machine row (8-10 reps) (3 sets)\n\n"
+            "decline machine chest press (8-10 reps) (3 sets)\n\n"
+            "concentration cable curl (10-12 reps) (2 sets)\n\n"
+            "cross-body cable y-raise (10-12 reps) (3 sets)\n\n"
+            "rear delt 45 degrees cable flye (12-15 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             p2_u2_keyboard = {
                 "inline_keyboard": [
                     [{"text": "dual-handle lat pulldown (mid-back + lats) (10-12 reps) (3 sets)",
@@ -1566,14 +1584,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_u2_msg_text, reply_markup=p2_u2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_1"):
-            p2_l1_msg_text = f"**JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**seated leg curl** (8-10 reps) (3 sets)\n\n"
-            "**machine hip adduction** (10-12 reps) (3 sets)\n\n"
-            "**smith machine squat** (4,6,8 reps) (3 sets)\n\n"
-            "**leg extension** (10-12 reps) (3 sets)\n\n"
-            "**dumbbell calf jumps** (12-15 reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+            p2_l1_msg_text = f"JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "seated leg curl (8-10 reps) (3 sets)\n\n"
+            "machine hip adduction (10-12 reps) (3 sets)\n\n"
+            "smith machine squat (4,6,8 reps) (3 sets)\n\n"
+            "leg extension (10-12 reps) (3 sets)\n\n"
+            "dumbbell calf jumps (12-15 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             p2_l1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "Seated Leg Curl (8-10 reps) (3 sets)",
@@ -1594,15 +1612,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_l1_msg_text, reply_markup=p2_l1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_2"):
-            p2_l2_msg_text = f"**JEFF NIPPARD PHASE 2 LOWER DAY 2 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "**lying leg curl** (8-10 reps) (3 sets)\n\n"
-            "**smith machine reverse lunge** (8 reps) (3 sets)\n\n"
-            "**glute-ham raise** (8 reps) (3 sets)\n\n"
-            "**machine hip adduction (super set with machine hip abduction)** (10-12 reps) (3 sets)\n\n"
-            "**machine hip abduction (super set with machine hip adduction)** (10-12 reps) (3 sets)\n\n"
-            "**seated calf raise** (10-12 reps) (3 sets)\n\n"
-            "**Ready to log!** Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
+            p2_l2_msg_text = f"JEFF NIPPARD PHASE 2 LOWER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "lying leg curl (8-10 reps) (3 sets)\n\n"
+            "smith machine reverse lunge (8 reps) (3 sets)\n\n"
+            "glute-ham raise (8 reps) (3 sets)\n\n"
+            "machine hip adduction (super set with machine hip abduction) (10-12 reps) (3 sets)\n\n"
+            "machine hip abduction (super set with machine hip adduction) (10-12 reps) (3 sets)\n\n"
+            "seated calf raise (10-12 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. lower: RDL 60 lbs 10 reps)\n\n"
             p2_l2_keyboard = {
                 "inline_keyboard": [
                     [{"text": "lying leg curl (8-10 reps) (3 sets)",
@@ -1625,9 +1643,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_l2_msg_text, reply_markup=p2_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_arms"):
-            p2_wp_msg_text = f"**JEFF NIPPARD PHASE 2 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)**\n\n **Phase:** {current_phase} (Week {current_week})\n"
-            "**Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
-            "**Weak Point Exercise** (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
+            p2_wp_msg_text = f"JEFF NIPPARD PHASE 2 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
+            "Weak Point Exercise (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
             p2_wp_keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders", "callback_data": "wp_shoulders"},
@@ -1647,7 +1665,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ]
             }
             await send_telegram_reply(chat_id, p2_wp_msg_text, reply_markup=p2_wp_keyboard)
-            p2_arms_msg_text = "**Arms**"
+            p2_arms_msg_text = "Arms"
             p2_arms_keyboard = {
                 "inline_keyboard": [
                     [{"text": "slow-eccentric ez-bar skull crusher (10-12 reps) (3 sets)",
@@ -1666,7 +1684,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_arms_msg_text, reply_markup=p2_arms_keyboard)
             return {"status": "success"}
         if user_text.lower() == "/weakpoints":
-            msg_text = "**Select your Weak Point for today:**"
+            msg_text = "Select your Weak Point for today:"
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders", "callback_data": "wp_shoulders"}],
@@ -1690,25 +1708,34 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
-                "**NUTRITION LOGGING ENGINE**\n\n"
+                "*NUTRITION LOGGING ENGINE*\n\n"
                 "You can log your food conversationally without worrying about exact serving math. "
                 "The system will automatically categorize it based on the time of day and calculate your macros into Supabase.\n\n"
-                "  **How to log:**\n"
+                "  How to log:\n"
                 "Simply text me what you ate naturally. If your message doesn't contain lifting terms (like lbs or reps), it defaults to a food log!\n\n"
-                "**Examples:**\n"
-                "• *'meal: 3 eggs and a scoop of ascent native fuel whey protein powder'*\n"
-                "• *'meal: chicken korma with two pieces of garlic naan'*\n"
-                "• *'meal: fish pulusu with two pieces of paratha for lunch 06/10/2026'*\n"
-                "• *'meal: rice with chicken for dinner'*\n"
-                "• *'meal: a slice of homemade tiramisu'*\n\n"
+                "Examples:\n"
+                "• 'meal: 3 eggs and a scoop of ascent native fuel whey protein powder'\n"
+                "• 'meal: chicken korma with two pieces of garlic naan'\n"
+                "• 'meal: fish pulusu with two pieces of paratha for lunch 06/10/2026'\n"
+                "• 'meal: rice with chicken for dinner'\n"
+                "• 'meal: a slice of homemade tiramisu'\n\n"
                 "*Just start your message with 'meal:' followed by your food to save it!*"
             )
             await send_telegram_reply(chat_id, meal_instructions)
             return {"status": "success"}
 
+        if user_text.lower().contains("note:") or user_text.lower().contains("note:"):
+            raw_note = user_text.split("note:", 1)[1].strip()
+            if raw_note:
+                supabase.table("user_exercise_notes").upsert({
+                    "chat_id": chat_id,
+                    "exercise_name": exercise_name.lower().strip(),
+                    "note": raw_note
+                }).execute()
+
         if user_text.lower() == "/profile":
             profile_instructions = (
-                "**Profile Setup**\n\n"
+                "*Profile Setup*\n\n"
                 "You can log your Body Scan results and goal to save it and train the machine learning model. "
                 "The system will automatically use your goal and categories your food based on the time of day and calculate your macros into Supabase.\n\n"
                 "Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets:\n"
@@ -1846,7 +1873,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 # SAFETY NET: Prevent the AI from hallucinating if USDA doesn't know the barcode
                 if not usda_results and clean_food_text.replace(direct_upc, "").strip() == "":
-                    await send_telegram_reply(chat_id, f"⚠️ **Barcode {direct_upc} not found!**\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
+                    await send_telegram_reply(chat_id, f"⚠️ Barcode {direct_upc} not found!\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
                     return {"status": "success"}
 
             # --- TIER 2: LLM Classifier & Text Search (Only if no UPC match) ---
@@ -1888,8 +1915,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 keyboard = {"inline_keyboard": []}
 
-                msg_text = f" Found {len(usda_results)} results for **{
-                    display_query}**.\nSelect the most accurate option to log it:"
+                msg_text = f" Found {len(usda_results)} results for {
+                    display_query}.\nSelect the most accurate option to log it:"
                 for i, item in enumerate(usda_results):
                     btn_text = f"{item['food_name'][:30]
                                   }... ({item['calories']} kcal)"
@@ -1963,7 +1990,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             if exercise not in EXERCISE_REGISTRY:
                 error_reply = (
-                    f"**Unrecognized Exercise:** '_{
+                    f"Unrecognized Exercise: '_{
                         exercise.title()}_' Check spelling or select via workout menu.\n\n"
                 )
                 await send_telegram_reply(chat_id, error_reply)
@@ -1995,9 +2022,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             if lift_data.is_warmup:
                 reply_msg = (
-                    f"🔥 **Warm-Up Set Tracked:**\n"
+                    f"Warm-Up Set Tracked:\n"
                     f"*{exercise.title()
-                        }* - **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
+                        }* - {lift_data.weight} lbs × {lift_data.reps} reps\n"
                     f"*(This does not trigger rest timers or affect working set counts)*"
                 )
                 await send_telegram_reply(chat_id, reply_msg)
@@ -2027,24 +2054,24 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     next_targets = sets_config.get(
                         next_set_count, curr_targets)
                     drop_weight = max(0, lift_data.weight - increment)
-                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target **{
-                        drop_weight} lbs** for {next_targets['max_reps']} reps."
+                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target {
+                        drop_weight} lbs for {next_targets['max_reps']} reps."
                 elif is_assisted:
                     if lift_data.reps >= max_reps:
                         next_weight = max(0, lift_data.weight - increment)
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to **{
-                            next_weight} lbs**."
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {
+                            next_weight} lbs."
                     else:
-                        next_set_advice = f"\n\n *Next Set Target:* Hold **{
-                            lift_data.weight} lbs** assistance and push closer to {max_reps} reps."
+                        next_set_advice = f"\n\n *Next Set Target:* Hold {
+                            lift_data.weight} lbs assistance and push closer to {max_reps} reps."
                 else:
                     if lift_data.reps >= max_reps:
                         next_weight = lift_data.weight + increment
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to **{
-                            next_weight} lbs** for Set {next_set_count}."
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to {
+                            next_weight} lbs for Set {next_set_count}."
                     else:
-                        next_set_advice = f"\n\n *Next Set Target:* Hold **{
-                            lift_data.weight} lbs** and push closer to {max_reps} reps."
+                        next_set_advice = f"\n\n *Next Set Target:* Hold {
+                            lift_data.weight} lbs and push closer to {max_reps} reps."
 
                 # Append the background rest task for incomplete arrays
                 background_tasks.add_task(
@@ -2058,7 +2085,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             # Update your final reply to include the dynamic next set advice
             reply_msg = (
                 f" *{exercise.title()}* - Set {set_count}\n"
-                f" **{lift_data.weight} lbs × {lift_data.reps} reps**\n"
+                f" {lift_data.weight} lbs × {lift_data.reps} reps\n"
                 f" {intensity_advice}\n\n"
                 f" {next_set_advice}"
             )
