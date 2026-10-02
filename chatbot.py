@@ -211,8 +211,8 @@ EXERCISE_REGISTRY = {
         "advice": "*Mechanical Dropset:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
         "sets": {
             1: {"min_reps": 5, "max_reps": 5, "increment": 5},
-            2: {"min_reps": 4, "max_reps": 4, "increment": 5},
-            3: {"min_reps": 3, "max_reps": 3, "increment": 5},
+            2: {"min_reps": 5, "max_reps": 5, "increment": 5},
+            3: {"min_reps": 5, "max_reps": 5, "increment": 5},
         },
     },
     "lying leg curl": {
@@ -1031,10 +1031,9 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
             rec_text = f"*{target_working_weight} lbs* for *{target_max_reps} reps* Set 1 today!"
         else:
             target_working_weight = heaviest_set["weight"]
-            rec_text = (
-                f"Your working weight is *{target_working_weight} lbs* "
-                f"({heaviest_set['reps']} reps last session). Keep working with "
-                f"*{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
+            rec_text = ( ""
+                # f"Keep working with "
+                # f"*{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
             )
 
     # 2. Dynamic Progression Schema (Runs for both new & existing histories)
@@ -1060,10 +1059,9 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
     # 3. Handle Warmup Guide & Final Formatting
     if not history.data:
-        warmup_block = ""
+        warmup_guide = ""
     else:
         warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
-        warmup_block = f"Recommended Warm-Up Pyramid ({warmup_count} sets):\n{warmup_guide}\n\n"
     
     cues_block = f"Technique Cues: {intensity_advice}"
     if custom_note:
@@ -1073,8 +1071,8 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         f"{phase_header}"
         f"{last_session_block}"
         f"Target Working Weight: {rec_text}\n\n"
-        f"{warmup_block}"
-        f"Working Progression Schema:\n{schema_text}\n\n"
+        f"{warmup_guide}"
+        f"{schema_text}"
         f"{cues_block}"
     )
 
@@ -1391,7 +1389,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         "callback_data": "p1u2_inverse db zottman curl"}],
                     [{"text": "super-rom db lateral raise",
                         "callback_data": "p1u2_super-rom db lateral raise"}],
-                    [{"text": "cable reverse fly (mechanical dropset on all sets)",
+                    [{"text": "cable reverse fly (mechanical dropset on all sets) *Mechanical Dropset:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
                       "callback_data": "p1u2_cable reverse fly (mechanical dropset on all sets)"}],
 
                     [{"text": "Finish Workout",
@@ -2085,8 +2083,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             # Update your final reply to include the dynamic next set advice
             reply_msg = (
                 f" *{exercise.title()}* - Set {set_count}\n"
-                f" {lift_data.weight} lbs × {lift_data.reps} reps\n"
-                f" {intensity_advice}\n\n"
+                f" {lift_data.weight} lbs × {lift_data.reps} reps\n\n"
                 f" {next_set_advice}"
             )
             await send_telegram_reply(chat_id, reply_msg)
