@@ -46,6 +46,7 @@ EXERCISE_REGISTRY = {
     # PHASE 1
 
     "cuffed behind-the-back lateral raise": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Raise cables up/out in a 'Y' motion. Connect with middle delts. *Last Set: Myo-reps!*",
         "sets": {
@@ -55,6 +56,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "cross-body lat pull-around": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top. *Last Set: Long-length Partials.*",
         "sets": {
@@ -64,6 +66,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "low incline smith machine press": {
+        "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "~15° incline. 1s pause on chest. *Last Set: 30s Pec Static Stretch.*",
         "sets": {
@@ -74,6 +77,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "chest-supported machine row": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Flare elbows ~45° and squeeze blades hard at top. *Last Set: Long-length Partials.*",
         "sets": {
@@ -83,6 +87,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "overhead cable tricep extensions (bar)": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Nasty stretch on negative, 1s pause at bottom. *Last Set: Dropset.*",
         "sets": {
@@ -91,6 +96,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "straight-bar lat prayer": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
         "sets": {
@@ -100,6 +106,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "pec deck (with integrated partials)": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "*Integrated Partials:* Alternate 1 full-ROM rep with 1 half-ROM rep in stretched position.",
         "sets": {
@@ -109,6 +116,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "seated leg curl": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Lean forward over machine for maximum hamstring stretch.",
         "sets": {
@@ -118,6 +126,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "machine hip adduction": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Mind-muscle connection with inner thighs. Push hard!",
         "sets": {
@@ -127,6 +136,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "hack squat": {
+        "rest_seconds": 180,
         "warmup_sets": 3,
         "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps).",
         "sets": {
@@ -136,6 +146,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "leg extension": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull butt down into seat. 2-3s negative. *Last Set: Long-length Partials.*",
         "sets": {
@@ -145,6 +156,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "leg press calf press": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "1-2s pause at bottom. Roll ankles on balls of feet. *Last Set: 30s Calf Static Stretch.*",
         "sets": {
@@ -154,6 +166,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "super-rom overhand cable row": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Wide grip pulldown bar. Lean forward on negative, upright at finish.",
         "sets": {
@@ -163,6 +176,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "machine shoulder press": {
+        "rest_seconds": 60,
         "warmup_sets": 2,
         "advice": "Elbows break 90°. Smooth, controlled reps. *Last Set: Dropset.*",
         "sets": {
@@ -172,6 +186,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "assisted pull-up": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Slow 2-3s negative. 0.5-1s pause at bottom. *Last Set: Long-length Partials.*",
         "sets": {
@@ -181,6 +196,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "paused assisted dip": {
+        "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Slow 2-3s negative. 1-2s pause at bottom. Break 90° elbow angle.",
         "sets": {
@@ -190,6 +206,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "inverse dumbbell zottman curl": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Hammer curl on positive, palms-up grip on negative.",
         "sets": {
@@ -198,6 +215,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "super-rom dumbbell lateral raise": {
+        "rest_seconds": 30,
         "warmup_sets": 1,
         "advice": "Hands overhead. Squeeze upper traps at top. Point thumbs up if shoulder hurts.",
         "sets": {
@@ -207,6 +225,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "cable reverse flye (mechanical dropset)": {
+        "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "*Mechanical Dropset:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
         "sets": {
@@ -216,6 +235,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "lying leg curl": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Big stretch at bottom. Keep hips down. *Last Set: Long-length Partials.*",
         "sets": {
@@ -225,6 +245,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "leg press": {
+        "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Feet low for quad focus. Deep stretch with slight pause at bottom.",
         "sets": {
@@ -234,6 +255,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "paused barbell rdl": {
+        "rest_seconds": 180,
         "warmup_sets": 2,
         "advice": "Low RPE (~6-7). 1s pause at bottom. Stop 75% to lockout to keep tension.",
         "sets": {
@@ -242,6 +264,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "sissy squat": {
+        "rest_seconds": 30,
         "warmup_sets": 1,
         "advice": "Knees forward past toes. Push hard!",
         "sets": {
@@ -251,6 +274,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "seated calf raise": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "1-2s pause at bottom. *Last Set: 30s Calf Static Stretch.*",
         "sets": {
@@ -260,6 +284,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "bayesian cable curl": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. *Last Set: Long-length Partials.*",
         "sets": {
@@ -269,6 +294,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "seated dumbbell french press": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Palms under top of dumbbell. Deep stretch at bottom. Avoid pausing at the top of each rep.",
         "sets": {
@@ -278,6 +304,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "bottom-2/3 constant tension preacher curl": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Stay in bottom 2/3. No pausing at top or bottom—constant tension!",
         "sets": {
@@ -286,6 +313,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "cable triceps kickback": {
+        "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "Upright or bent over. At full squeeze, keep shoulder positioned behind torso.",
         "sets": {
@@ -294,6 +322,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "cable crunch": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack.",
         "sets": {
@@ -306,6 +335,7 @@ EXERCISE_REGISTRY = {
     # PHASE 2
 
     "lat-focused cable row": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Keep elbows tucked close to your sides to bias the lats.",
         "sets": {
@@ -315,6 +345,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "low incline dumbbell press": {
+        "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Bench at 15° incline. Slight elbow tuck on negative then flare as you push. Constant tension on pecs.",
         "sets": {
@@ -324,6 +355,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "machine chest-supported row + kelso shrug": {
+        "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Row 8-10 reps (elbows ~45°). Without resting, complete 4-6 Kelso shrugs.",
         "sets": {
@@ -333,6 +365,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "bent-over cable pec flye (w/ integrated partials)": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Torso parallel to floor, flye down toward the floor. Stretched squeeze.",
         "sets": {
@@ -342,6 +375,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "1-arm lat pull-in": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull cable from the side. Connect with lats, avoid bicep takeover.",
         "sets": {
@@ -350,6 +384,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "dual-cable triceps press": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Hold cables without handle at chin level. Press forward straight out in front.",
         "sets": {
@@ -359,6 +394,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "smith machine squat": {
+        "rest_seconds": 180,
         "warmup_sets": 2,
         "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps).",
         "sets": {
@@ -368,6 +404,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "dumbbell calf jumps": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Jumping motion without leaving floor; drive jump using calves/ankles.",
         "sets": {
@@ -377,6 +414,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "dual-handle lat pulldown (mid-back + lats)": {
+        "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Lean back 15° and drive elbows down squeezing shoulder blades together.",
         "sets": {
@@ -386,6 +424,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "seated dumbbell shoulder press": {
+        "rest_seconds": 60,
         "warmup_sets": 2,
         "advice": "Rotate dumbbells slightly inward on negative, flare elbows on push.",
         "sets": {
@@ -395,6 +434,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "decline machine chest press": {
+        "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Feel pecs stretch apart on negative. Focus on lower pecs.",
         "sets": {
@@ -404,6 +444,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "concentration cable curl": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Place working elbow against knee and perform strict form curls.",
         "sets": {
@@ -412,6 +453,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "cross-body cable y-raise": {
+        "rest_seconds": 120,
         "warmup_sets": 3,
         "advice": "Sweep arm up, out, and across body like drawing a sword.",
         "sets": {
@@ -421,6 +463,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "rear delt 45 degrees cable flye": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull 1 arm at a time bracing with other hand. Align arm & cable in a line.",
         "sets": {
@@ -430,6 +473,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "smith machine reverse lunge": {
+        "rest_seconds": 60,
         "warmup_sets": 2,
         "advice": "Set leg back on negative; drive weight up through front heel.",
         "sets": {
@@ -439,6 +483,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "glute-ham raise": {
+        "rest_seconds": 180,
         "warmup_sets": 2,
         "advice": "Cut out top 25% of ROM to keep hamstrings fully loaded.",
         "sets": {
@@ -448,6 +493,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "machine hip abduction": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Mind-muscle connection with glute medius / outer hips. Push hard!",
         "sets": {
@@ -457,6 +503,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "slow-eccentric ez-bar skull crusher": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "3-4s negative. Arc bar behind head; keep bar behind eye line on extension.",
         "sets": {
@@ -466,6 +513,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "slow-eccentric bayesian curl": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "3-4s negative with bottom pause. *Last Set: Long-length partials on all reps.*",
         "sets": {
@@ -475,6 +523,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "tricep diverging pressdown (long rope or 2 ropes)": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Flare elbows slightly out and keep arms back in line with torso. Big bottom squeeze.",
         "sets": {
@@ -483,6 +532,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "reverse grip cable curl": {
+        "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "Palms facing down. Targets forearm extensors, brachialis, and biceps.",
         "sets": {
@@ -491,6 +541,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "roman chair leg raise": {
+        "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "Allow lower back to round as you curl legs up. Push to RPE 9-10 with clean form.",
         "sets": {
@@ -503,6 +554,7 @@ EXERCISE_REGISTRY = {
     # WEAK POINTS
 
     "machine lateral raise": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Focus on pushing the weight out rather than up. Keep a slight bend in the elbows.",
         "sets": {
@@ -512,6 +564,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "dumbbell lateral raise": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Slight lean forward, lead with elbows. Stop at shoulder height.",
         "sets": {
@@ -521,6 +574,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "smith machine shoulder press": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Bench to high incline. Lower bar with control to chin/upper chest level.",
         "sets": {
@@ -530,6 +584,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "standing dumbbell arnold press": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Start with palms facing you, rotate palms forward as you press overhead.",
         "sets": {
@@ -539,6 +594,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "cable lat prayer": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
         "sets": {
@@ -548,6 +604,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "dumbbell lat pullover": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep elbows slightly bent. Feel the stretch in your lats, not your chest.",
         "sets": {
@@ -557,6 +614,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "machine lat pullover": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Drive elbows down and back. Deep stretch at the top.",
         "sets": {
@@ -566,6 +624,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "elbows-in 1-arm dumbbell row": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull dumbbell toward your hip. Squeeze the lat at the top.",
         "sets": {
@@ -575,6 +634,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "half-kneeling 1-arm lat pulldown": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Kneel on the same side you are pulling with. Drive elbow straight down.",
         "sets": {
@@ -584,6 +644,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "reverse nordics": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep a straight line from knees to shoulders. Control descent into quad stretch.",
         "sets": {
@@ -593,6 +654,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "single-leg leg press": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Place foot lower on the platform for quad focus. Avoid locking out knee.",
         "sets": {
@@ -602,6 +664,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "cable hip abduction": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep torso stationary. Pull the cable away using only your glutes.",
         "sets": {
@@ -611,6 +674,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "lateral band walk": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep tension on band at all times. Do not drag trailing foot.",
         "sets": {
@@ -620,6 +684,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "barbell hip thrust": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Tuck chin, drive through heels, and squeeze glutes hard at lockout.",
         "sets": {
@@ -629,6 +694,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "single-leg dumbbell hip thrust": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep core braced and hinge at hips. Push through working heel.",
         "sets": {
@@ -638,6 +704,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "low incline dumbbell flye": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Slight bend in elbows. Maximize stretch at bottom without shoulder pain.",
         "sets": {
@@ -647,6 +714,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "low-to-high cable crossover": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull from low to high to target upper pecs. Squeeze at the top.",
         "sets": {
@@ -656,6 +724,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "chest press machine (incline if upper pecs lagging, flat if entire chest is lagging)": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep chest up and shoulders retracted. Push smoothly through palms.",
         "sets": {
@@ -665,6 +734,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "dumbbell chest press (incline if upper pecs lagging, flat if entire chest is lagging)": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Control negative. Deep stretch at bottom before pressing up.",
         "sets": {
@@ -674,6 +744,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "plate loaded neck curls": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Slow, controlled reps. Tuck chin to chest at top.",
         "sets": {
@@ -683,6 +754,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "head harness neck extension": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Do not jerk weight. Extend smoothly to activate neck extensors.",
         "sets": {
@@ -692,6 +764,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "plate-loaded neck extension": {
+        "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Maintain strict control. Focus on stretch and contraction.",
         "sets": {
@@ -896,7 +969,10 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
 
 async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str):
     # 3 minute timer
-    await asyncio.sleep(180)
+    ex_data = EXERCISE_REGISTRY.get(exercise_name.lower(), {})
+    rest_seconds = ex_data.get("rest_seconds", 180)
+
+    await asyncio.sleep(rest_seconds)
 
     today_str = date.today().isoformat()
     existing_sets = supabase.table("exercise_logs") \
@@ -909,8 +985,16 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
     if len(existing_sets.data) >= next_set:
         return
 
-    reminder = f"3-Minute Rest Over!\nTime for *Set {
-        next_set}* of *{exercise_name.title()}*.\n Target: {target_desc}"
+    if rest_seconds >= 60:
+        rest_mins = rest_seconds / 60
+        rest_label = f"{int(rest_mins) if rest_mins.is_integer() else rest_mins:g}-Minute"
+    else:
+        rest_label = f"{rest_seconds}-Second"
+
+    reminder = (
+        f"*{rest_label} Rest Over!*\n"
+        f"Time for *Set {next_set}* of *{exercise_name.title()}*.\n"
+    )
     await send_telegram_reply(chat_id, reminder)
 
 
