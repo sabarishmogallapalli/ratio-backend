@@ -48,8 +48,8 @@ EXERCISE_REGISTRY = {
     "cuffed behind-the-back lateral raise": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "Raise cables up/out in a 'Y' motion. Connect with middle delts. *Last Set: Myo-reps!*",
-        "last_set":"Myo-reps",
+        "advice": "Raise cables up/out in a 'Y' motion. Connect with middle delts.",
+        "last_set":"*Myo-reps*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
@@ -59,8 +59,8 @@ EXERCISE_REGISTRY = {
     "cross-body lat pull-around": {
         "rest_seconds": 120,
         "warmup_sets": 1,
-        "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -70,8 +70,8 @@ EXERCISE_REGISTRY = {
     "low incline smith machine press": {
         "rest_seconds": 120,
         "warmup_sets": 2,
-        "advice": "~15° incline. 1s pause on chest. *Last Set: 30s Pec Static Stretch.*",
-        "last_set":"30s Pec Static Stretch",
+        "advice": "~15° incline. 1s pause on chest.",
+        "last_set":"*30s Pec Static Stretch*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -82,8 +82,8 @@ EXERCISE_REGISTRY = {
     "chest-supported machine row": {
         "rest_seconds": 120,
         "warmup_sets": 1,
-        "advice": "Flare elbows ~45° and squeeze blades hard at top. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Flare elbows ~45° and squeeze blades hard at top.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 10},
             2: {"min_reps": 8, "max_reps": 10, "increment": 10},
@@ -93,8 +93,8 @@ EXERCISE_REGISTRY = {
     "overhead cable tricep extensions (bar)": {
         "rest_seconds": 120,
         "warmup_sets": 1,
-        "advice": "Nasty stretch on negative, 1s pause at bottom. *Last Set: Dropset.*",
-        "last_set":"Dropset",
+        "advice": "Nasty stretch on negative, 1s pause at bottom.",
+        "last_set":"*Dropset*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -103,8 +103,8 @@ EXERCISE_REGISTRY = {
     "straight-bar lat prayer": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Lean forward for big lat stretch at top, stand upright at bottom.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -158,8 +158,8 @@ EXERCISE_REGISTRY = {
     "leg extension": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "Pull butt down into seat. 2-3s negative. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Pull butt down into seat. 2-3s negative.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -169,8 +169,8 @@ EXERCISE_REGISTRY = {
     "leg press calf press": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "1-2s pause at bottom. Roll ankles on balls of feet. *Last Set: 30s Calf Static Stretch.*",
-        "last_set":"30s Calf Static Stretch",
+        "advice": "1-2s pause at bottom. Roll ankles on balls of feet.",
+        "last_set":"*30s Calf Static Stretch*",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 20},
             2: {"min_reps": 12, "max_reps": 15, "increment": 20},
@@ -191,8 +191,8 @@ EXERCISE_REGISTRY = {
     "machine shoulder press": {
         "rest_seconds": 60,
         "warmup_sets": 2,
-        "advice": "Elbows break 90°. Smooth, controlled reps. *Last Set: Dropset.*",
-        "last_set":"Dropset",
+        "advice": "Elbows break 90°. Smooth, controlled reps.",
+        "last_set":"*Dropset*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -202,8 +202,8 @@ EXERCISE_REGISTRY = {
     "assisted pull-up": {
         "rest_seconds": 120,
         "warmup_sets": 1,
-        "advice": "Slow 2-3s negative. 0.5-1s pause at bottom. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Slow 2-3s negative. 0.5-1s pause at bottom.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -256,8 +256,8 @@ EXERCISE_REGISTRY = {
     "lying leg curl": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "Big stretch at bottom. Keep hips down. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Big stretch at bottom. Keep hips down.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -299,8 +299,8 @@ EXERCISE_REGISTRY = {
     "seated calf raise": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "1-2s pause at bottom. *Last Set: 30s Calf Static Stretch.*",
-        "last_set":"30s Calf Static Stretch",
+        "advice": "1-2s pause at bottom.",
+        "last_set":"*30s Calf Static Stretch*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 15},
             2: {"min_reps": 10, "max_reps": 12, "increment": 15},
@@ -310,8 +310,8 @@ EXERCISE_REGISTRY = {
     "bayesian cable curl": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -562,8 +562,8 @@ EXERCISE_REGISTRY = {
     "slow-eccentric bayesian curl": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "3-4s negative with bottom pause. *Last Set: Long-length partials on all reps.*",
-        "last_set":"Long-length partials on all reps",
+        "advice": "3-4s negative with bottom pause.",
+        "last_set":"*Long-length partials on all reps*",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -651,8 +651,8 @@ EXERCISE_REGISTRY = {
     "cable lat prayer": {
         "rest_seconds": 60,
         "warmup_sets": 1,
-        "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
-        "last_set":"Long-length Partials",
+        "advice": "Lean forward for big lat stretch at top, stand upright at bottom.",
+        "last_set":"*Long-length Partials*",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -1233,7 +1233,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         f"{rec_text}\n\n"
         f"{warmup_guide}\n"
         f"{schema_text}\n"
-        f"{cues_block}"
+        f"{cues_block}\n"
         f"Last Set Variation: {last_set}"
     )
 
