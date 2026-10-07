@@ -2136,21 +2136,24 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     next_targets = sets_config.get(
                         next_set_count, curr_targets)
                     drop_weight = max(0, lift_data.weight - increment)
-                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target {
-                        drop_weight} lbs for {next_targets['max_reps']} reps."
+                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target is {next_targets['max_reps']} reps."
+                    # next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target {
+                    #     drop_weight} lbs for {next_targets['max_reps']} reps."
                 elif is_assisted:
                     if lift_data.reps >= max_reps:
                         next_weight = max(0, lift_data.weight - increment)
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {
-                            next_weight} lbs."
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance."
+                        # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {
+                        #     next_weight} lbs."
                     else:
                         next_set_advice = f"\n\n *Next Set Target:* Hold {
                             lift_data.weight} lbs assistance and push closer to {max_reps} reps."
                 else:
                     if lift_data.reps >= max_reps:
                         next_weight = lift_data.weight + increment
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to {
-                            next_weight} lbs for Set {next_set_count}."
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
+                        # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to {
+                        #     next_weight} lbs for Set {next_set_count}."
                     else:
                         next_set_advice = f"\n\n *Next Set Target:* Hold {
                             lift_data.weight} lbs and push closer to {max_reps} reps."
