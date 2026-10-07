@@ -1128,16 +1128,16 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         reps = data.get("max_reps", 12)
         if s == 1:
             weight_str = f" @ {current_weight} lbs" if current_weight > 0 else ""
-            schema_lines.append(f"• Working Set 1: {reps} reps{weight_str} (+{data.get('increment', 5)} lbs progression)")
+            schema_lines.append(f"• Set 1: {reps} reps")
         elif "drop_percent" in data:
             if current_weight > 0:
                 drop_pct = data["drop_percent"]
                 current_weight = round((current_weight * (1 - drop_pct)) / 5) * 5
-                schema_lines.append(f"• Working Set {s}: {reps} reps @ {current_weight} lbs (-{int(drop_pct * 100)}% drop)")
+                schema_lines.append(f"• Set {s}: {reps} reps")
             else:
-                schema_lines.append(f"• Working Set {s}: {reps} reps (-{int(data['drop_percent'] * 100)}% drop from previous set)")
+                schema_lines.append(f"• Set {s}: {reps} reps")
         else:
-            schema_lines.append(f"• Working Set {s}: {reps} reps (+{data.get('increment', 5)} lbs progression)")
+            schema_lines.append(f"• Set {s}: {reps} reps")
 
     schema_text = "\n".join(schema_lines)
 
@@ -1153,9 +1153,9 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
     return (
         f"{phase_header}"
-        f"{last_session_block}"
-        f"Target Working Weight: {rec_text}\n\n"
-        f"{warmup_guide}"
+        # f"{last_session_block}"
+        f"{rec_text}\n\n"
+        f"{warmup_guide}\n"
         f"{schema_text}"
         f"{cues_block}"
     )
