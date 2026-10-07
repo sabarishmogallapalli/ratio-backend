@@ -1889,7 +1889,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 supabase.table("user_exercise_notes").upsert({
                     "chat_id": chat_id,
                     "exercise_name": exercise_name.lower().strip(),
-                    "note": raw_note
+                    "note": raw_note,
+                    "updated_at": datetime.now(central_tz).isoformat()
                 }).execute()
 
         if user_text.lower() == "/profile":
