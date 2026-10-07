@@ -1189,9 +1189,8 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
             rec_text = f"*{target_working_weight} lbs* for *{target_max_reps} reps* Set 1 today!"
         else:
             target_working_weight = heaviest_set["weight"]
-            rec_text = ( ""
-                # f"Keep working with "
-                # f"*{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
+            rec_text = ( 
+                 f"Keep working with *{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
             )
 
     # 2. Dynamic Progression Schema (Runs for both new & existing histories)
@@ -1229,7 +1228,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
     return (
         f"{phase_header}"
-        f"{last_session_block}"
+        # f"{last_session_block}"
         f"{rec_text}\n\n"
         f"{warmup_guide}\n"
         f"{schema_text}\n"
