@@ -1203,7 +1203,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         max_reps = data.get("max_reps", 12)
         if s == 1:
             weight_str = f" @ {current_weight} lbs" if current_weight > 0 else ""
-            schema_lines.append(f"• Set 1: {reps} reps")
+            schema_lines.append(f"• Set 1: {max_reps} reps")
         elif "drop_percent" in data:
             if current_weight > 0:
                 drop_pct = data["drop_percent"]
