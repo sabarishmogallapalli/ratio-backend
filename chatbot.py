@@ -1199,7 +1199,8 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
     current_weight = target_working_weight
 
     for s, data in sorted(sets_config.items()):
-        reps = data.get("max_reps", 12)
+        min_reps = data.get("min_reps", 8)
+        max_reps = data.get("max_reps", 12)
         if s == 1:
             weight_str = f" @ {current_weight} lbs" if current_weight > 0 else ""
             schema_lines.append(f"• Set 1: {reps} reps")
@@ -1207,11 +1208,11 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
             if current_weight > 0:
                 drop_pct = data["drop_percent"]
                 current_weight = round((current_weight * (1 - drop_pct)) / 5) * 5
-                schema_lines.append(f"• Set {s}: {reps} reps")
+                schema_lines.append(f"• Set {s}: {min_reps} - {max_reps} reps")
             else:
-                schema_lines.append(f"• Set {s}: {reps} reps")
+                schema_lines.append(f"• Set {s}: {min_reps} - {max_reps} reps")
         else:
-            schema_lines.append(f"• Set {s}: {reps} reps")
+            schema_lines.append(f"• Set {s}: {min_reps} - {max_reps} reps")
 
     schema_text = "\n".join(schema_lines)
 
