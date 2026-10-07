@@ -1040,7 +1040,7 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
     return []
 
 
-async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str):
+async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str, next_set_advice: str):
     # 3 minute timer
     ex_data = EXERCISE_REGISTRY.get(exercise_name.lower(), {})
     rest_seconds = ex_data.get("rest_seconds", 180)
@@ -1067,6 +1067,7 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
     reminder = (
         f"*{rest_label} Rest Over!*\n"
         f"Time for *Set {next_set}* of *{exercise_name.title()}*.\n"
+        f"{next_set_advice}"
     )
     await send_telegram_reply(chat_id, reminder)
 
@@ -1228,6 +1229,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
     return (
         f"{phase_header}"
+        f"{exercise_name.title()}\n"
         # f"{last_session_block}"
         f"{rec_text}\n\n"
         f"{warmup_guide}\n"
@@ -2243,7 +2245,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     chat_id=chat_id,
                     exercise_name=exercise,
                     next_set=next_set_count,
-                    target_desc=f"{max_reps} reps"
+                    target_desc=f"{max_reps} reps",
+                    next_set_advice=next_set_advice
                 )
 
             # Update your final reply to include the dynamic next set advice
