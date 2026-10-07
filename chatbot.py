@@ -49,6 +49,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Raise cables up/out in a 'Y' motion. Connect with middle delts. *Last Set: Myo-reps!*",
+        "last_set":"Myo-reps",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
@@ -59,6 +60,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -69,6 +71,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "~15° incline. 1s pause on chest. *Last Set: 30s Pec Static Stretch.*",
+        "last_set":"30s Pec Static Stretch",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -80,6 +83,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Flare elbows ~45° and squeeze blades hard at top. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 10},
             2: {"min_reps": 8, "max_reps": 10, "increment": 10},
@@ -90,6 +94,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Nasty stretch on negative, 1s pause at bottom. *Last Set: Dropset.*",
+        "last_set":"Dropset",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -99,6 +104,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -109,6 +115,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "*Integrated Partials:* Alternate 1 full-ROM rep with 1 half-ROM rep in stretched position.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 15},
             2: {"min_reps": 12, "max_reps": 15, "increment": 15},
@@ -119,6 +126,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Lean forward over machine for maximum hamstring stretch.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 10},
             2: {"min_reps": 8, "max_reps": 10, "increment": 10},
@@ -129,6 +137,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Mind-muscle connection with inner thighs. Push hard!",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 10},
             2: {"min_reps": 10, "max_reps": 12, "increment": 10},
@@ -139,6 +148,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 180,
         "warmup_sets": 3,
         "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps).",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 4, "max_reps": 4, "increment": 5},
             2: {"min_reps": 6, "max_reps": 6, "drop_percent": 0.12},
@@ -149,6 +159,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull butt down into seat. 2-3s negative. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -159,6 +170,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "1-2s pause at bottom. Roll ankles on balls of feet. *Last Set: 30s Calf Static Stretch.*",
+        "last_set":"30s Calf Static Stretch",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 20},
             2: {"min_reps": 12, "max_reps": 15, "increment": 20},
@@ -169,6 +181,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Wide grip pulldown bar. Lean forward on negative, upright at finish.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -179,6 +192,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 2,
         "advice": "Elbows break 90°. Smooth, controlled reps. *Last Set: Dropset.*",
+        "last_set":"Dropset",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -189,6 +203,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Slow 2-3s negative. 0.5-1s pause at bottom. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -199,6 +214,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Slow 2-3s negative. 1-2s pause at bottom. Break 90° elbow angle.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -209,6 +225,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Hammer curl on positive, palms-up grip on negative.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -218,6 +235,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 30,
         "warmup_sets": 1,
         "advice": "Hands overhead. Squeeze upper traps at top. Point thumbs up if shoulder hurts.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -228,6 +246,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "*Mechanical Dropset:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 5, "max_reps": 5, "increment": 5},
             2: {"min_reps": 5, "max_reps": 5, "increment": 5},
@@ -238,6 +257,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Big stretch at bottom. Keep hips down. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -248,6 +268,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Feet low for quad focus. Deep stretch with slight pause at bottom.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 8, "increment": 5},
             2: {"min_reps": 8, "max_reps": 8, "increment": 5},
@@ -258,6 +279,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 180,
         "warmup_sets": 2,
         "advice": "Low RPE (~6-7). 1s pause at bottom. Stop 75% to lockout to keep tension.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 8, "increment": 5},
             2: {"min_reps": 8, "max_reps": 8, "increment": 5},
@@ -267,6 +289,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 30,
         "warmup_sets": 1,
         "advice": "Knees forward past toes. Push hard!",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 0},
             2: {"min_reps": 10, "max_reps": 12, "increment": 0},
@@ -277,6 +300,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "1-2s pause at bottom. *Last Set: 30s Calf Static Stretch.*",
+        "last_set":"30s Calf Static Stretch",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 15},
             2: {"min_reps": 10, "max_reps": 12, "increment": 15},
@@ -287,6 +311,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -297,6 +322,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Palms under top of dumbbell. Deep stretch at bottom. Avoid pausing at the top of each rep.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 10, "increment": 5},
             2: {"min_reps": 10, "max_reps": 10, "increment": 5},
@@ -307,6 +333,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Stay in bottom 2/3. No pausing at top or bottom—constant tension!",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -316,6 +343,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "Upright or bent over. At full squeeze, keep shoulder positioned behind torso.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -325,6 +353,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Round your lower back as you crunch. Maintain mind-muscle connection with your 6-pack.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -338,6 +367,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Keep elbows tucked close to your sides to bias the lats.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -348,6 +378,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Bench at 15° incline. Slight elbow tuck on negative then flare as you push. Constant tension on pecs.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -358,6 +389,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Row 8-10 reps (elbows ~45°). Without resting, complete 4-6 Kelso shrugs.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -368,6 +400,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Torso parallel to floor, flye down toward the floor. Stretched squeeze.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -378,6 +411,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull cable from the side. Connect with lats, avoid bicep takeover.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -387,6 +421,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Hold cables without handle at chin level. Press forward straight out in front.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -397,6 +432,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 180,
         "warmup_sets": 2,
         "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps).",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 4, "max_reps": 4, "increment": 5},
             2: {"min_reps": 6, "max_reps": 6, "drop_percent": 0.12},
@@ -407,6 +443,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Jumping motion without leaving floor; drive jump using calves/ankles.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -417,6 +454,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Lean back 15° and drive elbows down squeezing shoulder blades together.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -427,6 +465,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 2,
         "advice": "Rotate dumbbells slightly inward on negative, flare elbows on push.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -437,6 +476,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 2,
         "advice": "Feel pecs stretch apart on negative. Focus on lower pecs.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -447,6 +487,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Place working elbow against knee and perform strict form curls.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -456,6 +497,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 3,
         "advice": "Sweep arm up, out, and across body like drawing a sword.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -466,6 +508,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull 1 arm at a time bracing with other hand. Align arm & cable in a line.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -476,6 +519,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 2,
         "advice": "Set leg back on negative; drive weight up through front heel.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 8, "increment": 5},
             2: {"min_reps": 8, "max_reps": 8, "increment": 5},
@@ -486,6 +530,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 180,
         "warmup_sets": 2,
         "advice": "Cut out top 25% of ROM to keep hamstrings fully loaded.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 8, "increment": 5},
             2: {"min_reps": 8, "max_reps": 8, "increment": 5},
@@ -496,6 +541,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Mind-muscle connection with glute medius / outer hips. Push hard!",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 10},
             2: {"min_reps": 10, "max_reps": 12, "increment": 10},
@@ -506,6 +552,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "3-4s negative. Arc bar behind head; keep bar behind eye line on extension.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -516,6 +563,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "3-4s negative with bottom pause. *Last Set: Long-length partials on all reps.*",
+        "last_set":"Long-length partials on all reps",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -526,6 +574,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Flare elbows slightly out and keep arms back in line with torso. Big bottom squeeze.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -535,6 +584,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "Palms facing down. Targets forearm extensors, brachialis, and biceps.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -544,6 +594,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "Allow lower back to round as you curl legs up. Push to RPE 9-10 with clean form.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 10, "max_reps": 20, "increment": 5},
             2: {"min_reps": 10, "max_reps": 20, "increment": 5},
@@ -557,6 +608,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Focus on pushing the weight out rather than up. Keep a slight bend in the elbows.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -567,6 +619,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Slight lean forward, lead with elbows. Stop at shoulder height.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -577,6 +630,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Bench to high incline. Lower bar with control to chin/upper chest level.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -587,6 +641,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Start with palms facing you, rotate palms forward as you press overhead.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -597,6 +652,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Lean forward for big lat stretch at top, stand upright at bottom. *Last Set: Long-length Partials.*",
+        "last_set":"Long-length Partials",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -607,6 +663,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep elbows slightly bent. Feel the stretch in your lats, not your chest.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -617,6 +674,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Drive elbows down and back. Deep stretch at the top.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -627,6 +685,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull dumbbell toward your hip. Squeeze the lat at the top.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -637,6 +696,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Kneel on the same side you are pulling with. Drive elbow straight down.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -647,6 +707,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep a straight line from knees to shoulders. Control descent into quad stretch.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -657,6 +718,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Place foot lower on the platform for quad focus. Avoid locking out knee.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -667,6 +729,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep torso stationary. Pull the cable away using only your glutes.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -677,6 +740,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep tension on band at all times. Do not drag trailing foot.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -687,6 +751,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Tuck chin, drive through heels, and squeeze glutes hard at lockout.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -697,6 +762,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep core braced and hinge at hips. Push through working heel.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -707,6 +773,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Slight bend in elbows. Maximize stretch at bottom without shoulder pain.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -717,6 +784,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull from low to high to target upper pecs. Squeeze at the top.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -727,6 +795,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep chest up and shoulders retracted. Push smoothly through palms.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -737,6 +806,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Control negative. Deep stretch at bottom before pressing up.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -747,6 +817,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Slow, controlled reps. Tuck chin to chest at top.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -757,6 +828,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Do not jerk weight. Extend smoothly to activate neck extensors.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -767,6 +839,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Maintain strict control. Focus on stretch and contraction.",
+        "last_set":"",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
@@ -1055,6 +1128,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         {
             "warmup_sets": 1,
             "advice": "Hypertrophy depth working set.",
+            "last_set": "",
             "sets": {1: {"min_reps": 8, "max_reps": 12, "increment": 5}},
         },
     )
@@ -1151,6 +1225,8 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
     if custom_note:
         cues_block += f"\n **Setup Note:** {custom_note}"
 
+    last_set = ex_info.get("last_set", "")
+
     return (
         f"{phase_header}"
         # f"{last_session_block}"
@@ -1158,6 +1234,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         f"{warmup_guide}\n"
         f"{schema_text}\n"
         f"{cues_block}"
+        f"Last Set Variation: {last_set}"
     )
 
 
@@ -2120,6 +2197,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 next_set_advice = f"*Exercise Complete!* {
                     total_target_sets} sets logged."
+            elif set_count == total_target_sets - 1:
+                next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
             else:
                 next_set_count = set_count + 1
                 curr_targets = sets_config.get(
