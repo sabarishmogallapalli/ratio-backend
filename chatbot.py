@@ -1229,7 +1229,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
     return (
         f"{phase_header}"
-        # f"{last_session_block}"
+        f"{last_session_block}"
         f"{rec_text}\n\n"
         f"{warmup_guide}\n"
         f"{schema_text}\n"
