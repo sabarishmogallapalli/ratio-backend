@@ -2087,39 +2087,41 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 keyboard["inline_keyboard"].append(
                     [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
+                keyboard["inline_keyboard"].append(
+                    [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
                 await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
 
-            else:
-                # Direct AI fallback for cultural dishes or 0-result items
-                schema_string = json.dumps(FoodStructure.model_json_schema())
+            # else:
+            #     # Direct AI fallback for cultural dishes or 0-result items
+            #     schema_string = json.dumps(FoodStructure.model_json_schema())
 
-                system_instructions = (
-                    f"You are an expert nutritionist and precise calorie calculator. "
-                    f"The user will provide a meal description. Calculate the macros step-by-step for '{
-                        clean_food_text}': "
-                    f"identify each distinct ingredient, recall its nutritional values for the exact quantity/measurement provided, "
-                    f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {
-                        schema_string}. "
-                    f"CRITICAL: Return ONLY a flat JSON object matching schema: {
-                        schema_string}. Do NOT wrap your response in a 'properties' key. "
-                    f"IMPORTANT: If the user specifies a past date (like 6/10/26) or meal type (like lunch), extract them into 'extracted_date' (YYYY-MM-DD) and 'extracted_meal_type'."
-                )
+            #     system_instructions = (
+            #         f"You are an expert nutritionist and precise calorie calculator. "
+            #         f"The user will provide a meal description. Calculate the macros step-by-step for '{
+            #             clean_food_text}': "
+            #         f"identify each distinct ingredient, recall its nutritional values for the exact quantity/measurement provided, "
+            #         f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {
+            #             schema_string}. "
+            #         f"CRITICAL: Return ONLY a flat JSON object matching schema: {
+            #             schema_string}. Do NOT wrap your response in a 'properties' key. "
+            #         f"IMPORTANT: If the user specifies a past date (like 6/10/26) or meal type (like lunch), extract them into 'extracted_date' (YYYY-MM-DD) and 'extracted_meal_type'."
+            #     )
 
-                response = groq_client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": system_instructions},
-                        {"role": "user", "content": f"Analyze this meal text: '{
-                            clean_food_text}'"}
-                    ],
-                    model="openai/gpt-oss-120b",
-                    response_format={"type": "json_object"}
-                )
+            #     response = groq_client.chat.completions.create(
+            #         messages=[
+            #             {"role": "system", "content": system_instructions},
+            #             {"role": "user", "content": f"Analyze this meal text: '{
+            #                 clean_food_text}'"}
+            #         ],
+            #         model="openai/gpt-oss-120b",
+            #         response_format={"type": "json_object"}
+            #     )
 
-                response_dict = json.loads(response.choices[0].message.content)
-                clean_dict = {k: v for k,
-                              v in response_dict.items() if v is not None}
-                food_data = FoodStructure.model_validate(clean_dict)
-                await process_and_save_meal(chat_id, food_data)
+            #     response_dict = json.loads(response.choices[0].message.content)
+            #     clean_dict = {k: v for k,
+            #                   v in response_dict.items() if v is not None}
+            #     food_data = FoodStructure.model_validate(clean_dict)
+            #     await process_and_save_meal(chat_id, food_data)
             return {"status": "success"}
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
