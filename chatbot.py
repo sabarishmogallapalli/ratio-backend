@@ -2243,14 +2243,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             lift_data.weight} lbs and push closer to {max_reps} reps."
 
                 # Append the background rest task for incomplete arrays
-                background_tasks.add_task(
-                    delayed_rest_reminder,
-                    chat_id=chat_id,
-                    exercise_name=exercise,
-                    next_set=next_set_count,
-                    target_desc=f"{max_reps} reps",
-                    next_set_advice=next_set_advice
-                )
+            background_tasks.add_task(
+                delayed_rest_reminder,
+                chat_id=chat_id,
+                exercise_name=exercise,
+                next_set=next_set_count,
+                target_desc=f"{max_reps} reps",
+                next_set_advice=next_set_advice
+            )
 
             # Update your final reply to include the dynamic next set advice
             reply_msg = (
