@@ -973,7 +973,6 @@ async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None
 
 
 async def get_usda_macros(food_query: str, upc: Optional[str] = None):
-    # Determine candidate queries
     queries_to_try = []
     if upc:
         clean_upc = upc.strip()
@@ -1041,7 +1040,6 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
 
 
 async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str, next_set_advice: str):
-    # 3 minute timer
     ex_data = EXERCISE_REGISTRY.get(exercise_name.lower(), {})
     rest_seconds = ex_data.get("rest_seconds", 180)
 
@@ -1073,7 +1071,6 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
 
 
 async def handle_workout_completion(chat_id: int) -> str:
-    # Handles the +1 counter and rollover logic for completed workouts.
 
     profile_res = supabase.table("user_profiles").select(
         "workouts_completed_this_week, current_week, current_phase"
@@ -1087,12 +1084,10 @@ async def handle_workout_completion(chat_id: int) -> str:
     current_week = profile.get("current_week", 1)
     current_phase = profile.get("current_phase", 1)
 
-    # 2. The Rollover Rule (Assuming 4 workouts/week target)
     if workouts_completed >= 5:
         workouts_completed = 0
         current_week += 1
 
-        # Phase rollover (Assuming 5 weeks per phase)
         if current_week > 5:
             current_week = 1
             if current_phase == "Phase 1":
@@ -1100,7 +1095,6 @@ async def handle_workout_completion(chat_id: int) -> str:
             elif current_phase == "Phase 2":
                 current_phase = "Phase 1"
 
-    # 3. Update the database
     supabase.table("user_profiles").update({
         "workouts_completed_this_week": workouts_completed,
         "current_week": current_week,
@@ -1164,7 +1158,6 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         .execute()
     )
 
-    # 1. Determine Target Working Weight for Set 1
     if not history.data:
         target_working_weight = 0
         rec_text = f"Load up 0 lbs for Set 1 today and aim for {target_max_reps} reps!"
@@ -1194,7 +1187,6 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
                  f"Keep working with *{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
             )
 
-    # 2. Dynamic Progression Schema (Runs for both new & existing histories)
     schema_lines = []
     current_weight = target_working_weight
 
@@ -1337,15 +1329,12 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             callback_data = callback["data"]
 
             if callback_data == "action_finish_workout":
-                # 1. Call the rollover function
                 reply_text = await handle_workout_completion(chat_id)
 
-                # 2. Send the success message back to the user
                 await send_telegram_reply(chat_id, reply_text)
 
                 message_id = callback["message"]["message_id"]
 
-                # 3. Answer the callback query to stop the loading spinner
                 async with httpx.AsyncClient() as http_client:
                     await http_client.post(
                         f"https://api.telegram.org/bot{
@@ -1364,7 +1353,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     )
                 return {"status": "success"}
 
-            # 1. HANDLE WEAK POINTS FIRST (Does not require PENDING_LOGS)
             if callback_data.startswith("wp_") and not callback_data.startswith("wp_ex_"):
                 wp_key = callback_data.replace("wp_", "")
                 if wp_key in WEAK_POINTS_TABLE:
@@ -1397,7 +1385,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             json={"callback_query_id": callback["id"]}
                         )
                 return {"status": "success"}
-            # 2. HANDLE PHASE WORKOUT CHECKLIST BUTTONS (Does not require PENDING_LOGS)
             workout_prefixes = ["p1u1_", "p1u2_", "p1l1_", "p1l2_",
                                 "p1a_", "p2u1_", "p2u2_", "p2l1_", "p2l2_", "p2a_", "wp_ex_"]
             if any(callback_data.startswith(p) for p in workout_prefixes):
@@ -1425,7 +1412,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery", json={"callback_query_id": callback["id"]})
                 return {"status": "success"}
 
-            # 3. MEAL LOGGING GUARD (Everything below this requires PENDING_LOGS)
             if chat_id not in PENDING_LOGS:
                 await send_telegram_reply(chat_id, "Session expired. Please re-enter your meal.")
                 return {"status": "success"}
@@ -1472,7 +1458,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 })
             return {"status": "success"}
 
-        # --- MESSAGE HANDLING SECTION ---
         message = payload.get("message", {})
         chat_id = message.get("chat", {}).get("id")
         user_text = message.get("text", "").strip()
@@ -1970,12 +1955,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             protein = int(weight * 1.0)
             fat = int(weight * 0.3)
 
-            # Carbs = (Total Calories - Protein Calories - Fat Calories) / 4
             carbs = int((cals - (protein * 4) - (fat * 9)) / 4)
 
             central_tz = zoneinfo.ZoneInfo("America/Chicago")
 
-            # Upsert directly to Supabase using the math we just did
             supabase.table("user_profiles").upsert({
                 "chat_id": chat_id,
                 "current_weight_lbs": weight,
@@ -2021,24 +2004,20 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "meal:", "").replace("m:", "").strip()
             import re
 
-            # Catch 8 to 14 digit barcodes
             raw_upc_match = re.search(r'\b\d{8,14}\b', clean_food_text)
             direct_upc = raw_upc_match.group(0) if raw_upc_match else None
 
             usda_results = []
             display_query = ""
 
-            # --- TIER 1: UPC Direct Lookup ---
             if direct_upc:
                 usda_results = await get_usda_macros("", upc=direct_upc)
                 display_query = f"UPC {direct_upc}"
 
-                # SAFETY NET: Prevent the AI from hallucinating if USDA doesn't know the barcode
                 if not usda_results and clean_food_text.replace(direct_upc, "").strip() == "":
                     await send_telegram_reply(chat_id, f"⚠️ Barcode {direct_upc} not found!\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
                     return {"status": "success"}
 
-            # --- TIER 2: LLM Classifier & Text Search (Only if no UPC match) ---
             if not usda_results:
                 classification_prompt = (
                     "You are an expert food query router for a nutrition engine. "
@@ -2068,7 +2047,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     usda_results = await get_usda_macros(search_query)
                     display_query = search_query
 
-            # --- TIER 3: Results or AI Fallback ---
             if usda_results:
                 PENDING_LOGS[chat_id] = {
                     "raw_text": clean_food_text,
@@ -2090,38 +2068,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 keyboard["inline_keyboard"].append(
                     [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
                 await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
-
-            # else:
-            #     # Direct AI fallback for cultural dishes or 0-result items
-            #     schema_string = json.dumps(FoodStructure.model_json_schema())
-
-            #     system_instructions = (
-            #         f"You are an expert nutritionist and precise calorie calculator. "
-            #         f"The user will provide a meal description. Calculate the macros step-by-step for '{
-            #             clean_food_text}': "
-            #         f"identify each distinct ingredient, recall its nutritional values for the exact quantity/measurement provided, "
-            #         f"and sum total calories, protein, carbs, and fat. Return ONLY a valid JSON object matching this schema exactly: {
-            #             schema_string}. "
-            #         f"CRITICAL: Return ONLY a flat JSON object matching schema: {
-            #             schema_string}. Do NOT wrap your response in a 'properties' key. "
-            #         f"IMPORTANT: If the user specifies a past date (like 6/10/26) or meal type (like lunch), extract them into 'extracted_date' (YYYY-MM-DD) and 'extracted_meal_type'."
-            #     )
-
-            #     response = groq_client.chat.completions.create(
-            #         messages=[
-            #             {"role": "system", "content": system_instructions},
-            #             {"role": "user", "content": f"Analyze this meal text: '{
-            #                 clean_food_text}'"}
-            #         ],
-            #         model="openai/gpt-oss-120b",
-            #         response_format={"type": "json_object"}
-            #     )
-
-            #     response_dict = json.loads(response.choices[0].message.content)
-            #     clean_dict = {k: v for k,
-            #                   v in response_dict.items() if v is not None}
-            #     food_data = FoodStructure.model_validate(clean_dict)
-            #     await process_and_save_meal(chat_id, food_data)
             return {"status": "success"}
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
@@ -2219,13 +2165,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 if is_reverse_pyramid:
                     next_targets = sets_config.get(
                         next_set_count, curr_targets)
-                    drop_weight = max(0, lift_data.weight - increment)
+                    # drop_weight = max(0, lift_data.weight - increment)
                     next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target is {next_targets['max_reps']} reps."
                     # next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target {
                     #     drop_weight} lbs for {next_targets['max_reps']} reps."
                 elif is_assisted:
                     if lift_data.reps >= max_reps:
-                        next_weight = max(0, lift_data.weight - increment)
+                        # next_weight = max(0, lift_data.weight - increment)
                         next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance."
                         # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {
                         #     next_weight} lbs."
@@ -2234,7 +2180,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             lift_data.weight} lbs assistance and push closer to {max_reps} reps."
                 else:
                     if lift_data.reps >= max_reps:
-                        next_weight = lift_data.weight + increment
+                        # next_weight = lift_data.weight + increment
                         next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
                         # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to {
                         #     next_weight} lbs for Set {next_set_count}."
@@ -2242,7 +2188,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         next_set_advice = f"\n\n *Next Set Target:* Hold {
                             lift_data.weight} lbs and push closer to {max_reps} reps."
 
-                # Append the background rest task for incomplete arrays
             background_tasks.add_task(
                 delayed_rest_reminder,
                 chat_id=chat_id,
@@ -2252,7 +2197,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 next_set_advice=next_set_advice
             )
 
-            # Update your final reply to include the dynamic next set advice
             reply_msg = (
                 f" *{exercise.title()}* - Set {set_count}\n"
                 f" {lift_data.weight} lbs × {lift_data.reps} reps\n\n"
