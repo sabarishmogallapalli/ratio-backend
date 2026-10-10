@@ -1,7 +1,3 @@
-# Meal tracker
-# Auto-categorization (breakfast, lunch, dinner)
-# Exercise tracker
-# History Dashboard -- React
 from fastapi import FastAPI, Request, BackgroundTasks
 from google import genai
 from google.genai import types
@@ -2149,7 +2145,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             ex_info = EXERCISE_REGISTRY.get(exercise, {})
             sets_config = ex_info.get("sets", {})
             total_target_sets = len(sets_config)
-            intensity_advice = ex_info.get("advice", "")
+            # intensity_advice = ex_info.get("advice", "")
             if set_count >= total_target_sets:
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 next_set_advice = f"*Exercise Complete!* {
@@ -2160,7 +2156,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 next_set_count = set_count + 1
                 curr_targets = sets_config.get(
                     set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
-                increment = curr_targets.get("increment", 5)
+                # increment = curr_targets.get("increment", 5)
                 max_reps = curr_targets.get("max_reps", 12)
 
                 is_reverse_pyramid = any(ex in exercise for ex in [
