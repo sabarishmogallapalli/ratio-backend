@@ -1872,13 +1872,19 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
         if "note" in user_text.lower():
             raw_note = user_text.split("note:", 1)[1].strip()
-            if raw_note:
+            active_ex = ACTIVE_EXERCISE_SESSIONS.get(chat_id)
+            if raw_note and active_ex:
                 supabase.table("user_exercise_notes").upsert({
                     "chat_id": chat_id,
-                    "exercise_name": exercise_name.lower().strip(),
+                    "exercise_name": active_ex.lower().strip(),
                     "note": raw_note,
                     "updated_at": datetime.now(central_tz).isoformat()
                 }).execute()
+                await send_telegram_reply(chat_id, f"Note saved")
+                return {"status": "success"}
+            elif not active_ex:
+                await send_telegram_reply(chat_id, "Please select or log an exercise first before adding a note!")
+                return {"status": "success"}
 
         if user_text.lower() == "/profile":
             profile_instructions = (
