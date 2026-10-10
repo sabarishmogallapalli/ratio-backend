@@ -2107,7 +2107,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"status": "success"}
 
             if lift_data.reps == 0:
-                reply = await build_exercise_session_targets(exercise)
+                reply = await build_exercise_session_targets(exercise, chat_id)
                 await send_telegram_reply(chat_id, reply)
                 return {"status": "success"}
 
