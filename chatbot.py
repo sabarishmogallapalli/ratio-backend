@@ -1609,7 +1609,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "sissy squat (super set with machine hip adduction) (10-12 reps) (3 sets)",
                       "callback_data": "p1l2_sissy-squat"}],
                     [{"text": "seated calf raise (10-12 reps) (3 sets)",
-                        "callback_data": "p1l2_standing-calf-raise"}],
+                        "callback_data": "p1l2_seated-calf-raise"}],
 
                     [{"text": "Finish Workout",
                       "callback_data": "action_finish_workout"}],
