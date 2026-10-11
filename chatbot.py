@@ -1495,7 +1495,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             welcome_message = "Welcome to the workout and meal tracker: Type '/meal' to log a nutrition, '/profile' for baseline body stats and in-body scans, or the specific phase and area '/phase_1_upper_1'"
             await send_telegram_reply(chat_id, welcome_message)
             return {"status": "success"}
-        if user_text.lower() == ("/test_exercise"):
+        if user_text.lower() == ("/phase_test_exercise"):
             test_msg_text = f"JEFF NIPPARD TEST EXERCISE\n\n Phase {current_phase} (Week {current_week})\n" \
                             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n" \
                             "test exercise (10-12 reps) (3 sets)\n\n" \
