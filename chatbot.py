@@ -1502,7 +1502,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             test_keyboard = {
                 "inline_keyboard": [
                     [{"text": "test exercise",
-                      "callback_data": "test test exercise"}],
+                      "callback_data": "test_test exercise"}],
                     [{"text": "Finish Workout",
                         "callback_data": "action_finish_workout"}],
                 ]
