@@ -1634,8 +1634,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_l2_msg_text, reply_markup=p1_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_arms"):
-            p1_wp1_msg_text = f"JEFF NIPPARD PHASE 1 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week})\n"
-            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n Weak Point Exercise (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
+            p1_wp1_msg_text = f"JEFF NIPPARD PHASE 1 WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week})\n" \
+                              "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n Weak Point Exercise (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
             p1_wp1_keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders (8-12 reps) (3 sets)",
@@ -1666,7 +1666,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ]
             }
             await send_telegram_reply(chat_id, p1_wp1_msg_text, reply_markup=p1_wp1_keyboard)
-            p1_arms_text = "bayesian cable curl (10-12 reps) (3 sets)\n\n"
+            p1_arms_text = "JEFF NIPPARD PHASE 1 ARMS CHECKLIST\n\n"
+            "bayesian cable curl (10-12 reps) (3 sets)\n\n"
             "seated db french press (10 reps) (3 sets)\n\n"
             "bottom-2/3 constant tension preacher curl (12-15 reps) (2 sets)\n\n"
             "cable triceps kickback (12-15 reps) (2 sets)\n\n"
