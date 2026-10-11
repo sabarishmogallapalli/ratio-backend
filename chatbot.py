@@ -40,7 +40,7 @@ def keep_alive():
 
 EXERCISE_REGISTRY = {
     # EXAMPLE - TESTING
-    "test test exercise": {
+    "test exercise": {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Sample advice.",
@@ -1502,7 +1502,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             test_keyboard = {
                 "inline_keyboard": [
                     [{"text": "test exercise",
-                      "callback_data": "test exercise"}],
+                      "callback_data": "test test exercise"}],
                     [{"text": "Finish Workout",
                         "callback_data": "action_finish_workout"}],
                 ]
