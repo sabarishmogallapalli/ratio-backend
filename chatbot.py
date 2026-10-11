@@ -39,6 +39,20 @@ def keep_alive():
 
 
 EXERCISE_REGISTRY = {
+    # EXAMPLE - TESTING
+    "test exercise": {
+        "rest_seconds": 60,
+        "warmup_sets": 1,
+        "advice": "Sample advice.",
+        "last_set":"*Myo-reps*",
+        "sets": {
+            1: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
+            2: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
+            3: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
+        },
+    },
+
+
     # PHASE 1
 
     "cuffed behind-the-back lateral raise": {
@@ -1230,6 +1244,11 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
 async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     central_tz = zoneinfo.ZoneInfo("America/Chicago")
+    if food_data.extracted_date:
+        dt = datetime.strptime(food_data.extracted_date, "%Y-%m-%d").replace(hour=12, tzinfo=central_tz)
+        created_timestamp = dt.isoformat()
+    else:
+        created_timestamp = datetime.now(central_tz).isoformat()
     meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
     created_timestamp = f"{
         food_data.extracted_date}T12:00:00-05:00" if food_data.extracted_date else datetime.now(central_tz).isoformat()
@@ -1312,6 +1331,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
 
 @app.post("/api/v1/webhook")
 async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
+    chat_id = None
     try:
         payload = await request.json()
     except Exception as e:
@@ -1381,7 +1401,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             json={"callback_query_id": callback["id"]}
                         )
                 return {"status": "success"}
-            workout_prefixes = ["p1u1_", "p1u2_", "p1l1_", "p1l2_",
+            workout_prefixes = ["test", "p1u1_", "p1u2_", "p1l1_", "p1l2_",
                                 "p1a_", "p2u1_", "p2u2_", "p2l1_", "p2l2_", "p2a_", "wp_ex_"]
             if any(callback_data.startswith(p) for p in workout_prefixes):
                 raw_slug = callback_data
@@ -1473,6 +1493,21 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text == "/start":
             welcome_message = "Welcome to the workout and meal tracker: Type '/meal' to log a nutrition, '/profile' for baseline body stats and in-body scans, or the specific phase and area '/phase_1_upper_1'"
             await send_telegram_reply(chat_id, welcome_message)
+            return {"status": "success"}
+        if user_text.lower() == ("/test_exercise"):
+            test_msg_text = f"JEFF NIPPARD PHASE 1 EXERCISE\n\n Phase {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
+            "test exercise (10-12 reps) (3 sets)\n\n"
+            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            test_keyboard = {
+                "inline_keyboard": [
+                    [{"text": "test exercise",
+                      "callback_data": "test_exercise"}],
+                    [{"text": "Finish Workout",
+                        "callback_data": "action_finish_workout"}],
+                ]
+            }
+            await send_telegram_reply(chat_id, test_msg_text, reply_markup=test_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_upper_1"):
             p1_u1_msg_text = f"JEFF NIPPARD PHASE 1 UPPER DAY 1 CHECKLIST\n\n Phase {current_phase} (Week {current_week})\n"
@@ -2150,54 +2185,79 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 next_set_advice = f"*Exercise Complete!* {
                     total_target_sets} sets logged."
-            elif set_count == total_target_sets - 1:
-                next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
             else:
                 next_set_count = set_count + 1
-                curr_targets = sets_config.get(
-                    set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
-                # increment = curr_targets.get("increment", 5)
+                curr_targets = sets_config.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
+                increment = curr_targets.get("increment", 5)
                 max_reps = curr_targets.get("max_reps", 12)
 
-                is_reverse_pyramid = any(ex in exercise for ex in [
-                                         "hack squat", "smith machine squat"])
-                is_assisted = any(ex in exercise for ex in [
-                                  "assisted pull-up", "paused assisted dip"])
-
-                if is_reverse_pyramid:
-                    next_targets = sets_config.get(
-                        next_set_count, curr_targets)
-                    # drop_weight = max(0, lift_data.weight - increment)
-                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target is {next_targets['max_reps']} reps."
-                    # next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target {
-                    #     drop_weight} lbs for {next_targets['max_reps']} reps."
-                elif is_assisted:
-                    if lift_data.reps >= max_reps:
-                        # next_weight = max(0, lift_data.weight - increment)
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance."
-                        # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {
-                        #     next_weight} lbs."
-                    else:
-                        next_set_advice = f"\n\n *Next Set Target:* Hold {
-                            lift_data.weight} lbs assistance and push closer to {max_reps} reps."
+                if set_count == total_target_sets - 1:
+                    next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
                 else:
+                    # Standard progression advice for Set 1 -> Set 2
                     if lift_data.reps >= max_reps:
-                        # next_weight = lift_data.weight + increment
                         next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
-                        # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to {
-                        #     next_weight} lbs for Set {next_set_count}."
                     else:
-                        next_set_advice = f"\n\n *Next Set Target:* Hold {
-                            lift_data.weight} lbs and push closer to {max_reps} reps."
+                        next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs and push closer to {max_reps} reps."
 
-            background_tasks.add_task(
-                delayed_rest_reminder,
-                chat_id=chat_id,
-                exercise_name=exercise,
-                next_set=next_set_count,
-                target_desc=f"{max_reps} reps",
-                next_set_advice=next_set_advice
-            )
+                # Trigger rest timer for Set 1 AND Set 2 completions
+                background_tasks.add_task(
+                    delayed_rest_reminder,
+                    chat_id=chat_id,
+                    exercise_name=exercise,
+                    next_set=next_set_count,
+                    target_desc=f"{max_reps} reps",
+                    next_set_advice=next_set_advice
+                )
+
+            # elif set_count == total_target_sets - 1:
+            #     next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
+            # else:
+            #     next_set_count = set_count + 1
+            #     curr_targets = sets_config.get(
+            #         set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
+            #     # increment = curr_targets.get("increment", 5)
+            #     max_reps = curr_targets.get("max_reps", 12)
+
+            #     is_reverse_pyramid = any(ex in exercise for ex in [
+            #                              "hack squat", "smith machine squat"])
+            #     is_assisted = any(ex in exercise for ex in [
+            #                       "assisted pull-up", "paused assisted dip"])
+
+            #     if is_reverse_pyramid:
+            #         next_targets = sets_config.get(
+            #             next_set_count, curr_targets)
+            #         # drop_weight = max(0, lift_data.weight - increment)
+            #         next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target is {next_targets['max_reps']} reps."
+            #         # next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target {
+            #         #     drop_weight} lbs for {next_targets['max_reps']} reps."
+            #     elif is_assisted:
+            #         if lift_data.reps >= max_reps:
+            #             # next_weight = max(0, lift_data.weight - increment)
+            #             next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance."
+            #             # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {
+            #             #     next_weight} lbs."
+            #         else:
+            #             next_set_advice = f"\n\n *Next Set Target:* Hold {
+            #                 lift_data.weight} lbs assistance and push closer to {max_reps} reps."
+            #     else:
+            #         if lift_data.reps >= max_reps:
+            #             # next_weight = lift_data.weight + increment
+            #             next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
+            #             # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to {
+            #             #     next_weight} lbs for Set {next_set_count}."
+            #         else:
+            #             next_set_advice = f"\n\n *Next Set Target:* Hold {
+            #                 lift_data.weight} lbs and push closer to {max_reps} reps."
+
+            # background_tasks.add_task(
+            #     delayed_rest_reminder,
+            #     chat_id=chat_id,
+            #     exercise_name=exercise,
+            #     next_set=next_set_count,
+            #     target_desc=f"{max_reps} reps",
+            #     next_set_advice=next_set_advice
+            # )
 
             reply_msg = (
                 f" *{exercise.title()}* - Set {set_count}\n"
