@@ -40,7 +40,7 @@ def keep_alive():
 
 EXERCISE_REGISTRY = {
     # EXAMPLE - TESTING
-    "test exercise": {
+    "test test exercise": {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Sample advice.",
