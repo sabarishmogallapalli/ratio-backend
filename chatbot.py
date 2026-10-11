@@ -1495,14 +1495,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, welcome_message)
             return {"status": "success"}
         if user_text.lower() == ("/test_exercise"):
-            test_msg_text = f"JEFF NIPPARD PHASE 1 EXERCISE\n\n Phase {current_phase} (Week {current_week})\n"
-            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
-            "test exercise (10-12 reps) (3 sets)\n\n"
-            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
+            test_msg_text = f"JEFF NIPPARD TEST EXERCISE\n\n Phase {current_phase} (Week {current_week})\n" \
+                            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n" \
+                            "test exercise (10-12 reps) (3 sets)\n\n" \
+                            "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             test_keyboard = {
                 "inline_keyboard": [
                     [{"text": "test exercise",
-                      "callback_data": "test_exercise"}],
+                      "callback_data": "test exercise"}],
                     [{"text": "Finish Workout",
                         "callback_data": "action_finish_workout"}],
                 ]
