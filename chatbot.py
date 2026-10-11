@@ -1401,7 +1401,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             json={"callback_query_id": callback["id"]}
                         )
                 return {"status": "success"}
-            workout_prefixes = ["test", "p1u1_", "p1u2_", "p1l1_", "p1l2_",
+            workout_prefixes = ["test_", "p1u1_", "p1u2_", "p1l1_", "p1l2_",
                                 "p1a_", "p2u1_", "p2u2_", "p2l1_", "p2l2_", "p2a_", "wp_ex_"]
             if any(callback_data.startswith(p) for p in workout_prefixes):
                 raw_slug = callback_data
