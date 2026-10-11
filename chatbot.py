@@ -46,10 +46,33 @@ EXERCISE_REGISTRY = {
         "advice": "Sample advice.",
         "last_set":"*Myo-reps*",
         "sets": {
-            1: {"min_reps": 8, "max_reps": 8, "drop_percent": 0.12},
+            1: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
             3: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
-            4: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
+        },
+    },
+
+    "test assisted exercise": {
+        "rest_seconds": 60,
+        "warmup_sets": 1,
+        "advice": "Sample advice.",
+        "last_set":"*Myo-reps*",
+        "sets": {
+            1: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
+            2: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
+            3: {"min_reps": 10, "max_reps": 12, "increment": 2.5},
+        },
+    },
+
+    "test reverse pyramid exercise": {
+        "rest_seconds": 60,
+        "warmup_sets": 1,
+        "advice": "Sample advice.",
+        "last_set":"*Myo-reps*",
+        "sets": {
+            1: {"min_reps": 8, "max_reps": 8, "drop_percent": 0.12},
+            2: {"min_reps": 10, "max_reps": 12, "drop_percent": 0.12},
+            3: {"min_reps": 10, "max_reps": 12, "drop_percent": 0.12},
         },
     },
 
@@ -2192,15 +2215,28 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 curr_targets = sets_config.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
                 increment = curr_targets.get("increment", 5)
                 max_reps = curr_targets.get("max_reps", 12)
-
-                if set_count == total_target_sets - 1:
-                    next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
-                else:
-                    # Standard progression advice for Set 1 -> Set 2
+                is_reverse_pyramid = any(ex in exercise for ex in ["test reverse pyramid exercise", "hack squat", "smith machine squat"])
+                is_assisted = any(ex in exercise for ex in ["test assisted exercise", "assisted pull-up", "paused assisted dip"])
+                if is_assisted:
                     if lift_data.reps >= max_reps:
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
+                        next_weight = max(0, lift_data.weight - increment)
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {next_weight} lbs."
                     else:
-                        next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs and push closer to {max_reps} reps."
+                        next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs assistance and push closer to {max_reps} reps."
+                elif is_reverse_pyramid:
+                    next_targets = sets_config.get(next_set_count, curr_targets)
+                    drop_percent = next_targets["drop_percent"]
+                    drop_weight = round((lift_data.weight * (1 - drop_percent)) / 5) * 5
+                    next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target *{drop_weight} lbs* for *{next_targets['max_reps']} reps*."
+                else:
+                    if set_count == total_target_sets - 1:
+                        next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
+                    else:
+                        # Standard progression advice for Set 1 -> Set 2
+                        if lift_data.reps >= max_reps:
+                            next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
+                        else:
+                            next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs and push closer to {max_reps} reps."
 
                 # Trigger rest timer for Set 1 AND Set 2 completions
                 background_tasks.add_task(
