@@ -2129,7 +2129,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
                 keyboard["inline_keyboard"].append(
                     [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
-                await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
             return {"status": "success"}
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
