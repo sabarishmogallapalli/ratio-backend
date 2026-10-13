@@ -1886,7 +1886,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_arms_msg_text, reply_markup=p2_arms_keyboard)
             return {"status": "success"}
         if user_text.lower() == "/weakpoints":
-            msg_text = "Select your Weak Point for today:"
+            wp_msg_text = "Select your Weak Point for today:"
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "Shoulders", "callback_data": "wp_shoulders"}],
@@ -1906,7 +1906,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                       "callback_data": "action_finish_workout"}],
                 ]
             }
-            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+            await send_telegram_reply(chat_id, wp_msg_text, reply_markup=keyboard)
             return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
@@ -2072,6 +2072,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             usda_results = []
             display_query = ""
+            msg_text = ""
 
             if direct_upc:
                 usda_results = await get_usda_macros("", upc=direct_upc)
