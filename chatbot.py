@@ -1927,6 +1927,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
 
         if "note" in user_text.lower():
+            central_tz = zoneinfo.ZoneInfo("America/Chicago")
             raw_note = user_text.split("note:", 1)[1].strip()
             active_ex = ACTIVE_EXERCISE_SESSIONS.get(chat_id)
             if raw_note and active_ex:
