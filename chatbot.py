@@ -2126,6 +2126,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             usda_upc_results = []
             display_query = ""
             msg_text = ""
+            usda_results = []
 
             if direct_upc:
                 usda_upc_results = await get_usda_macros("", upc=direct_upc)
