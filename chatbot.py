@@ -1471,6 +1471,27 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     f"{json.dumps(
                         selected_food)}. Extract 'extracted_date' and 'extracted_meal_type' if present."
                 )
+            elif callback_data.startswith("manual_entry"):
+                PENDING_LOGS[chat_id] = {"awaiting_manual_input": True}
+                msg = (
+                    "*Manual Entry Mode*\n\n"
+                    "Reply with your meal details in this exact format:\n"
+                    "`Food Name | Calories | Protein | Carbs | Fat`\n\n"
+                    "_Example: Grilled Chicken | 450 | 40 | 10 | 8_"
+                )
+                async with httpx.AsyncClient() as http_client:
+                    # Remove the inline buttons from the old search message
+                    await http_client.post(
+                        f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageReplyMarkup",
+                        json={
+                            "chat_id": chat_id,
+                            "message_id": callback["message"]["message_id"],
+                            "reply_markup": {"inline_keyboard": []}
+                        }
+                    )
+                await send_telegram_reply(chat_id, msg)
+                return {"status": "success"}
+
             else:
                 schema_string = json.dumps(FoodStructure.model_json_schema())
                 system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal or food, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {
@@ -1513,6 +1534,38 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
         if not user_text or not chat_id:
             return {"status": "ignored"}
+
+        if chat_id in PENDING_LOGS and PENDING_LOGS[chat_id].get("awaiting_manual_input"):
+            parts = [p.strip() for p in user_text.split("|")]
+
+            if len(parts) == 5:
+                try:
+                    food_data = FoodStructure(
+                        food_name=parts[0],
+                        calories=float(parts[1]),
+                        protein=float(parts[2]),
+                        carbs=float(parts[3]),
+                        fat=float(parts[4])
+                    )
+                    # Clear pending state once parsed successfully
+                    del PENDING_LOGS[chat_id]
+                    
+                    # Direct database save — NO LLM call needed!
+                    await process_and_save_meal(chat_id, food_data)
+                    return {"status": "success"}
+
+                except ValueError:
+                    await send_telegram_reply(
+                        chat_id, 
+                        "⚠️ *Invalid numbers detected.*\nPlease reply using numbers for macros:\n`Food Name | Calories | Protein | Carbs | Fat`"
+                    )
+                    return {"status": "success"}
+            else:
+                await send_telegram_reply(
+                    chat_id, 
+                    "⚠️ *Incorrect format.*\nPlease split values using 4 pipe `|` symbols:\n`Food Name | Calories | Protein | Carbs | Fat`"
+                )
+                return {"status": "success"}
 
         if user_text == "/start":
             welcome_message = "Welcome to the workout and meal tracker: Type '/meal' to log a nutrition, '/profile' for baseline body stats and in-body scans, or the specific phase and area '/phase_1_upper_1'"
@@ -2070,19 +2123,19 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             raw_upc_match = re.search(r'\b\d{8,14}\b', clean_food_text)
             direct_upc = raw_upc_match.group(0) if raw_upc_match else None
 
-            usda_results = []
+            usda_upc_results = []
             display_query = ""
             msg_text = ""
 
             if direct_upc:
-                usda_results = await get_usda_macros("", upc=direct_upc)
+                usda_upc_results = await get_usda_macros("", upc=direct_upc)
                 display_query = f"UPC {direct_upc}"
 
-                if not usda_results and clean_food_text.replace(direct_upc, "").strip() == "":
+                if not usda_upc_results and clean_food_text.replace(direct_upc, "").strip() == "":
                     await send_telegram_reply(chat_id, f"⚠️ Barcode {direct_upc} not found!\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
                     return {"status": "success"}
 
-            if not usda_results:
+            if not usda_upc_results:
                 classification_prompt = (
                     "You are an expert food query router for a nutrition engine. "
                     f"The user logged: '{clean_food_text}'.\n"
