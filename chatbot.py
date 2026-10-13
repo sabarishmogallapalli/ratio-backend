@@ -2164,14 +2164,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     usda_results = await get_usda_macros(search_query)
                     display_query = search_query
 
+            PENDING_LOGS[chat_id] = {
+                "raw_text": clean_food_text,
+                "usda_options": usda_results or []
+            }
+
+            keyboard = {"inline_keyboard": []}
+
             if usda_results:
-                PENDING_LOGS[chat_id] = {
-                    "raw_text": clean_food_text,
-                    "usda_options": usda_results
-                }
-
-                keyboard = {"inline_keyboard": []}
-
                 msg_text = f" Found {len(usda_results)} results for {
                     display_query}.\nSelect the most accurate option to log it:"
                 for i, item in enumerate(usda_results):
@@ -2179,6 +2179,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                                   }... ({item['calories']} kcal)"
                     keyboard["inline_keyboard"].append(
                         [{"text": btn_text, "callback_data": f"usda_{i}"}])
+                else:
+                    msg_text = f"No exact USDA matches found for *'{clean_food_text}'*.\nHow would you like to log this?"
 
                 keyboard["inline_keyboard"].append(
                     [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
