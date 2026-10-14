@@ -1459,7 +1459,42 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             pending_data = PENDING_LOGS[chat_id]
             raw_text = pending_data["raw_text"]
 
-            if callback_data.startswith("usda_"):
+            if callback_data == "choice_usda":
+                usda_results = await get_usda_macros(raw_text)
+                
+                if usda_results:
+                    pending_data["usda_options"] = usda_results
+                    keyboard = {"inline_keyboard": []}
+                    msg_text = f"Found {len(usda_results)} USDA results for *{raw_text}*:\nSelect the most accurate option:"
+                    
+                    for i, item in enumerate(usda_results):
+                        clean_name = item['food_name'].replace("'", "").replace("*", "")[:28]
+                        btn_text = f"🥗 {clean_name}... ({item['calories']} kcal)"
+                        keyboard["inline_keyboard"].append([{"text": btn_text, "callback_data": f"usda_{i}"}])
+                    
+                    keyboard["inline_keyboard"].append([{"text": "🤖 Fallback to AI Estimation", "callback_data": "choice_ai"}])
+                    keyboard["inline_keyboard"].append([{"text": "✍️ Manual Macros Entry", "callback_data": "manual_entry"}])
+                else:
+                    msg_text = f"⚠️ No exact USDA matches found for *{raw_text}*.\nWould you like to use AI estimation instead?"
+                    keyboard = {
+                        "inline_keyboard": [
+                            [{"text": "🤖 Use AI Estimation", "callback_data": "choice_ai"}],
+                            [{"text": "✍️ Manual Macros Entry", "callback_data": "manual_entry"}]
+                        ]
+                    }
+
+                async with httpx.AsyncClient() as http_client:
+                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
+                        "chat_id": chat_id,
+                        "message_id": callback["message"]["message_id"],
+                        "text": msg_text,
+                        "parse_mode": "Markdown",
+                        "reply_markup": keyboard
+                    })
+                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery", json={"callback_query_id": callback["id"]})
+                return {"status": "success"}
+
+            elif callback_data.startswith("usda_"):
                 index = int(callback_data.split("_")[1])
                 selected_food = pending_data["usda_options"][index]
                 schema_string = json.dumps(FoodStructure.model_json_schema())
@@ -1470,6 +1505,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     f"Use this EXACT baseline data to calculate the final macros based on their portion: "
                     f"{json.dumps(
                         selected_food)}. Extract 'extracted_date' and 'extracted_meal_type' if present."
+                )
+            elif callback_data == "choice_ai":
+                schema_string = json.dumps(FoodStructure.model_json_schema())
+                system_instructions = (
+                    f"You are an expert nutritionist and precise calorie calculator. "
+                    f"Calculate macros for: '{raw_text}'. "
+                    f"Return ONLY a valid JSON object matching this schema exactly: {schema_string}. "
+                    "CRITICAL: Return a flat JSON object. Extract 'extracted_date' and 'extracted_meal_type' if present."
                 )
             elif callback_data.startswith("manual_entry"):
                 PENDING_LOGS[chat_id] = {"awaiting_manual_input": True}
@@ -2141,79 +2184,100 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower().startswith("meal:") or user_text.lower().startswith("m:"):
             clean_food_text = user_text.lower().replace(
                 "meal:", "").replace("m:", "").strip()
-            import re
-
-            raw_upc_match = re.search(r'\b\d{8,14}\b', clean_food_text)
-            direct_upc = raw_upc_match.group(0) if raw_upc_match else None
-
-            usda_upc_results = []
-            display_query = ""
-            msg_text = ""
-            usda_results = []
-
-            if direct_upc:
-                usda_upc_results = await get_usda_macros("", upc=direct_upc)
-                display_query = f"UPC {direct_upc}"
-
-                if not usda_upc_results and clean_food_text.replace(direct_upc, "").strip() == "":
-                    await send_telegram_reply(chat_id, f"⚠️ Barcode {direct_upc} not found!\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
-                    return {"status": "success"}
-
-            if not usda_upc_results:
-                classification_prompt = (
-                    "You are an expert food query router for a nutrition engine. "
-                    f"The user logged: '{clean_food_text}'.\n"
-                    "Analyze the meal and decide if it is likely in the USDA FoodData Central database "
-                    "(branded grocery items, raw produce, staple meats, common commercial items, foundation foods, sr legacy, fndds, experimental foods, branded foods) "
-                    "or if it is a complex home-cooked/cultural dish not standardized in USDA "
-                    "(e.g., specific Indian curries like 'spinach dal', 'fish pulusu', 'carrot fry', biryani, homemade desserts).\n\n"
-                    "Return a JSON object with two fields:\n"
-                    "- 'is_usda_compatible': boolean (true if in USDA FoodData Central Database, false if regional/home-cooked curry/dish)\n"
-                    "- 'search_query': standardized commercial search term if true (fix typos, expand brand names, strip portions), "
-                    "or empty string if false.\n"
-                    "Example JSON: {\"is_usda_compatible\": false, \"search_query\": \"\"}"
-                )
-                classifier_res = groq_client.chat.completions.create(
-                    messages=[
-                        {"role": "user", "content": classification_prompt}],
-                    model="openai/gpt-oss-20b",
-                    response_format={"type": "json_object"}
-                )
-                route_data = json.loads(
-                    classifier_res.choices[0].message.content)
-                is_usda = route_data.get("is_usda_compatible", False)
-                search_query = route_data.get("search_query", "").strip()
-
-                if is_usda and search_query:
-                    usda_results = await get_usda_macros(search_query)
-                    display_query = search_query
-
-            PENDING_LOGS[chat_id] = {
-                "raw_text": clean_food_text,
-                "usda_options": usda_results or []
-            }
-
-            keyboard = {"inline_keyboard": []}
-
-            if usda_results:
-                clean_display = display_query.replace("'", "").replace("*", "")
-                msg_text = f" Found {len(usda_results)} results for {
-                    clean_display}.\nSelect the most accurate option to log it:"
-                for i, item in enumerate(usda_results):
-                    clean_item_name = item['food_name'].replace("'", "").replace("*", "").replace("_", "")[:28]
-                    btn_text = f"{clean_item_name}... ({item['calories']} kcal)"
-                    keyboard["inline_keyboard"].append(
-                        [{"text": btn_text, "callback_data": f"usda_{i}"}])
-                else:
-                    clean_input = clean_food_text.replace("'", "").replace("*", "")
-                    msg_text = f"No exact USDA matches found for *'{clean_input}'*.\nHow would you like to log this?"
-
-                keyboard["inline_keyboard"].append(
-                    [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
-                keyboard["inline_keyboard"].append(
-                    [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
-                await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+            if not clean_food_text:
+                await send_telegram_reply(chat_id, "Please include a meal description. Example: `m: chipotle bowl`")
                 return {"status": "success"}
+
+            # Save raw text to pending state
+            PENDING_LOGS[chat_id] = {"raw_text": clean_food_text}
+
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "🗄️ USDA Database Search", "callback_data": "choice_usda"}],
+                    [{"text": "🤖 AI Estimation", "callback_data": "choice_ai"}],
+                    [{"text": "✍️ Manual Entry", "callback_data": "manual_entry"}]
+                ]
+            }
+    
+            await send_telegram_reply(
+                chat_id, 
+                f"Logging: *{clean_food_text}*\n\nHow would you like to process this?", 
+                reply_markup=keyboard
+            )
+            return {"status": "success"}
+            # import re
+
+            # raw_upc_match = re.search(r'\b\d{8,14}\b', clean_food_text)
+            # direct_upc = raw_upc_match.group(0) if raw_upc_match else None
+
+            # usda_upc_results = []
+            # display_query = ""
+            # msg_text = ""
+            # usda_results = []
+
+            # if direct_upc:
+            #     usda_upc_results = await get_usda_macros("", upc=direct_upc)
+            #     display_query = f"UPC {direct_upc}"
+
+            #     if not usda_upc_results and clean_food_text.replace(direct_upc, "").strip() == "":
+            #         await send_telegram_reply(chat_id, f"⚠️ Barcode {direct_upc} not found!\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
+            #         return {"status": "success"}
+
+            # if not usda_upc_results:
+            #     classification_prompt = (
+            #         "You are an expert food query router for a nutrition engine. "
+            #         f"The user logged: '{clean_food_text}'.\n"
+            #         "Analyze the meal and decide if it is likely in the USDA FoodData Central database "
+            #         "(branded grocery items, raw produce, staple meats, common commercial items, foundation foods, sr legacy, fndds, experimental foods, branded foods) "
+            #         "or if it is a complex home-cooked/cultural dish not standardized in USDA "
+            #         "(e.g., specific Indian curries like 'spinach dal', 'fish pulusu', 'carrot fry', biryani, homemade desserts).\n\n"
+            #         "Return a JSON object with two fields:\n"
+            #         "- 'is_usda_compatible': boolean (true if in USDA FoodData Central Database, false if regional/home-cooked curry/dish)\n"
+            #         "- 'search_query': standardized commercial search term if true (fix typos, expand brand names, strip portions), "
+            #         "or empty string if false.\n"
+            #         "Example JSON: {\"is_usda_compatible\": false, \"search_query\": \"\"}"
+            #     )
+            #     classifier_res = groq_client.chat.completions.create(
+            #         messages=[
+            #             {"role": "user", "content": classification_prompt}],
+            #         model="openai/gpt-oss-20b",
+            #         response_format={"type": "json_object"}
+            #     )
+            #     route_data = json.loads(
+            #         classifier_res.choices[0].message.content)
+            #     is_usda = route_data.get("is_usda_compatible", False)
+            #     search_query = route_data.get("search_query", "").strip()
+
+            #     if is_usda and search_query:
+            #         usda_results = await get_usda_macros(search_query)
+            #         display_query = search_query
+
+            # PENDING_LOGS[chat_id] = {
+            #     "raw_text": clean_food_text,
+            #     "usda_options": usda_results or []
+            # }
+
+            # keyboard = {"inline_keyboard": []}
+
+            # if usda_results:
+            #     clean_display = display_query.replace("'", "").replace("*", "")
+            #     msg_text = f" Found {len(usda_results)} results for {
+            #         clean_display}.\nSelect the most accurate option to log it:"
+            #     for i, item in enumerate(usda_results):
+            #         clean_item_name = item['food_name'].replace("'", "").replace("*", "").replace("_", "")[:28]
+            #         btn_text = f"{clean_item_name}... ({item['calories']} kcal)"
+            #         keyboard["inline_keyboard"].append(
+            #             [{"text": btn_text, "callback_data": f"usda_{i}"}])
+            #     else:
+            #         clean_input = clean_food_text.replace("'", "").replace("*", "")
+            #         msg_text = f"No exact USDA matches found for *'{clean_input}'*.\nHow would you like to log this?"
+
+            #     keyboard["inline_keyboard"].append(
+            #         [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
+            #     keyboard["inline_keyboard"].append(
+            #         [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
+            #     await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+            #     return {"status": "success"}
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
         is_workout = any(w in user_text.lower() for w in base_keywords) or any(normalize_str(k) in normalize_str(user_text)
