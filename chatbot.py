@@ -1472,14 +1472,14 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         btn_text = f"🥗 {clean_name}... ({item['calories']} kcal)"
                         keyboard["inline_keyboard"].append([{"text": btn_text, "callback_data": f"usda_{i}"}])
                     
-                    keyboard["inline_keyboard"].append([{"text": "🤖 Fallback to AI Estimation", "callback_data": "choice_ai"}])
-                    keyboard["inline_keyboard"].append([{"text": "✍️ Manual Macros Entry", "callback_data": "manual_entry"}])
+                    keyboard["inline_keyboard"].append([{"text": "Fallback to AI Estimation", "callback_data": "choice_ai"}])
+                    keyboard["inline_keyboard"].append([{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
                 else:
-                    msg_text = f"⚠️ No exact USDA matches found for *{raw_text}*.\nWould you like to use AI estimation instead?"
+                    msg_text = f"No exact USDA matches found for *{raw_text}*.\n Try with a different description or Would you like to use AI estimation instead?"
                     keyboard = {
                         "inline_keyboard": [
-                            [{"text": "🤖 Use AI Estimation", "callback_data": "choice_ai"}],
-                            [{"text": "✍️ Manual Macros Entry", "callback_data": "manual_entry"}]
+                            [{"text": "Use AI Estimation", "callback_data": "choice_ai"}],
+                            [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}]
                         ]
                     }
 
@@ -2021,7 +2021,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             # Send a reply with inline buttons to trigger the callback_query routing
             meal_keyboard = {
                 "inline_keyboard": [
-                    [{"text": "Calculate Macros (AI)", "callback_data": "process_llm"}],
+                    [{"text": "USDA Search", "callback_data": ""}]
+
+                    [{"text": "USDA Database Search", "callback_data": "choice_usda"}],
+                    [{"text": "AI Estimation", "callback_data": "choice_ai"}],
                     [{"text": "Manual Entry", "callback_data": "manual_entry"}]
                 ]
             }
@@ -2193,9 +2196,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "🗄️ USDA Database Search", "callback_data": "choice_usda"}],
-                    [{"text": "🤖 AI Estimation", "callback_data": "choice_ai"}],
-                    [{"text": "✍️ Manual Entry", "callback_data": "manual_entry"}]
+                    [{"text": "USDA Database Search", "callback_data": "choice_usda"}],
+                    [{"text": "AI Estimation", "callback_data": "choice_ai"}],
+                    [{"text": "Manual Entry", "callback_data": "manual_entry"}]
                 ]
             }
     
