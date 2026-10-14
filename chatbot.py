@@ -1514,7 +1514,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     f"Return ONLY a valid JSON object matching this schema exactly: {schema_string}. "
                     "CRITICAL: Return a flat JSON object. Extract 'extracted_date' and 'extracted_meal_type' if present."
                 )
-            elif callback_data.startswith("manual_entry"):
+            elif callback_data == "manual_entry":
                 PENDING_LOGS[chat_id] = {"awaiting_manual_input": True}
                 msg = (
                     "*Manual Entry Mode*\n\n"
@@ -1535,10 +1535,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 await send_telegram_reply(chat_id, msg)
                 return {"status": "success"}
 
-            else:
-                schema_string = json.dumps(FoodStructure.model_json_schema())
-                system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal or food, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {
-                    schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'. IMPORTANT: If the food item is branded query for documented nutritional facts regarding that item and adjust based on quantity."
+            # else:
+            #     schema_string = json.dumps(FoodStructure.model_json_schema())
+            #     system_instructions = f"You are an expert nutritionist and precise calorie calculator. The user will provide a meal or food, often with specific quantities, measurements, and brands. You MUST calculate the macros step-by-step: identify each distinct ingredient, recall its specific nutritional values for the exact quantity/measurement provided, and sum the total calories, protein, carbs, and fat together. Return ONLY a valid JSON object matching this schema exactly: {
+            #         schema_string}. CRITICAL: Return a flat JSON object. Do NOT wrap your response in a 'properties' key. IMPORTANT: If the user specifies a past date (like 6/10/26) or a meal type (like lunch), extract them into 'extracted_date' (format as YYYY-MM-DD) and 'extracted_meal_type'. IMPORTANT: If the food item is branded query for documented nutritional facts regarding that item and adjust based on quantity."
 
             response = groq_client.chat.completions.create(
                 messages=[
