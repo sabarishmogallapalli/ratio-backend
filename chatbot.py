@@ -2021,8 +2021,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             # Send a reply with inline buttons to trigger the callback_query routing
             meal_keyboard = {
                 "inline_keyboard": [
-                    [{"text": "USDA Search", "callback_data": ""}]
-
                     [{"text": "USDA Database Search", "callback_data": "choice_usda"}],
                     [{"text": "AI Estimation", "callback_data": "choice_ai"}],
                     [{"text": "Manual Entry", "callback_data": "manual_entry"}]
