@@ -2173,22 +2173,24 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = {"inline_keyboard": []}
 
             if usda_results:
+                clean_display = display_query.replace("'", "").replace("*", "")
                 msg_text = f" Found {len(usda_results)} results for {
-                    display_query}.\nSelect the most accurate option to log it:"
+                    clean_display}.\nSelect the most accurate option to log it:"
                 for i, item in enumerate(usda_results):
-                    btn_text = f"{item['food_name'][:30]
-                                  }... ({item['calories']} kcal)"
+                    clean_item_name = item['food_name'].replace("'", "").replace("*", "").replace("_", "")[:28]
+                    btn_text = f"{clean_item_name}... ({item['calories']} kcal)"
                     keyboard["inline_keyboard"].append(
                         [{"text": btn_text, "callback_data": f"usda_{i}"}])
                 else:
-                    msg_text = f"No exact USDA matches found for *'{clean_food_text}'*.\nHow would you like to log this?"
+                    clean_input = clean_food_text.replace("'", "").replace("*", "")
+                    msg_text = f"No exact USDA matches found for *'{clean_input}'*.\nHow would you like to log this?"
 
                 keyboard["inline_keyboard"].append(
                     [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
                 keyboard["inline_keyboard"].append(
                     [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
-            await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
-            return {"status": "success"}
+                await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
+                return {"status": "success"}
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
         is_workout = any(w in user_text.lower() for w in base_keywords) or any(normalize_str(k) in normalize_str(user_text)
