@@ -1961,6 +1961,29 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             }
             await send_telegram_reply(chat_id, wp_msg_text, reply_markup=keyboard)
             return {"status": "success"}
+        if user_text.lower().startswith("/meal") or user_text.lower().startswith("m:"):
+            # Extract the actual food text by removing the command
+            if user_text.lower().startswith("/meal"):
+                raw_food_text = user_text[5:].strip()
+            else:
+                raw_food_text = user_text[2:].strip()
+                
+            if not raw_food_text:
+                await send_telegram_reply(chat_id, "Please include the food you ate! Example: /meal 2 eggs and toast")
+                return {"status": "success"}
+
+            # Save it to the pending logs so your callback_query logic can access it
+            PENDING_LOGS[chat_id] = {"raw_text": raw_food_text}
+            
+            # Send a reply with inline buttons to trigger the callback_query routing
+            meal_keyboard = {
+                "inline_keyboard": [
+                    [{"text": "Calculate Macros (AI)", "callback_data": "process_llm"}],
+                    [{"text": "Manual Entry", "callback_data": "manual_entry"}]
+                ]
+            }
+            await send_telegram_reply(chat_id, f"Ready to log: '{raw_food_text}'. How would you like to process this?", reply_markup=meal_keyboard)
+            return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
                 "*NUTRITION LOGGING ENGINE*\n\n"
