@@ -967,21 +967,36 @@ def define_meal() -> str:
         return "snack"
 
 
-def generate_warmup_guide(warmup_count: int, working_weight: float) -> str:
+def generate_warmup_guide(warmup_count: int, working_weight: float, exercise_name: str = "") -> str:
     if warmup_count == 0 or working_weight <= 0:
         return "• *No warm-up sets required—jump straight into Working Set 1!*"
-    elif warmup_count == 1:
-        w1 = round((working_weight * 0.60) / 5) * 5
-        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps (~60%)"
+
+    is_assisted = any(x in exercise_name.lower() for x in ["assisted pull-up", "assisted dip"])
+
+    if warmup_count == 1:
+        multiplier = 1.40 if is_assisted else 0.60
+        pct_text = "~140%" if is_assisted else "~60%"
+        w1 = round((working_weight * multiplier) / 5) * 5
+        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps ({pct_text})"
     elif warmup_count == 2:
-        w1 = round((working_weight * 0.50) / 5) * 5
-        w2 = round((working_weight * 0.70) / 5) * 5
-        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps (~50%)\n• Warm-Up Set 2: {w2} lbs × 4-6 reps (~70%)"
+        m1 = 1.50 if is_assisted else 0.50
+        m2 = 1.30 if is_assisted else 0.70
+        pct1 = "~150%" if is_assisted else "~50%"
+        pct2 = "~130%" if is_assisted else "~70%"
+        w1 = round((working_weight * m1) / 5) * 5
+        w2 = round((working_weight * m2) / 5) * 5
+        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps ({pct1})\n• Warm-Up Set 2: {w2} lbs × 4-6 reps ({pct2})"
     elif warmup_count >= 3:
-        w1 = round((working_weight * 0.45) / 5) * 5
-        w2 = round((working_weight * 0.65) / 5) * 5
-        w3 = round((working_weight * 0.85) / 5) * 5
-        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps (~45%)\n• Warm-Up Set 2: {w2} lbs × 4-6 reps (~65%)\n• Warm-Up Set 3: {w3} lbs × 3-4 reps (~85%)"
+        m1 = 1.55 if is_assisted else 0.45
+        m2 = 1.35 if is_assisted else 0.65
+        m3 = 1.15 if is_assisted else 0.85
+        pct1 = "~155%" if is_assisted else "~45%"
+        pct2 = "~135%" if is_assisted else "~65%"
+        pct3 = "~115%" if is_assisted else "~85%"
+        w1 = round((working_weight * {m1}) / 5) * 5
+        w2 = round((working_weight * {m2}) / 5) * 5
+        w3 = round((working_weight * {m3}) / 5) * 5
+        return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps ({pct1})\n• Warm-Up Set 2: {w2} lbs × 4-6 reps ({pct2})\n• Warm-Up Set 3: {w3} lbs × 3-4 reps ({pct3})"
 
 
 async def send_telegram_reply(chat_id: int, text: str, reply_markup: dict = None):
@@ -1246,7 +1261,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
     if not history.data:
         warmup_guide = ""
     else:
-        warmup_guide = generate_warmup_guide(warmup_count, target_working_weight)
+        warmup_guide = generate_warmup_guide(warmup_count, target_working_weight, exercise_name)
     
     cues_block = f"Technique Cues: {intensity_advice}"
     if custom_note:
@@ -1469,7 +1484,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     
                     for i, item in enumerate(usda_results):
                         clean_name = item['food_name'].replace("'", "").replace("*", "")[:28]
-                        btn_text = f"🥗 {clean_name}... ({item['calories']} kcal)"
+                        btn_text = f"{clean_name}... ({item['calories']} kcal)"
                         keyboard["inline_keyboard"].append([{"text": btn_text, "callback_data": f"usda_{i}"}])
                     
                     keyboard["inline_keyboard"].append([{"text": "Fallback to AI Estimation", "callback_data": "choice_ai"}])
