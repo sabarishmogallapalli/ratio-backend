@@ -1549,6 +1549,29 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     )
                 await send_telegram_reply(chat_id, msg)
                 return {"status": "success"}
+            elif callback_data.startswith("history_"):
+                index = int(callback_data.split("_")[1])
+                chosen_meal = pending_data["history_options"][index]
+                
+                food_data = FoodStructure(
+                    food_name=chosen_meal["food_name"],
+                    calories=float(chosen_meal["calories"]),
+                    protein=float(chosen_meal["protein"]),
+                    carbs=float(chosen_meal["carbs"]),
+                    fat=float(chosen_meal["fat"])
+                )
+                
+                del PENDING_LOGS[chat_id]
+                await process_and_save_meal(chat_id, food_data)
+
+                async with httpx.AsyncClient() as http_client:
+                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageReplyMarkup", json={
+                        "chat_id": chat_id,
+                        "message_id": callback["message"]["message_id"],
+                        "reply_markup": {"inline_keyboard": []}
+                    })
+                    await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery", json={"callback_query_id": callback["id"]})
+                return {"status": "success"}
 
             # else:
             #     schema_string = json.dumps(FoodStructure.model_json_schema())
@@ -2019,29 +2042,60 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             }
             await send_telegram_reply(chat_id, wp_msg_text, reply_markup=keyboard)
             return {"status": "success"}
-        if user_text.lower().startswith("/meal") or user_text.lower().startswith("m:"):
+        if user_text.lower().startswith("/meal") or user_text.lower().startswith("m:") or user_text.lower().startswith("meal:"):
             # Extract the actual food text by removing the command
-            if user_text.lower().startswith("/meal"):
-                raw_food_text = user_text[5:].strip()
-            else:
-                raw_food_text = user_text[2:].strip()
+            raw_food_text = user_text.lower().replace("meal:", "").replace("m:", "").replace("/meal", "").strip()
                 
             if not raw_food_text:
-                await send_telegram_reply(chat_id, "Please include the food you ate! Example: /meal 2 eggs and toast")
+                await send_telegram_reply(chat_id, "Please include the food you ate starting with /meal or meal: or m:! Example: /meal 2 eggs and toast")
                 return {"status": "success"}
+            
+            history_res = supabase.table("food_logs") \
+                .select("food_name, calories, protein, carbs, fat") \
+                .ilike("food_name", f"%{raw_food_text}%") \
+                .limit(5) \
+                .execute()
+            keyboard_buttons = []
 
+            if history_res.data:
+                seen_names = set()
+                unique_matches = []
+                for item in history_res.data:
+                    name = item["food_name"]
+                    if name not in seen_names:
+                        seen_names.add(name)
+                        unique_matches.append(item)
+
+                msg_text = f"🔍 Found *{len(unique_matches)} matching meal(s)* in your history for '{raw_food_text}':\nTap one to re-log instantly, or choose a new method below:"
+                for item in unique_matches[:3]: # Limit to top 3 history buttons
+                    btn_label = f"📜 {item['food_name'].title()} ({item['calories']} kcal)"
+                    # We encode the chosen history item data directly or use a history tag
+                    # For simplicity, we can pass a special callback prefix like history_
+                    # Or save them in PENDING_LOGS. Let's store matches in PENDING_LOGS!
+                    pass
+
+                PENDING_LOGS[chat_id] = {
+                    "raw_text": raw_food_text,
+                    "history_options": unique_matches[:3]
+                }
+
+                for i, item in enumerate(unique_matches[:3]):
+                    btn_label = f"{item['food_name'].title()} ({item['calories']} kcal | {item['protein']}g P)"
+                    keyboard_buttons.append([{"text": btn_label, "callback_data": f"history_{i}"}])
+            else:
             # Save it to the pending logs so your callback_query logic can access it
-            PENDING_LOGS[chat_id] = {"raw_text": raw_food_text}
+                PENDING_LOGS[chat_id] = {"raw_text": raw_food_text}
+                msg_text = f"Ready to log: *{raw_food_text}*.\nNo past logs found. Choose how to process this:"
+
+            keyboard_buttons.append([{"text": "USDA Database Search", "callback_data": "choice_usda"}])
+            keyboard_buttons.append([{"text": "AI Estimation", "callback_data": "choice_ai"}])
+            keyboard_buttons.append([{"text": "Manual Entry", "callback_data": "manual_entry"}])
             
             # Send a reply with inline buttons to trigger the callback_query routing
             meal_keyboard = {
-                "inline_keyboard": [
-                    [{"text": "USDA Database Search", "callback_data": "choice_usda"}],
-                    [{"text": "AI Estimation", "callback_data": "choice_ai"}],
-                    [{"text": "Manual Entry", "callback_data": "manual_entry"}]
-                ]
+                "inline_keyboard": keyboard_buttons
             }
-            await send_telegram_reply(chat_id, f"Ready to log: '{raw_food_text}'. How would you like to process this?", reply_markup=meal_keyboard)
+            await send_telegram_reply(chat_id, msg_text, reply_markup=meal_keyboard)
             return {"status": "success"}
         if user_text.lower() == "/meal":
             meal_instructions = (
@@ -2195,31 +2249,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             )
 
             await send_telegram_reply(chat_id, reply)
-            return {"status": "success"}
-
-        if user_text.lower().startswith("meal:") or user_text.lower().startswith("m:"):
-            clean_food_text = user_text.lower().replace(
-                "meal:", "").replace("m:", "").strip()
-            if not clean_food_text:
-                await send_telegram_reply(chat_id, "Please include a meal description. Example: `m: chipotle bowl`")
-                return {"status": "success"}
-
-            # Save raw text to pending state
-            PENDING_LOGS[chat_id] = {"raw_text": clean_food_text}
-
-            keyboard = {
-                "inline_keyboard": [
-                    [{"text": "USDA Database Search", "callback_data": "choice_usda"}],
-                    [{"text": "AI Estimation", "callback_data": "choice_ai"}],
-                    [{"text": "Manual Entry", "callback_data": "manual_entry"}]
-                ]
-            }
-    
-            await send_telegram_reply(
-                chat_id, 
-                f"Logging: *{clean_food_text}*\n\nHow would you like to process this?", 
-                reply_markup=keyboard
-            )
             return {"status": "success"}
             # import re
 
