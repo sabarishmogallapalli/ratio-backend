@@ -1415,11 +1415,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                     keyboard_buttons = []
                     if isinstance(wp_data, str):
-                        reply_text = f"**{wp_key.title()
-                                          } Advice:**\n\n{wp_data}"
+                        reply_text = f"*{wp_key.title()
+                                          } Advice:*\n\n{wp_data}"
                     else:
-                        reply_text = f"**{
-                            wp_data['title']} Weak Point Options**\n\nSelect an exercise below to view its targets and cues. *Do not do all of them in one day!*"
+                        reply_text = f"*{
+                            wp_data['title']} Weak Point Options*\n\nSelect an exercise below to view its targets and cues. *Do not do all of them in one day!*"
                         for ex in wp_data['ex1']:
                             keyboard_buttons.append(
                                 [{"text": f"Ex 1: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
