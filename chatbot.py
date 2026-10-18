@@ -993,9 +993,9 @@ def generate_warmup_guide(warmup_count: int, working_weight: float, exercise_nam
         pct1 = "~155%" if is_assisted else "~45%"
         pct2 = "~135%" if is_assisted else "~65%"
         pct3 = "~115%" if is_assisted else "~85%"
-        w1 = round((working_weight * {m1}) / 5) * 5
-        w2 = round((working_weight * {m2}) / 5) * 5
-        w3 = round((working_weight * {m3}) / 5) * 5
+        w1 = round((working_weight * m1) / 5) * 5
+        w2 = round((working_weight * m2) / 5) * 5
+        w3 = round((working_weight * m3) / 5) * 5
         return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps ({pct1})\n• Warm-Up Set 2: {w2} lbs × 4-6 reps ({pct2})\n• Warm-Up Set 3: {w3} lbs × 3-4 reps ({pct3})"
 
 
