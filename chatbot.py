@@ -825,7 +825,7 @@ EXERCISE_REGISTRY = {
             3: {"min_reps": 8, "max_reps": 12, "increment": 5},
         },
     },
-    "chest press machine (incline - upper pecs, flat - entire chest)": {
+    "chest press machine (incline or flat)": {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Keep chest up and shoulders retracted. Push smoothly through palms.",
@@ -836,7 +836,7 @@ EXERCISE_REGISTRY = {
             3: {"min_reps": 8, "max_reps": 12, "increment": 5},
         },
     },
-    "dumbbell chest press (incline - upper pecs, flat - entire chest)": {
+    "dumbbell chest press (incline or flat)": {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Control negative. Deep stretch at bottom before pressing up.",
@@ -907,7 +907,7 @@ WEAK_POINTS_TABLE = {
     "chest": {
         "title": "Chest",
         "ex1": ["Low Incline Dumbbell Flye", "Low-To-High Cable Crossover"],
-        "ex2": ["Chest Press Machine (incline - upper pecs, flat - entire chest)", "Dumbbell Chest Press (incline - upper pecs, flat - entire chest)"]
+        "ex2": ["Chest Press Machine (incline or flat)", "Dumbbell Chest Press (incline or flat)"]
     },
     "neck": {
         "title": "Neck",
