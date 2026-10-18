@@ -907,7 +907,7 @@ WEAK_POINTS_TABLE = {
     "chest": {
         "title": "Chest",
         "ex1": ["Low Incline Dumbbell Flye", "Low-To-High Cable Crossover"],
-        "ex2": ["Chest Press Machine (incline if upper pecs lagging)", "Dumbbell Chest Press (incline if upper pecs lagging)"]
+        "ex2": ["Chest Press Machine (incline if upper pecs lagging, flat if entire chest is lagging)", "Dumbbell Chest Press (incline if upper pecs lagging, flat if entire chest is lagging)"]
     },
     "neck": {
         "title": "Neck",
@@ -1265,7 +1265,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
     
     cues_block = f"Technique Cues: {intensity_advice}"
     if custom_note:
-        cues_block += f"\n **Setup Note:** {custom_note}"
+        cues_block += f"\n\n **Setup Note:** {custom_note}"
 
     last_set = ex_info.get("last_set", "")
 
