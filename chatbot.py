@@ -1209,7 +1209,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
     if not history.data:
         target_working_weight = 0
-        rec_text = f"Load up 0 lbs for Set 1 today and aim for {target_max_reps} reps!"
+        rec_text = f"Load up a comfortable weight for Set 1 today and aim for {target_max_reps} reps across all sets!"
         last_session_block = (
             f"No history found for {exercise_name.title()}!\n"
             "Start with a light weight to establish your baseline today.\n\n"
@@ -1225,16 +1225,35 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
         heaviest_set = max(last_session, key=lambda x: x["weight"])
         successful_at_top = [s for s in last_session if s["reps"] >= target_max_reps]
+        last_session_sorted = sorted(last_session, key=lambda x: x["set_number"])
+        all_hit_top = all(s["reps"] >= target_max_reps for s in last_session_sorted)
 
-        if successful_at_top:
-            best_top_set = max(successful_at_top, key=lambda x: x["weight"])
-            target_working_weight = best_top_set["weight"] + increment
-            rec_text = f"*{target_working_weight} lbs* for *{target_max_reps} reps* Set 1 today!"
+        heaviest_weight = max(s["weight"] for s in last_session_sorted) if last_session_sorted else 0
+        is_assisted = any(ex in exercise_name for ex in ["test assisted exercise", "assisted pull-up", "paused assisted dip"])
+
+        if all_hit_top:
+            if is_assisted:
+                target_working_weight = max(0, heaviest_weight - increment)
+                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Reduce assistance to *{target_working_weight} lbs* across all sets today!"
+
+
+            else:
+                target_working_weight = heaviest_weight + increment
+                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Bump your working weight to *{target_working_weight} lbs* across all sets today!"
         else:
-            target_working_weight = heaviest_set["weight"]
-            rec_text = ( 
-                 f"Keep working with *{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
-            )
+            target_working_weight = heaviest_weight
+            rec_text = f"Keep the weight steady at *{target_working_weight} lbs* for all working sets today until you hit {target_max_reps} reps on every single set."
+
+
+        # if successful_at_top:
+        #     best_top_set = max(successful_at_top, key=lambda x: x["weight"])
+        #     target_working_weight = best_top_set["weight"] + increment
+        #     rec_text = f"*{target_working_weight} lbs* for *{target_max_reps} reps* Set 1 today!"
+        # else:
+        #     target_working_weight = heaviest_set["weight"]
+        #     rec_text = ( 
+        #          f"Keep working with *{target_working_weight} lbs* today until you hit *{target_max_reps} reps*!"
+        #     )
 
     schema_lines = []
     current_weight = target_working_weight
@@ -2401,12 +2420,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             if set_count >= total_target_sets:
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 next_set_advice = f"*Exercise Complete!* {
-                    total_target_sets} sets logged."
+                    total_target_sets} sets logged at {lift_data.weight} lbs."
             else:
                 next_set_count = set_count + 1
                 curr_targets = sets_config.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
                 increment = curr_targets.get("increment", 5)
                 max_reps = curr_targets.get("max_reps", 12)
+                min_reps = curr_targets.get("min_reps", 8)
                 is_reverse_pyramid = any(ex in exercise for ex in ["test reverse pyramid exercise", "hack squat", "smith machine squat"])
                 is_assisted = any(ex in exercise for ex in ["test assisted exercise", "assisted pull-up", "paused assisted dip"])
                 if is_assisted:
@@ -2421,14 +2441,28 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     drop_weight = round((lift_data.weight * (1 - drop_percent)) / 5) * 5
                     next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target *{drop_weight} lbs* for *{next_targets['max_reps']} reps*."
                 else:
-                    if set_count == total_target_sets - 1:
-                        next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
+                    if set_count == 1 and lift_data.reps < min_reps:
+                        drop_weight = max(0, lift_data.weight - 5)
+                        next_set_advice = f"\n\n *Safety Net Triggered (Too Heavy):* You got fewer than {min_reps} reps on Set 1. **Drop down to {drop_weight} lbs** for Sets 2+ to stay in the hypertrophy zone."
+                
+                    # Safety Net 2: Too Light on Set 1 (>= 15 reps / accidental warm-up)
+                    elif set_count == 1 and lift_data.reps >= 15:
+                        next_set_advice = f"\n\n *Safety Net Triggered (Too Light):* That was too easy! Treat Set 1 as a warm-up, **increase the weight** for Set 2 and use that as your baseline."
+                
+                    # Standard All-Sets Double Progression: Keep weight constant!
                     else:
-                        # Standard progression advice for Set 1 -> Set 2
                         if lift_data.reps >= max_reps:
-                            next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
+                            next_set_advice = f"\n\n *Next Set Target:* Hit the rep cap! Keep the weight at **{lift_data.weight} lbs** for Set {next_set_count} and aim for {max_reps} reps."
                         else:
-                            next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs and push closer to {max_reps} reps."
+                            next_set_advice = f"\n\n *Next Set Target:* Keep the weight steady at **{lift_data.weight} lbs** for Set {next_set_count}. Push closer to {max_reps} reps!"
+                    # if set_count == total_target_sets - 1:
+                    #     next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
+                    # else:
+                    #     # Standard progression advice for Set 1 -> Set 2
+                    #     if lift_data.reps >= max_reps:
+                    #         next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
+                    #     else:
+                    #         next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs and push closer to {max_reps} reps."
 
                 # Trigger rest timer for Set 1 AND Set 2 completions
                 background_tasks.add_task(
