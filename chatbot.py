@@ -1675,11 +1675,17 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             test_msg_text = f"JEFF NIPPARD TEST EXERCISE\n\n Phase {current_phase} (Week {current_week})\n" \
                             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n" \
                             "test exercise (10-12 reps) (3 sets)\n\n" \
+                            "test reverse pyramid exercise (8, 10, 12 reps) (3 sets)\n\n" \
+                            "test assisted exercise (10-12 reps) (3 sets)\n\n" \
                             "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             test_keyboard = {
                 "inline_keyboard": [
                     [{"text": "test exercise",
                       "callback_data": "test_test exercise"}],
+                    [{"text": "test reverse pyramid exercise",
+                      "callback_data": "test_test reverse pyramid exercise"}],
+                    [{"text": "test assisted exercise",
+                      "callback_data": "test_test assisted exercise"}],
                     [{"text": "Finish Workout",
                         "callback_data": "action_finish_workout"}],
                 ]
