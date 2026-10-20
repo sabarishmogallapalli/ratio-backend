@@ -1234,12 +1234,12 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         if all_hit_top:
             if is_assisted:
                 target_working_weight = max(0, heaviest_weight - increment)
-                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Reduce assistance to *{target_working_weight} lbs* across all sets today!"
+                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Reduce assistance by next smallest decrement to use across all sets today!"
 
 
             else:
                 target_working_weight = heaviest_weight + increment
-                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Bump your working weight to *{target_working_weight} lbs* across all sets today!"
+                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Bump your working weight to next smallest increment to use across all sets today!"
         else:
             target_working_weight = heaviest_weight
             rec_text = f"Keep the weight steady at *{target_working_weight} lbs* for all working sets today until you hit {target_max_reps} reps on every single set."
@@ -2432,7 +2432,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 if is_assisted:
                     if lift_data.reps >= max_reps:
                         next_weight = max(0, lift_data.weight - increment)
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {next_weight} lbs."
+                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance by next smallest decrement lbs."
                     else:
                         next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs assistance and push closer to {max_reps} reps."
                 elif is_reverse_pyramid:
