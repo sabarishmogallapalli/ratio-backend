@@ -976,15 +976,15 @@ def generate_warmup_guide(warmup_count: int, working_weight: float, exercise_nam
     if warmup_count == 1:
         multiplier = 1.40 if is_assisted else 0.60
         pct_text = "~140%" if is_assisted else "~60%"
-        w1 = round((working_weight * multiplier) / 5) * 5
+        w1 = round((working_weight * multiplier) / 2.5) * 2.5
         return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps ({pct_text})"
     elif warmup_count == 2:
         m1 = 1.50 if is_assisted else 0.50
         m2 = 1.30 if is_assisted else 0.70
         pct1 = "~150%" if is_assisted else "~50%"
         pct2 = "~130%" if is_assisted else "~70%"
-        w1 = round((working_weight * m1) / 5) * 5
-        w2 = round((working_weight * m2) / 5) * 5
+        w1 = round((working_weight * m1) / 2.5) * 2.5
+        w2 = round((working_weight * m2) / 2.5) * 2.5
         return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps ({pct1})\n• Warm-Up Set 2: {w2} lbs × 4-6 reps ({pct2})"
     elif warmup_count >= 3:
         m1 = 1.55 if is_assisted else 0.45
@@ -993,9 +993,9 @@ def generate_warmup_guide(warmup_count: int, working_weight: float, exercise_nam
         pct1 = "~155%" if is_assisted else "~45%"
         pct2 = "~135%" if is_assisted else "~65%"
         pct3 = "~115%" if is_assisted else "~85%"
-        w1 = round((working_weight * m1) / 5) * 5
-        w2 = round((working_weight * m2) / 5) * 5
-        w3 = round((working_weight * m3) / 5) * 5
+        w1 = round((working_weight * m1) / 2.5) * 2.5
+        w2 = round((working_weight * m2) / 2.5) * 2.5
+        w3 = round((working_weight * m3) / 2.5) * 2.5
         return f"• Warm-Up Set 1: {w1} lbs × 6-10 reps ({pct1})\n• Warm-Up Set 2: {w2} lbs × 4-6 reps ({pct2})\n• Warm-Up Set 3: {w3} lbs × 3-4 reps ({pct3})"
 
 
@@ -1267,7 +1267,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         elif "drop_percent" in data:
             if current_weight > 0:
                 drop_pct = data["drop_percent"]
-                current_weight = round((current_weight * (1 - drop_pct)) / 5) * 2.5
+                current_weight = round((current_weight * (1 - drop_pct)) / 2.5) * 2.5
                 schema_lines.append(f"• Set {s}: {min_reps} - {max_reps} reps")
             else:
                 schema_lines.append(f"• Set {s}: {min_reps} - {max_reps} reps")
@@ -2444,7 +2444,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 elif is_reverse_pyramid:
                     next_targets = sets_config.get(next_set_count, curr_targets)
                     drop_percent = next_targets["drop_percent"]
-                    drop_weight = round((lift_data.weight * (1 - drop_percent)) / 5) * 5
+                    drop_weight = round((lift_data.weight * (1 - drop_percent)) / 2.5) * 2.5
                     next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target *{drop_weight} lbs* for *{next_targets['max_reps']} reps*."
                 else:
                     if set_count == 1 and lift_data.reps < min_reps:
