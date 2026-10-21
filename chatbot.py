@@ -936,8 +936,8 @@ class WorkoutStructure(BaseModel):
     exercise_name: str
     weight: float = 0.0
     reps: int = 0
-    is_warmup: bool = Field(
-        default=False, description="True if the user indicates this is a warm-up set.")
+    # is_warmup: bool = Field(
+    #     default=False, description="True if the user indicates this is a warm-up set.")
 
 
 def normalize_str(s: str) -> str:
@@ -1098,7 +1098,6 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
     existing_sets = supabase.table("exercise_logs") \
         .select("id") \
         .eq("exercise_name", exercise_name) \
-        .eq("is_warmup", False) \
         .gte("created_at", today_str) \
         .execute()
 
@@ -2362,7 +2361,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             schema_string = json.dumps(WorkoutStructure.model_json_schema())
             official_names = ", ".join(EXERCISE_REGISTRY.keys())
             system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {
-                official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both. If the user indicates this set is a warm-up (e.g. 'warmup', 'wu', 'warm up'), set 'is_warmup' to true."
+                official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both."
             response = groq_client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": system_instructions},
@@ -2396,7 +2395,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 .eq("exercise_name", exercise) \
                 .gte("created_at", today_str) \
                 .execute()
-            set_count = 0 if lift_data.is_warmup else len(
+            set_count = len(
                 existing_sets.data) + 1
 
             central_tz = zoneinfo.ZoneInfo("America/Chicago")
@@ -2405,19 +2404,19 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "weight": lift_data.weight,
                 "reps": lift_data.reps,
                 "set_number": set_count,
-                "is_warmup": lift_data.is_warmup,
+                # "is_warmup": lift_data.is_warmup,
                 "created_at": datetime.now(central_tz).isoformat()
             }).execute()
 
-            if lift_data.is_warmup:
-                reply_msg = (
-                    f"Warm-Up Set Tracked:\n"
-                    f"*{exercise.title()
-                        }* - {lift_data.weight} lbs × {lift_data.reps} reps\n"
-                    f"*(This does not trigger rest timers or affect working set counts)*"
-                )
-                await send_telegram_reply(chat_id, reply_msg)
-                return {"status": "success"}
+            # if lift_data.is_warmup:
+            #     reply_msg = (
+            #         f"Warm-Up Set Tracked:\n"
+            #         f"*{exercise.title()
+            #             }* - {lift_data.weight} lbs × {lift_data.reps} reps\n"
+            #         f"*(This does not trigger rest timers or affect working set counts)*"
+            #     )
+            #     await send_telegram_reply(chat_id, reply_msg)
+            #     return {"status": "success"}
 
             ex_info = EXERCISE_REGISTRY.get(exercise, {})
             sets_config = ex_info.get("sets", {})
