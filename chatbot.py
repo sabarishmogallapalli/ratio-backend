@@ -276,15 +276,15 @@ EXERCISE_REGISTRY = {
             3: {"min_reps": 12, "max_reps": 15, "increment": 5},
         },
     },
-    "cable reverse flye (mechanical dropset)": {
+    "cable reverse flye (mechanical dropset on all sets)": {
         "rest_seconds": 60,
         "warmup_sets": 0,
         "advice": "*Mechanical Dropset:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
         "last_set":"",
         "sets": {
-            1: {"min_reps": 5, "max_reps": 5, "increment": 5},
-            2: {"min_reps": 5, "max_reps": 5, "increment": 5},
-            3: {"min_reps": 5, "max_reps": 5, "increment": 5},
+            1: {"min_reps": 12, "max_reps": 12, "increment": 5},
+            2: {"min_reps": 12, "max_reps": 12, "increment": 5},
+            3: {"min_reps": 12, "max_reps": 12, "increment": 5},
         },
     },
     "lying leg curl": {
