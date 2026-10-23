@@ -2274,79 +2274,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             await send_telegram_reply(chat_id, reply)
             return {"status": "success"}
-            # import re
-
-            # raw_upc_match = re.search(r'\b\d{8,14}\b', clean_food_text)
-            # direct_upc = raw_upc_match.group(0) if raw_upc_match else None
-
-            # usda_upc_results = []
-            # display_query = ""
-            # msg_text = ""
-            # usda_results = []
-
-            # if direct_upc:
-            #     usda_upc_results = await get_usda_macros("", upc=direct_upc)
-            #     display_query = f"UPC {direct_upc}"
-
-            #     if not usda_upc_results and clean_food_text.replace(direct_upc, "").strip() == "":
-            #         await send_telegram_reply(chat_id, f"⚠️ Barcode {direct_upc} not found!\nThe USDA database doesn't have this exact UPC logged. Please reply with the food's name instead.")
-            #         return {"status": "success"}
-
-            # if not usda_upc_results:
-            #     classification_prompt = (
-            #         "You are an expert food query router for a nutrition engine. "
-            #         f"The user logged: '{clean_food_text}'.\n"
-            #         "Analyze the meal and decide if it is likely in the USDA FoodData Central database "
-            #         "(branded grocery items, raw produce, staple meats, common commercial items, foundation foods, sr legacy, fndds, experimental foods, branded foods) "
-            #         "or if it is a complex home-cooked/cultural dish not standardized in USDA "
-            #         "(e.g., specific Indian curries like 'spinach dal', 'fish pulusu', 'carrot fry', biryani, homemade desserts).\n\n"
-            #         "Return a JSON object with two fields:\n"
-            #         "- 'is_usda_compatible': boolean (true if in USDA FoodData Central Database, false if regional/home-cooked curry/dish)\n"
-            #         "- 'search_query': standardized commercial search term if true (fix typos, expand brand names, strip portions), "
-            #         "or empty string if false.\n"
-            #         "Example JSON: {\"is_usda_compatible\": false, \"search_query\": \"\"}"
-            #     )
-            #     classifier_res = groq_client.chat.completions.create(
-            #         messages=[
-            #             {"role": "user", "content": classification_prompt}],
-            #         model="openai/gpt-oss-20b",
-            #         response_format={"type": "json_object"}
-            #     )
-            #     route_data = json.loads(
-            #         classifier_res.choices[0].message.content)
-            #     is_usda = route_data.get("is_usda_compatible", False)
-            #     search_query = route_data.get("search_query", "").strip()
-
-            #     if is_usda and search_query:
-            #         usda_results = await get_usda_macros(search_query)
-            #         display_query = search_query
-
-            # PENDING_LOGS[chat_id] = {
-            #     "raw_text": clean_food_text,
-            #     "usda_options": usda_results or []
-            # }
-
-            # keyboard = {"inline_keyboard": []}
-
-            # if usda_results:
-            #     clean_display = display_query.replace("'", "").replace("*", "")
-            #     msg_text = f" Found {len(usda_results)} results for {
-            #         clean_display}.\nSelect the most accurate option to log it:"
-            #     for i, item in enumerate(usda_results):
-            #         clean_item_name = item['food_name'].replace("'", "").replace("*", "").replace("_", "")[:28]
-            #         btn_text = f"{clean_item_name}... ({item['calories']} kcal)"
-            #         keyboard["inline_keyboard"].append(
-            #             [{"text": btn_text, "callback_data": f"usda_{i}"}])
-            #     else:
-            #         clean_input = clean_food_text.replace("'", "").replace("*", "")
-            #         msg_text = f"No exact USDA matches found for *'{clean_input}'*.\nHow would you like to log this?"
-
-            #     keyboard["inline_keyboard"].append(
-            #         [{"text": "Use AI Estimation instead", "callback_data": "ai_fallback"}])
-            #     keyboard["inline_keyboard"].append(
-            #         [{"text": "Manual Macros Entry", "callback_data": "manual_entry"}])
-            #     await send_telegram_reply(chat_id, msg_text, reply_markup=keyboard)
-            #     return {"status": "success"}
         base_keywords = ["bench", "squat", "deadlift", "reps", "sets", "lbs", "lift", "press", "curls", "workout",
                          "pounds", "row", "pulldown", "fly", "raise", "extension", "crunch", "rdl", "step up", "toe-press"]
         is_workout = any(w in user_text.lower() for w in base_keywords) or any(normalize_str(k) in normalize_str(user_text)
@@ -2408,26 +2335,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "created_at": datetime.now(central_tz).isoformat()
             }).execute()
 
-            # if lift_data.is_warmup:
-            #     reply_msg = (
-            #         f"Warm-Up Set Tracked:\n"
-            #         f"*{exercise.title()
-            #             }* - {lift_data.weight} lbs × {lift_data.reps} reps\n"
-            #         f"*(This does not trigger rest timers or affect working set counts)*"
-            #     )
-            #     await send_telegram_reply(chat_id, reply_msg)
-            #     return {"status": "success"}
-
             ex_info = EXERCISE_REGISTRY.get(exercise, {})
             sets_config = ex_info.get("sets", {})
             total_target_sets = len(sets_config)
+            next_set_advice = ""
             # intensity_advice = ex_info.get("advice", "")
             if set_count >= total_target_sets:
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 next_set_advice = f"*Exercise Complete!* {
                     total_target_sets} sets logged at {lift_data.weight} lbs."
-            elif set_count == total_target_sets - 1:
-                next_set_advice += f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
             else:
                 next_set_count = set_count + 1
                 curr_targets = sets_config.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
@@ -2437,11 +2353,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 is_reverse_pyramid = any(ex in exercise for ex in ["test reverse pyramid exercise", "hack squat", "smith machine squat"])
                 is_assisted = any(ex in exercise for ex in ["test assisted exercise", "assisted pull-up", "paused assisted dip"])
                 if is_assisted:
-                    if lift_data.reps >= max_reps:
-                        next_weight = max(0, lift_data.weight - increment)
-                        next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance by next smallest decrement lbs."
-                    else:
-                        next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs assistance and push closer to {max_reps} reps."
+                    next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs assistance and push closer to {max_reps} reps."
                 elif is_reverse_pyramid:
                     next_targets = sets_config.get(next_set_count, curr_targets)
                     drop_percent = next_targets["drop_percent"]
@@ -2462,14 +2374,9 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             next_set_advice = f"\n\n *Next Set Target:* Hit the rep cap! Keep the weight at **{lift_data.weight} lbs** for Set {next_set_count} and aim for {max_reps} reps."
                         else:
                             next_set_advice = f"\n\n *Next Set Target:* Keep the weight steady at **{lift_data.weight} lbs** for Set {next_set_count}. Push closer to {max_reps} reps!"
-                    # if set_count == total_target_sets - 1:
-                    #     next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
-                    # else:
-                    #     # Standard progression advice for Set 1 -> Set 2
-                    #     if lift_data.reps >= max_reps:
-                    #         next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
-                    #     else:
-                    #         next_set_advice = f"\n\n *Next Set Target:* Hold {lift_data.weight} lbs and push closer to {max_reps} reps."
+
+                if set_count == total_target_sets - 1:
+                    next_set_advice += f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."                
 
                 # Trigger rest timer for Set 1 AND Set 2 completions
                 background_tasks.add_task(
@@ -2480,55 +2387,6 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     target_desc=f"{max_reps} reps",
                     next_set_advice=next_set_advice
                 )
-
-            # elif set_count == total_target_sets - 1:
-            #     next_set_advice = f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
-            # else:
-            #     next_set_count = set_count + 1
-            #     curr_targets = sets_config.get(
-            #         set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
-            #     # increment = curr_targets.get("increment", 5)
-            #     max_reps = curr_targets.get("max_reps", 12)
-
-            #     is_reverse_pyramid = any(ex in exercise for ex in [
-            #                              "hack squat", "smith machine squat"])
-            #     is_assisted = any(ex in exercise for ex in [
-            #                       "assisted pull-up", "paused assisted dip"])
-
-            #     if is_reverse_pyramid:
-            #         next_targets = sets_config.get(
-            #             next_set_count, curr_targets)
-            #         # drop_weight = max(0, lift_data.weight - increment)
-            #         next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target is {next_targets['max_reps']} reps."
-            #         # next_set_advice = f"\n\n *Next Set Target:* Drop weight for back-off. Target {
-            #         #     drop_weight} lbs for {next_targets['max_reps']} reps."
-            #     elif is_assisted:
-            #         if lift_data.reps >= max_reps:
-            #             # next_weight = max(0, lift_data.weight - increment)
-            #             next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance."
-            #             # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Reduce assistance to {
-            #             #     next_weight} lbs."
-            #         else:
-            #             next_set_advice = f"\n\n *Next Set Target:* Hold {
-            #                 lift_data.weight} lbs assistance and push closer to {max_reps} reps."
-            #     else:
-            #         if lift_data.reps >= max_reps:
-            #             # next_weight = lift_data.weight + increment
-            #             next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Increase weight for Set {next_set_count}."
-            #             # next_set_advice = f"\n\n *Next Set Target:* Hit rep cap! Bump to {
-            #             #     next_weight} lbs for Set {next_set_count}."
-            #         else:
-            #             next_set_advice = f"\n\n *Next Set Target:* Hold {
-            #                 lift_data.weight} lbs and push closer to {max_reps} reps."
-
-            # background_tasks.add_task(
-            #     delayed_rest_reminder,
-            #     chat_id=chat_id,
-            #     exercise_name=exercise,
-            #     next_set=next_set_count,
-            #     target_desc=f"{max_reps} reps",
-            #     next_set_advice=next_set_advice
-            # )
 
             reply_msg = (
                 f" *{exercise.title()}* - Set {set_count}\n"
