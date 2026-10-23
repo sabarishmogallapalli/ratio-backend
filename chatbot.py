@@ -1233,12 +1233,12 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         if all_hit_top:
             if is_assisted:
                 target_working_weight = max(0, heaviest_weight - increment)
-                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Reduce assistance by next smallest decrement to use across all sets today!"
+                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets of {heaviest_weight} lbs last time. Reduce assistance by next smallest decrement to use across all sets today!"
 
 
             else:
                 target_working_weight = heaviest_weight + increment
-                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets last time. Bump your working weight to next smallest increment to use across all sets today!"
+                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets of {heaviest_weight} lbs last time. Bump your working weight to next smallest increment to use across all sets today!"
         else:
             target_working_weight = heaviest_weight
             rec_text = f"Keep the weight steady at *{target_working_weight} lbs* for all working sets today until you hit {target_max_reps} reps on every single set."
@@ -2426,6 +2426,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 next_set_advice = f"*Exercise Complete!* {
                     total_target_sets} sets logged at {lift_data.weight} lbs."
+            elif set_count == total_target_sets - 1:
+                next_set_advice += f"\n\n *Next Set Target:* Final set! Variation: {ex_info.get('last_set', 'None')}."
             else:
                 next_set_count = set_count + 1
                 curr_targets = sets_config.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
