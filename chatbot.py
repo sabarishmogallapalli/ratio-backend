@@ -2162,7 +2162,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "You can log your Body Scan results and goal to save it and train the machine learning model. "
                 "The system will automatically use your goal and categories your food based on the time of day and calculate your macros into Supabase.\n\n"
                 "Just start your message with 'profile:' followed by your data in the following format so I can update your macro targets:\n"
-                "InBody Analysis: [Height (in)], [Age]; Body Composition Analysis: [Total Body Water (lb)], [Dry Lean Mass (lb)], [Body Fat Mass (lb)], [Weight (lb)]; Muscle-Fat Analysis: [Weight (lb)], [SMM (lb)], [Body Fat Mass (lb)]; Obesity Analysis: [BMI (KG/M2)], [PBF (%)]; Segmental Lean Analysis: [Left Arm %], [Right Arm %], [Left Leg %], [Right Leg %]; Research Parameters: [Lean Body Mass (lb)], [Basal Metabolic Rate (kcal)], [SMI (kg/m^2)]; Impedance: 20kHz: [RA], [LA], [TR], [RL], [LL], 100kHz: [RA], [LA], [TR], [RL], [LL]; Goal: [bulk/cut/recomposition]"
+                "InBody Analysis: [Height (in)], [Age]; Body Composition Analysis: [Total Body Water (lb)], [Dry Lean Mass (lb)], [Body Fat Mass (lb)], [Weight (lb)]; Muscle-Fat Analysis: [Weight (lb)], [SMM (lb)], [Body Fat Mass (lb)]; Obesity Analysis: [BMI (KG/M2)], [PBF (%)]; Segmental Lean Analysis: [Left Arm %], [Right Arm %], [Trunk %], [Left Leg %], [Right Leg %]; Research Parameters: [Lean Body Mass (lb)], [Basal Metabolic Rate (kcal)], [SMI (kg/m^2)]; Impedance: 20kHz: [RA], [LA], [TR], [RL], [LL], 100kHz: [RA], [LA], [TR], [RL], [LL]; Goal: [bulk/cut/recomposition]"
             )
             await send_telegram_reply(chat_id, profile_instructions)
             return {"status": "success"}
@@ -2195,7 +2195,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "2. Body Composition (Total Body Water, Dry Lean Mass, Body Fat Mass, Weight). "
                 "3. Muscle-Fat Analysis (Weight, SMM, Body Fat Mass). "
                 "4. Obesity Analysis (BMI, PBF / body_fat_percentage). "
-                "5. Segmental Lean Analysis (Left Arm %, Right Arm %, Left Leg %, Right Leg %). "
+                "5. Segmental Lean Analysis (Left Arm %, Right Arm %, Trunk %, Left Leg %, Right Leg %). "
                 "6. Research Parameters (Lean Body Mass, Basal Metabolic Rate -> inbody_bmr, SMI). "
                 "7. Impedance 20kHz (RA, LA, TR, RL, LL) and 100kHz (RA, LA, TR, RL, LL). "
                 "8. Goal (bulk, cut, maintenance, recomposition). "
