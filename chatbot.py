@@ -180,7 +180,7 @@ EXERCISE_REGISTRY = {
     },
     "hack squat": {
         "rest_seconds": 180,
-        "warmup_sets": 3,
+        "warmup_sets": 2,
         "advice": "Reverse Pyramid: Set 1 heaviest (4 reps). Set 2 drop ~10-15% (6 reps). Set 3 drop ~10-15% (8 reps).",
         "last_set":"",
         "sets": {
@@ -279,7 +279,7 @@ EXERCISE_REGISTRY = {
     "cable reverse fly (mechanical dropset on all sets)": {
         "rest_seconds": 60,
         "warmup_sets": 0,
-        "advice": "*Mechanical Dropset:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
+        "advice": "*Mechanical Dropset on all sets:* 3 steps back (5 reps) -> 1 step fwd (4 reps) -> 1 step fwd (3+ reps). No rest!",
         "last_set":"",
         "sets": {
             1: {"min_reps": 12, "max_reps": 12, "increment": 5},
@@ -299,7 +299,7 @@ EXERCISE_REGISTRY = {
         },
     },
     "leg press": {
-        "rest_seconds": 120,
+        "rest_seconds": 60,
         "warmup_sets": 2,
         "advice": "Feet low for quad focus. Deep stretch with slight pause at bottom.",
         "last_set":"",
@@ -401,7 +401,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Keep elbows tucked close to your sides to bias the lats.",
-        "last_set":"",
+        "last_set":"Lat Static Stretch (30 sec hold)",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -445,7 +445,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull cable from the side. Connect with lats, avoid bicep takeover.",
-        "last_set":"",
+        "last_set":"Long-length partials: Start in the full stretch and pull down only halfway until your elbow reaches roughly shoulder level",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -529,7 +529,7 @@ EXERCISE_REGISTRY = {
     },
     "cross-body cable y-raise": {
         "rest_seconds": 120,
-        "warmup_sets": 3,
+        "warmup_sets": 1,
         "advice": "Sweep arm up, out, and across body like drawing a sword.",
         "last_set":"",
         "sets": {
