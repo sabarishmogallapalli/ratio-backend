@@ -94,7 +94,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Wrist/cable aligned in a straight line. Deep lat stretch at top.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: full stretch and pull down only until your elbow reaches roughly shoulder level",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -117,7 +117,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Flare elbows ~45° and squeeze blades hard at top.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: fully stretched forward and row until elbows align with your torso (no squeezing behind back)",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 10},
             2: {"min_reps": 8, "max_reps": 10, "increment": 10},
@@ -138,7 +138,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Lean forward for big lat stretch at top, stand upright at bottom.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: full overhead stretch and pull the bar down only until it reaches eye level",
         "sets": {
             1: {"min_reps": 12, "max_reps": 15, "increment": 5},
             2: {"min_reps": 12, "max_reps": 15, "increment": 5},
@@ -193,7 +193,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Pull butt down into seat. 2-3s negative.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: knees fully bent at the bottom for a deep quad stretch and lift the pad only halfway up (to a 90-degree knee angle), avoiding full leg lockout at the top",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -237,7 +237,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 120,
         "warmup_sets": 1,
         "advice": "Slow 2-3s negative. 0.5-1s pause at bottom.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: full dead hang at the bottom and pull yourself up only until your elbows reach a 90-degree bend, avoiding pulling your chin all the way over the bar",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -291,7 +291,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Big stretch at bottom. Keep hips down.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: legs fully extended for deep hamstring stretch and curl the pad halfway, avoiding the full contraction near your glutes",
         "sets": {
             1: {"min_reps": 8, "max_reps": 10, "increment": 5},
             2: {"min_reps": 8, "max_reps": 10, "increment": 5},
@@ -345,7 +345,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Start with weaker arm if imbalanced. Take weaker arm to RPE 9-10, then match reps with other arm.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: curl forward only until your arm forms an L-shape, then return straight back into the stretch",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -597,7 +597,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "3-4s negative with bottom pause.",
-        "last_set":"*Long-length partials on all reps*",
+        "last_set":"*Long-length partials*: curl forward only until your arm forms an L-shape, then return straight back into the stretch",
         "sets": {
             1: {"min_reps": 10, "max_reps": 12, "increment": 5},
             2: {"min_reps": 10, "max_reps": 12, "increment": 5},
@@ -686,7 +686,7 @@ EXERCISE_REGISTRY = {
         "rest_seconds": 60,
         "warmup_sets": 1,
         "advice": "Lean forward for big lat stretch at top, stand upright at bottom.",
-        "last_set":"*Long-length Partials*",
+        "last_set":"*Long-length Partials*: overhead stretch and pull the bar down only until it reaches eye level and return",
         "sets": {
             1: {"min_reps": 8, "max_reps": 12, "increment": 5},
             2: {"min_reps": 8, "max_reps": 12, "increment": 5},
