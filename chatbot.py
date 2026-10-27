@@ -1365,11 +1365,11 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
         coach_advice = advice_res.choices[0].message.content.strip()
         daily_summary = (
             f"\n\n *Daily Status:*\n"
-            f" Protein: {round(total_pro)}g / {round(
-                target_pro)}g *(Need {round(rem_pro)}g more)*\n"
-            f" Carbohydrates: *{round(total_carb)}* / {round(target_carb)}\n"
-            f" Fat: *{round(total_fat)}* / {round(target_fat)}\n"
-            f" Calories: *{round(total_cal)}* / {round(target_cal)}\n\n"
+            f" Protein: *{round(total_pro)}g* / {round(
+                target_pro)}g\n"
+            f" Carbohydrates: *{round(total_carb)}g* / {round(target_carb)}g\n"
+            f" Fat: *{round(total_fat)}g* / {round(target_fat)}g\n"
+            f" Calories: *{round(total_cal)}g* / {round(target_cal)}g\n\n"
             f" *{coach_advice}*"
         )
     else:
