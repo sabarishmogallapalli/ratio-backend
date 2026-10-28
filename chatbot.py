@@ -70,7 +70,7 @@ EXERCISE_REGISTRY = {
         "advice": "Sample advice.",
         "last_set":"*Myo-reps*",
         "sets": {
-            1: {"min_reps": 4, "max_reps": 4, "drop_percent": 0.12},
+            1: {"min_reps": 4, "max_reps": 4, "increment": 5},
             2: {"min_reps": 6, "max_reps": 6, "drop_percent": 0.12},
             3: {"min_reps": 8, "max_reps": 8, "drop_percent": 0.12},
         },
