@@ -2377,27 +2377,31 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 is_reverse_pyramid = any(ex in exercise for ex in ["test reverse pyramid exercise", "hack squat", "smith machine squat"])
                 is_assisted = any(ex in exercise for ex in ["test assisted exercise", "assisted pull-up", "paused assisted dip"])
                 if is_assisted:
-                    next_set_advice = f"\n\n *{exercise_name.title()} Set {next_set_count} Target:* {lift_data.weight} lbs - {max_reps} reps."
+                    next_set_advice = f"\n\n *{exercise.title()} Set {next_set_count} Target:* {lift_data.weight} lbs - {max_reps} reps."
                 elif is_reverse_pyramid:
                     next_targets = sets_config.get(next_set_count, curr_targets)
                     drop_percent = next_targets["drop_percent"]
                     drop_weight = round((lift_data.weight * (1 - drop_percent)) / 2.5) * 2.5
-                    next_set_advice = f"\n\n *{exercise_name.title()} Set {next_set_count} Target:* Drop weight. *{drop_weight} lbs* - *{next_targets['max_reps']} reps*."
+                    next_set_advice = f"\n\n *{exercise.title()} Set {next_set_count} Target:* Drop weight. *{drop_weight} lbs* - *{next_targets['max_reps']} reps*."
                 else:
-                    if set_count == 1 and lift_data.reps < min_reps:
-                        drop_weight = max(0, lift_data.weight - 5)
-                        next_set_advice = f"\n\n *Safety Net Triggered (Too Heavy):* You got fewer than {min_reps} reps on Set 1. **Drop down to {drop_weight} lbs** for Sets 2+ to stay in the hypertrophy zone."
-                
-                    # Safety Net 2: Too Light on Set 1 (>= 15 reps / accidental warm-up)
-                    elif set_count == 1 and lift_data.reps >= 15:
-                        next_set_advice = f"\n\n *Safety Net Triggered (Too Light):* That was too easy! Treat Set 1 as a warm-up, **increase the weight** for Set 2 and use that as your baseline."
-                
-                    # Standard All-Sets Double Progression: Keep weight constant!
+                    if lift_data.reps >= max_reps:
+                        next_set_advice = f"\n\n *{exercise.title()} Set {next_set_count} Target:* **{lift_data.weight} lbs** - {max_reps} reps"
                     else:
-                        if lift_data.reps >= max_reps:
-                            next_set_advice = f"\n\n *{exercise_name.title()} Set {next_set_count} Target:* **{lift_data.weight} lbs** - {max_reps} reps"
-                        else:
-                            next_set_advice = f"\n\n *{exercise_name.title()} Set {next_set_count} Target:* **{lift_data.weight} lbs** - {max_reps} reps"
+                        next_set_advice = f"\n\n *{exercise.title()} Set {next_set_count} Target:* **{lift_data.weight} lbs** - {max_reps} reps"
+                    # if set_count == 1 and lift_data.reps < min_reps:
+                    #     drop_weight = max(0, lift_data.weight - 5)
+                    #     next_set_advice = f"\n\n *Safety Net Triggered (Too Heavy):* You got fewer than {min_reps} reps on Set 1. **Drop down to {drop_weight} lbs** for Sets 2+ to stay in the hypertrophy zone."
+                
+                    # # Safety Net 2: Too Light on Set 1 (>= 15 reps / accidental warm-up)
+                    # elif set_count == 1 and lift_data.reps >= 15:
+                    #     next_set_advice = f"\n\n *Safety Net Triggered (Too Light):* That was too easy! Treat Set 1 as a warm-up, **increase the weight** for Set 2 and use that as your baseline."
+                
+                    # # Standard All-Sets Double Progression: Keep weight constant!
+                    # else:
+                    #     if lift_data.reps >= max_reps:
+                    #         next_set_advice = f"\n\n *{exercise.title()} Set {next_set_count} Target:* **{lift_data.weight} lbs** - {max_reps} reps"
+                    #     else:
+                    #         next_set_advice = f"\n\n *{exercise.title()} Set {next_set_count} Target:* **{lift_data.weight} lbs** - {max_reps} reps"
 
                 if set_count == total_target_sets - 1:
                     next_set_advice += f"\n\n *Final set! Variation: {ex_info.get('last_set', 'None')}.*"                
