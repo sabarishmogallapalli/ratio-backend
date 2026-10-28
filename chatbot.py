@@ -1263,7 +1263,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
             if is_reverse_pyramid:
                 set_1_last = next((s for s in last_session if s["set_number"] == 1), None)
                 target_working_weight = set_1_last["weight"] if set_1_last else (history.data[0]["weight"] if history.data else 0)
-                rec_text = f"Keep Set 1 steady at *{target_working_weight} lbs* for the reverse pyramid today until you hit the target reps on every set."
+                rec_text = f"Keep Set 1 steady at *{target_working_weight} lbs* for the reverse pyramid today until you hit {target_max_reps} on this set."
             else:
                 target_working_weight = heaviest_weight
                 rec_text = f"Keep the weight steady at *{target_working_weight} lbs* for all {total_target_sets} working sets today until you hit {target_max_reps} reps on every single set."
