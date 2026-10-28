@@ -1229,20 +1229,44 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
 
         heaviest_weight = max(s["weight"] for s in last_session_sorted) if last_session_sorted else 0
         is_assisted = any(ex in exercise_name for ex in ["test assisted exercise", "assisted pull-up", "paused assisted dip"])
+        is_reverse_pyramid = any(ex in exercise_name for ex in ["test reverse pyramid exercise", "hack squat", "smith machine squat"])
+        total_target_sets = len(sets_config)
 
+        if is_reverse_pyramid:
+            all_hit_top = all(
+                s["reps"] >= sets_config.get(s["set_number"], {}).get("max_reps", 12)
+                for s in last_session_sorted
+            )
+        else:
+            all_hit_top = all(s["reps"] >= target_max_reps for s in last_session_sorted)
+
+        heaviest_weight = max(s["weight"] for s in last_session_sorted) if last_session_sorted else 0
+
+        # 2. Generate recommendation text based on progression status
         if all_hit_top:
             if is_assisted:
                 target_working_weight = max(0, heaviest_weight - increment)
-                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets of {heaviest_weight} lbs last time. Reduce assistance by next smallest decrement to use across all sets today!"
-
-
+                rec_text = f"🎉 *Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL {total_target_sets} sets of {heaviest_weight} lbs last time. Reduce assistance by next smallest decrement to use across all sets today!"
+            
+            elif is_reverse_pyramid:
+                set_1_last = next((s for s in last_session if s["set_number"] == 1), None)
+                set_1_weight_last = set_1_last["weight"] if set_1_last else (history.data[0]["weight"] if history.data else 0)
+                increment = sets_config.get(1, {}).get("increment", 5)
+                target_working_weight = set_1_weight_last + increment
+                rec_text = f"🎉 *Progression Earned!* You hit the target reps on all {total_target_sets} sets of the reverse pyramid last time (Set 1 was at *{set_1_weight_last} lbs*). Increase your Set 1 working weight by next smallest decrement today!"
+            
             else:
                 target_working_weight = heaviest_weight + increment
-                rec_text = f"*Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL sets of {heaviest_weight} lbs last time. Bump your working weight to next smallest increment to use across all sets today!"
+                rec_text = f"🎉 *Progression Earned!* You hit the rep cap ({target_max_reps} reps) on ALL {total_target_sets} sets of {heaviest_weight} lbs last time. Bump your working weight to next smallest increment to use across all sets today!"
+        
         else:
-            target_working_weight = heaviest_weight
-            rec_text = f"Keep the weight steady at *{target_working_weight} lbs* for all working sets today until you hit {target_max_reps} reps on every single set."
-
+            if is_reverse_pyramid:
+                set_1_last = next((s for s in last_session if s["set_number"] == 1), None)
+                target_working_weight = set_1_last["weight"] if set_1_last else (history.data[0]["weight"] if history.data else 0)
+                rec_text = f"Keep Set 1 steady at *{target_working_weight} lbs* for the reverse pyramid today until you hit the target reps on every set."
+            else:
+                target_working_weight = heaviest_weight
+                rec_text = f"Keep the weight steady at *{target_working_weight} lbs* for all {total_target_sets} working sets today until you hit {target_max_reps} reps on every single set."
 
         # if successful_at_top:
         #     best_top_set = max(successful_at_top, key=lambda x: x["weight"])
@@ -1262,7 +1286,7 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         max_reps = data.get("max_reps", 12)
         if s == 1:
             weight_str = f" @ {current_weight} lbs" if current_weight > 0 else ""
-            schema_lines.append(f"• Set 1: {max_reps} reps")
+            schema_lines.append(f"• Set 1: {min_reps} - {max_reps} reps")
         elif "drop_percent" in data:
             if current_weight > 0:
                 drop_pct = data["drop_percent"]
@@ -1288,12 +1312,12 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
     last_set = ex_info.get("last_set", "")
 
     return (
-        f"{phase_header}\n\n"
+        f"{phase_header}\n"
         f"{exercise_name.title()}\n\n"
         # f"{last_session_block}"
         f"{rec_text}\n\n"
         f"{warmup_guide}\n\n"
-        f"{schema_text}\n\n"
+        # f"{schema_text}\n\n"
         f"{cues_block}\n\n"
         f"Last Set Variation: {last_set}"
     )
@@ -1350,19 +1374,19 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
         rem_pro = target_pro - total_pro
         rem_cal = target_cal - total_cal
 
-        advice_prompt = (
-            f"I am focusing on {goal}. I just ate {food_data.food_name}. "
-            f"My daily totals are now: {total_pro}g protein, {
-                total_fat}g fat, {total_cal} cals. "
-            f"I have {rem_pro}g of protein and {
-                rem_cal} calories left to hit my targets. "
-            f"Give me exactly ONE short, punchy sentence of advice. "
-        )
-        advice_res = groq_client.chat.completions.create(
-            messages=[{"role": "user", "content": advice_prompt}],
-            model="openai/gpt-oss-20b"
-        )
-        coach_advice = advice_res.choices[0].message.content.strip()
+        # advice_prompt = (
+        #     f"I am focusing on {goal}. I just ate {food_data.food_name}. "
+        #     f"My daily totals are now: {total_pro}g protein, {
+        #         total_fat}g fat, {total_cal} cals. "
+        #     f"I have {rem_pro}g of protein and {
+        #         rem_cal} calories left to hit my targets. "
+        #     f"Give me exactly ONE short, punchy sentence of advice. "
+        # )
+        # advice_res = groq_client.chat.completions.create(
+        #     messages=[{"role": "user", "content": advice_prompt}],
+        #     model="openai/gpt-oss-20b"
+        # )
+        # coach_advice = advice_res.choices[0].message.content.strip()
         daily_summary = (
             f"\n\n *Daily Status:*\n"
             f" Protein: *{round(total_pro)}g* / {round(
@@ -1370,7 +1394,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
             f" Carbohydrates: *{round(total_carb)}g* / {round(target_carb)}g\n"
             f" Fat: *{round(total_fat)}g* / {round(target_fat)}g\n"
             f" Calories: *{round(total_cal)}g* / {round(target_cal)}g\n\n"
-            f" *{coach_advice}*"
+            # f" *{coach_advice}*"
         )
     else:
         daily_summary = "\n\n *Profile not found in database. Add your baseline to get macro coaching!*"
