@@ -1716,7 +1716,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, test_msg_text, reply_markup=test_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_upper_1"):
-            p1_u1_msg_text = f"JEFF NIPPARD PHASE 1 UPPER DAY 1 CHECKLIST\n\n Phase {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p1_u1_msg_text = f"JEFF NIPPARD PHASE 1 UPPER DAY 1 CHECKLIST\n\n Phase {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "cuffed behind-the-back Lateral Raise (10-12 reps) (3 sets)\n\n"
             "cross-body lat pull-around (10-12 reps) (3 sets)\n\n"
@@ -1750,7 +1751,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_u1_msg_text, reply_markup=p1_u1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_upper_2"):
-            p1_u2_msg_text = f"JEFF NIPPARD PHASE 1 UPPER DAY 2 CHECKLIST\n\n Phase {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p1_u2_msg_text = f"JEFF NIPPARD PHASE 1 UPPER DAY 2 CHECKLIST\n\n Phase {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "super-rom overhand cable row (10-12 reps) (3 sets)\n\n"
             "machine shoulder press (10-12 reps) (3 sets)\n\n"
@@ -1784,7 +1786,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_u2_msg_text, reply_markup=p1_u2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_lower_1"):
-            p1_l1_msg_text = f"JEFF NIPPARD PHASE 1 LOWER DAY 1 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p1_l1_msg_text = f"JEFF NIPPARD PHASE 1 LOWER DAY 1 CHECKLIST\n\n Phase: {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "seated leg curl (8-10 reps) (3 sets)\n\n"
             "machine hip adduction (10-12 reps) (3 sets)\n\n"
@@ -1809,7 +1812,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_l1_msg_text, reply_markup=p1_l1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_lower_2"):
-            p1_l2_msg_text = f"JEFF NIPPARD PHASE 1 LOWER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p1_l2_msg_text = f"JEFF NIPPARD PHASE 1 LOWER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "lying leg curl (8-10 reps) (3 sets)\n\n"
             "leg press (8 reps) (3 sets)\n\n"
@@ -1840,7 +1844,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p1_l2_msg_text, reply_markup=p1_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_1_arms"):
-            p1_wp1_msg_text = f"JEFF NIPPARD PHASE 1 WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week})\n" \
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p1_wp1_msg_text = f"JEFF NIPPARD PHASE 1 WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week} {deload_label})\n" \
                               "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n Weak Point Exercise (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
             p1_wp1_keyboard = {
                 "inline_keyboard": [
@@ -1900,7 +1905,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "success"}
 
         if user_text.lower() == ("/phase_2_upper_1"):
-            p2_u1_msg_text = f"**JEFF NIPPARD PHASE 2 UPPER DAY 1 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p2_u1_msg_text = f"**JEFF NIPPARD PHASE 2 UPPER DAY 1 CHECKLIST**\n\n **Phase:** {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "cuffed behind-the-back Lateral Raise (10-12 reps) (3 sets)\n\n"
             "lat-focused cable row (10-12 reps) (3 sets)\n\n"
@@ -1934,7 +1940,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_u1_msg_text, reply_markup=p2_u1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_upper_2"):
-            p2_u2_msg_text = f"JEFF NIPPARD PHASE 2 UPPER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p2_u2_msg_text = f"JEFF NIPPARD PHASE 2 UPPER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "dual-handle lat pulldown (mid-back + lats) (10-12 reps) (3 sets)\n\n"
             "seated dumbbell shoulder press (10-12 reps) (3 sets)\n\n"
@@ -1968,7 +1975,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_u2_msg_text, reply_markup=p2_u2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_1"):
-            p2_l1_msg_text = f"JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p2_l1_msg_text = f"JEFF NIPPARD PHASE 2 LOWER DAY 1 CHECKLIST\n\n Phase: {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "seated leg curl (8-10 reps) (3 sets)\n\n"
             "machine hip adduction (10-12 reps) (3 sets)\n\n"
@@ -1996,7 +2004,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_l1_msg_text, reply_markup=p2_l1_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_lower_2"):
-            p2_l2_msg_text = f"JEFF NIPPARD PHASE 2 LOWER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p2_l2_msg_text = f"JEFF NIPPARD PHASE 2 LOWER DAY 2 CHECKLIST\n\n Phase: {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n"
             "lying leg curl (8-10 reps) (3 sets)\n\n"
             "smith machine reverse lunge (8 reps) (3 sets)\n\n"
@@ -2027,7 +2036,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_l2_msg_text, reply_markup=p2_l2_keyboard)
             return {"status": "success"}
         if user_text.lower() == ("/phase_2_arms"):
-            p2_wp_msg_text = f"JEFF NIPPARD PHASE 2 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week})\n"
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
+            p2_wp_msg_text = f"JEFF NIPPARD PHASE 2 ARMS & WEAK POINTS CHECKLIST (Pick a weakpoint)\n\n Phase: {current_phase} (Week {current_week} {deload_label})\n"
             "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n"
             "Weak Point Exercise (8-12 reps) (Ex 1: 3 sets Ex 2: 2 sets)\n\n"
             p2_wp_keyboard = {
@@ -2068,6 +2078,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, p2_arms_msg_text, reply_markup=p2_arms_keyboard)
             return {"status": "success"}
         if user_text.lower() == "/weakpoints":
+            deload_label = " - Semi-Deload Week" if current_week % 5 == 0 else ""
             wp_msg_text = "Select your Weak Point for today:"
             keyboard = {
                 "inline_keyboard": [
