@@ -70,9 +70,9 @@ EXERCISE_REGISTRY = {
         "advice": "Sample advice.",
         "last_set":"*Myo-reps*",
         "sets": {
-            1: {"min_reps": 8, "max_reps": 8, "drop_percent": 0.12},
-            2: {"min_reps": 10, "max_reps": 12, "drop_percent": 0.12},
-            3: {"min_reps": 10, "max_reps": 12, "drop_percent": 0.12},
+            1: {"min_reps": 4, "max_reps": 4, "drop_percent": 0.12},
+            2: {"min_reps": 6, "max_reps": 6, "drop_percent": 0.12},
+            3: {"min_reps": 8, "max_reps": 8, "drop_percent": 0.12},
         },
     },
 
@@ -1695,11 +1695,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, welcome_message)
             return {"status": "success"}
         if user_text.lower() == ("/phase_test_exercise"):
-            test_msg_text = f"JEFF NIPPARD TEST EXERCISE\n\n Phase {current_phase} (Week {current_week})\n" \
-                            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n" \
-                            "test exercise (10-12 reps) (3 sets)\n\n" \
-                            "test reverse pyramid exercise (8, 10, 12 reps) (3 sets)\n\n" \
-                            "test assisted exercise (10-12 reps) (3 sets)\n\n" \
+            test_msg_text = f"JEFF NIPPARD TEST EXERCISE\n\n Phase {current_phase} (Week {current_week})\n"
+            "Warm-Up: 5-10 min cardio, Arm Circles, Arm Swings, Front-to-Back Leg Swings, Side-to-Side Leg Swings (10 reps per side), Cable External Rotational (15 reps per side)\n\n" \
+                "test exercise (10-12 reps) (3 sets)\n\n" \
+                    "test reverse pyramid exercise (8, 10, 12 reps) (3 sets)\n\n" \
+                        "test assisted exercise (10-12 reps) (3 sets)\n\n" \
                             "Ready to log! Just conversationally type in your current exercise, weight, and reps below to permanently store your performance set. (ie. upper: Flat db press 75 lbs for 6 reps)\n\n"
             test_keyboard = {
                 "inline_keyboard": [
