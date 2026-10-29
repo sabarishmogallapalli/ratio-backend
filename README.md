@@ -1,6 +1,6 @@
 # Ratio Backend Engine 🏋️‍♂️⚡
 
-> A high-precision, asynchronous FastAPI service driving automated workout double-progression logic, TDEE macro coaching, and multi-source nutrition logging via Telegram Webhooks.
+> A FastAPI service hosting automated workout double-progression logic, TDEE macro coaching, and multi-source nutrition logging utilizing Telegram Webhooks.
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -10,16 +10,15 @@
 
 ---
 
-## 🌐 Live API & Integration
-* **API Documentation (Swagger):** [https://your-render-app.onrender.com/docs](https://your-render-app.onrender.com/docs)
-* **Frontend Web Dashboard:** [https://your-dashboard-domain.com](https://your-dashboard-domain.com)
+## 🌐 Live Integration
+* **Frontend Web Dashboard:** [https://fitness-dashboard-frontend.vercel.app/#/dashboard](https://fitness-dashboard-frontend.vercel.app/#/dashboard)
 
 ---
 
 ## 🎯 Problem & Solution
 
 ### The Problem
-Traditional fitness and nutrition tracking applications suffer from excessive tracking friction, lack intelligent double-progression set recommendation logic for hypertrophy, and offer rigid, manual macro target calculations that ignore physiological body composition updates.
+Traditional fitness and nutrition tracking applications suffer from paywalls, excessive tracking friction, lack intelligent double-progression set recommendation logic for hypertrophy, and offer rigid, manual macro target calculations that ignore physiological body composition updates.
 
 ### The Solution
 Ratio Backend serves as an automated, event-driven orchestration system. It processes conversational workout logs and meal entries directly inside Telegram using structured LLM schema parsing (Groq/Llama-3), calculates individualized TDEE targets based on InBody composition data, enforces automated set-by-set double progression recommendations, and syncs asynchronously to Supabase for real-time frontend visualization.
