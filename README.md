@@ -1,4 +1,4 @@
-# Ratio Backend Engine 🏋️‍♂️⚡
+# Ratio Backend Engine
 
 > A FastAPI service hosting automated workout double-progression logic, TDEE macro coaching, and multi-source nutrition logging utilizing Telegram Webhooks.
 
