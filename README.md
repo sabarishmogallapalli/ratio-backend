@@ -10,12 +10,12 @@
 
 ---
 
-## 🌐 Live Integration
+## Live Integration
 * **Frontend Web Dashboard:** [https://fitness-dashboard-frontend.vercel.app/#/dashboard](https://fitness-dashboard-frontend.vercel.app/#/dashboard)
 
 ---
 
-## 🎯 Problem & Solution
+## Problem & Solution
 
 ### The Problem
 Traditional fitness and nutrition tracking applications suffer from paywalls, excessive tracking friction, lack intelligent double-progression set recommendation logic for hypertrophy, and offer rigid, manual macro target calculations that ignore physiological body composition updates.
@@ -25,7 +25,7 @@ Ratio Backend serves as an automated, event-driven orchestration system. It proc
 
 ---
 
-## 🏗️ System Architecture & Data Flow
+## System Architecture & Data Flow
 
 ```
                                  ┌────────────────┐
@@ -52,7 +52,7 @@ Ratio Backend serves as an automated, event-driven orchestration system. It proc
 
 ---
 
-## 🛠️ Local Setup Instructions
+## Local Setup Instructions
 
 ### Prerequisites
 * Python 3.10+
