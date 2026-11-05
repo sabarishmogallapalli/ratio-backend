@@ -1338,6 +1338,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     insert_payload = {
         "meal_type": meal_type,
         "food_name": food_data.food_name,
+        "serving_size": food_data.serving_size,
         "calories": food_data.calories,
         "protein": food_data.protein,
         "carbs": food_data.carbs,
@@ -1595,14 +1596,15 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             elif callback_data.startswith("history_"):
                 index = int(callback_data.split("_")[1])
                 chosen_meal = pending_data["history_options"][index]
+                multiplier = pending_data.get("multiplier", 1.0)
                 
                 food_data = FoodStructure(
                     food_name=chosen_meal["food_name"],
                     serving_size=chosen_meal["serving_size"],
-                    calories=float(chosen_meal["calories"]),
-                    protein=float(chosen_meal["protein"]),
-                    carbs=float(chosen_meal["carbs"]),
-                    fat=float(chosen_meal["fat"])
+                    calories=round(float(chosen_meal['calories']) * multiplier, 1),
+                    protein=round(float(chosen_meal['protein']) * multiplier, 1),
+                    carbs=round(float(chosen_meal['carbs']) * multiplier, 1),
+                    fat=round(float(chosen_meal['fat']) * multiplier, 1)
                 )
                 
                 del PENDING_LOGS[chat_id]
@@ -2111,10 +2113,19 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             if not raw_food_text:
                 await send_telegram_reply(chat_id, "Please include the food you ate starting with /meal or meal: or m:! Example: /meal 2 eggs and toast")
                 return {"status": "success"}
+
+            multiplier = 1.0
+            food_query = raw_food_text
+
+            import re
+            match = re.match(r"^([\d.]+)\s*x\s+(.+)$", raw_food_text)
+            if match:
+                multiplier = float(match.group(1))
+                food_query = match.group(2).strip()
             
             history_res = supabase.table("food_logs") \
-                .select("food_name, calories, protein, carbs, fat") \
-                .ilike("food_name", f"%{raw_food_text}%") \
+                .select("food_name, serving_size, calories, protein, carbs, fat") \
+                .ilike("food_name", f"%{food_query}%") \
                 .limit(5) \
                 .execute()
             keyboard_buttons = []
@@ -2128,25 +2139,28 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                         seen_names.add(name)
                         unique_matches.append(item)
 
-                msg_text = f"🔍 Found *{len(unique_matches)} matching meal(s)* in your history for '{raw_food_text}':\nTap one to re-log instantly, or choose a new method below:"
-                for item in unique_matches[:3]: # Limit to top 3 history buttons
-                    btn_label = f"📜 {item['food_name'].title()} ({item['calories']} kcal)"
-                    # We encode the chosen history item data directly or use a history tag
-                    # For simplicity, we can pass a special callback prefix like history_
-                    # Or save them in PENDING_LOGS. Let's store matches in PENDING_LOGS!
-                    pass
+                multiplier_label = f" ({multiplier}x)" if multiplier != 1.0 else ""
+                msg_text = f"🔍 Found *{len(unique_matches)} matching meal(s)* in your history for '{food_query}'{multiplier_label}:\nTap one to re-log instantly, or choose a new method below:"
 
                 PENDING_LOGS[chat_id] = {
                     "raw_text": raw_food_text,
+                    "food_query": food_query,
+                    "multiplier": multiplier,
                     "history_options": unique_matches[:3]
                 }
 
                 for i, item in enumerate(unique_matches[:3]):
-                    btn_label = f"{item['food_name'].title()} ({item['calories']} kcal | {item['protein']}g P)"
+                    display_cal = round(item['calories'] * multiplier)
+                    display_pro = round(item['protein'] * multiplier, 1)
+                    btn_label = f"{item['food_name'].title()} ({display_cal} kcal | {display_pro}g P)"
                     keyboard_buttons.append([{"text": btn_label, "callback_data": f"history_{i}"}])
             else:
             # Save it to the pending logs so your callback_query logic can access it
-                PENDING_LOGS[chat_id] = {"raw_text": raw_food_text}
+                PENDING_LOGS[chat_id] = {
+                    "raw_text": raw_food_text,
+                    "food_query": food_query,
+                    "multiplier": multiplier
+                    }
                 msg_text = f"Ready to log: *{raw_food_text}*.\nNo past logs found. Choose how to process this:"
 
             keyboard_buttons.append([{"text": "USDA Database Search", "callback_data": "choice_usda"}])
