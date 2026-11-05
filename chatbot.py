@@ -924,6 +924,7 @@ WEAK_POINTS_TABLE = {
 
 class FoodStructure(BaseModel):
     food_name: str
+    serving_size: str
     calories: float
     protein: float
     carbs: float
@@ -1149,7 +1150,7 @@ async def handle_workout_completion(chat_id: int) -> str:
         "current_phase": current_phase
     }).eq("chat_id", chat_id).execute()
 
-    return f" *Workout Complete!*\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/4"
+    return f" *Workout Complete!*\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/5"
 
 
 async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> str:
@@ -1576,7 +1577,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 msg = (
                     "*Manual Entry Mode*\n\n"
                     "Reply with your meal details in this exact format:\n"
-                    "`Food Name | Calories | Protein | Carbs | Fat`\n\n"
+                    "`Food Name | Serving Size | Calories | Protein | Carbs | Fat`\n\n"
                     "_Example: Grilled Chicken | 450 | 40 | 10 | 8_"
                 )
                 async with httpx.AsyncClient() as http_client:
@@ -1597,6 +1598,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 
                 food_data = FoodStructure(
                     food_name=chosen_meal["food_name"],
+                    serving_size=chosen_meal["serving_size"],
                     calories=float(chosen_meal["calories"]),
                     protein=float(chosen_meal["protein"]),
                     carbs=float(chosen_meal["carbs"]),
@@ -1665,10 +1667,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 try:
                     food_data = FoodStructure(
                         food_name=parts[0],
-                        calories=float(parts[1]),
-                        protein=float(parts[2]),
-                        carbs=float(parts[3]),
-                        fat=float(parts[4])
+                        serving_size=parts[1],
+                        calories=float(parts[2]),
+                        protein=float(parts[3]),
+                        carbs=float(parts[4]),
+                        fat=float(parts[5])
                     )
                     # Clear pending state once parsed successfully
                     del PENDING_LOGS[chat_id]
