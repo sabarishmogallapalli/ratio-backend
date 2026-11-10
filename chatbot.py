@@ -1129,11 +1129,10 @@ async def handle_workout_completion(chat_id: int) -> str:
         return "Profile not found. Please set up your baseline first!"
 
     profile = profile_res.data[0]
-    workouts_completed = profile.get("workouts_completed_this_week", 0) + 1
-    current_week = profile.get("current_week", 0)
-    current_phase = profile.get("current_phase", 0)
 
-    workouts_completed += 1
+    workouts_completed = profile.get("workouts_completed_this_week", 0) + 1
+    current_week = profile.get("current_week", 1)
+    current_phase = profile.get("current_phase", 1)
 
     if workouts_completed > 5:
         workouts_completed = 1 #6th workout
