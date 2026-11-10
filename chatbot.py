@@ -1133,7 +1133,7 @@ async def handle_workout_completion(chat_id: int) -> str:
     current_week = profile.get("current_week", 0)
     current_phase = profile.get("current_phase", 0)
 
-    if workouts_completed >= 5:
+    if workouts_completed > 5:
         workouts_completed = 0
         current_week += 1
 
