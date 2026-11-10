@@ -1139,10 +1139,10 @@ async def handle_workout_completion(chat_id: int) -> str:
 
     if current_week > 5:
         current_week = 1
-        if current_phase == "Phase 1":
-            current_phase = "Phase 2"
-        elif current_phase == "Phase 2":
-            current_phase = "Phase 1"
+        if current_phase in [1, "Phase 1"]:
+            current_phase = 2
+        elif current_phase in [1, "Phase 2"]:
+            current_phase = 1
 
     supabase.table("user_profiles").update({
         "workouts_completed_this_week": workouts_completed,
