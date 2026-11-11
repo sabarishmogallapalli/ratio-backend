@@ -1134,11 +1134,14 @@ async def handle_workout_completion(chat_id: int) -> str:
     current_week = profile.get("current_week", 1)
     current_phase = profile.get("current_phase", 1)
 
+    return_string = f" *Workout Complete!*\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/5 "
+
     if workouts_completed > 5:
         workouts_completed = 1 #6th workout
         current_week += 1
 
     if current_week > 5:
+        return_string += "Phase Complete. Take In-Body Assessment Before Starting Next Phase."
         current_week = 1
         if current_phase in [1, "Phase 1"]:
             current_phase = 2
@@ -1151,7 +1154,7 @@ async def handle_workout_completion(chat_id: int) -> str:
         "current_phase": current_phase
     }).eq("chat_id", chat_id).execute()
 
-    return f" *Workout Complete!*\n\nYou are currently on:\n• Phase {current_phase}\n• Week {current_week}\n• Sessions this week: {workouts_completed}/5"
+    return return_string
 
 
 async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> str:
