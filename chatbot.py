@@ -1230,12 +1230,13 @@ async def build_exercise_session_targets(exercise_name: str, chat_id: int) -> st
         heaviest_set = max(last_session, key=lambda x: x["weight"])
         successful_at_top = [s for s in last_session if s["reps"] >= target_max_reps]
         last_session_sorted = sorted(last_session, key=lambda x: x["set_number"])
-        all_hit_top = all(s["reps"] >= target_max_reps for s in last_session_sorted)
+        total_target_sets = len(sets_config)
+        completed_sets_count = len(last_session)
+        all_hit_top = (completed_sets_count >= total_target_sets and all(s["reps"] >= target_max_reps for s in last_session_sorted))
 
         heaviest_weight = max(s["weight"] for s in last_session_sorted) if last_session_sorted else 0
         is_assisted = any(ex in exercise_name for ex in ["test assisted exercise", "assisted pull-up", "paused assisted dip"])
         is_reverse_pyramid = any(ex in exercise_name for ex in ["test reverse pyramid exercise", "hack squat", "smith machine squat"])
-        total_target_sets = len(sets_config)
 
         if is_reverse_pyramid:
             all_hit_top = all(
