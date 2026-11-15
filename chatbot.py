@@ -2225,6 +2225,22 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if user_text.lower().startswith("profile:"):
             clean_profile_text = user_text.lower().replace("profile:", "").strip()
 
+            from datetime import timedelta
+            thirty_days_ago = (datetime.now(central_tz) - timedelta(days=30)).isoformat()
+            
+            workout_history = supabase.table("exercise_logs") \
+                .select("exercise_name, weight, reps, created_at") \
+                .gte("created_at", thirty_days_ago) \
+                .order("created_at", desc=True) \
+                .execute()
+
+            nutrition_history = supabase.table("food_logs") \
+                .select("food_name, calories, protein, created_at") \
+                .gte("created_at", thirty_days_ago) \
+                .execute()
+
+            workout_summary = "\n".join([f"- {w['exercise_name']}: {w['weight']} lbs x {w['reps']} reps on {w['created_at'][:10]}" for w in workout_history.data[:20]])
+
             class ProfileInput(BaseModel):
                 height: float
                 age: float
@@ -2242,6 +2258,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 impedance_20khz: list[float]
                 impedance_100khz: list[float]
                 goal: str
+                coaching_feedback: str
 
             schema_string = json.dumps(ProfileInput.model_json_schema())
             system_instructions = (
@@ -2256,6 +2273,12 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 "7. Impedance 20kHz (RA, LA, TR, RL, LL) and 100kHz (RA, LA, TR, RL, LL). "
                 "8. Goal (bulk, cut, maintenance, recomposition). "
                 "Extract all fields into the ProfileInput schema. "
+                "The user will also provide their historical workout logs and nutrition data."
+                "Analyze their recent strength progression, calorie/protein trends, and the new body composition metrics. "
+                "Provide a comprehensive, highly motivating, and analytical overview of how things are going, "
+                "highlighting what's working, what needs adjustment, and key things to keep in mind moving forward.\n\n"
+                f"--- RECENT WORKOUT PROGRESSION ---\n{workout_summary}\n\n"
+                f"--- NEW SCAN & GOAL DATA ---\n{clean_profile_text}"
                 f"Return ONLY valid JSON: {schema_string}"
             )
 
@@ -2325,7 +2348,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f"*Scan Metrics Logged:*\n"
                 f"SMM: {profile_data.skeletal_muscle_mass}kg\n"
                 f"Body Fat: {profile_data.body_fat_percentage}%\n"
-                f"SMI: {profile_data.smi}"
+                f"SMI: {profile_data.smi}\n"
+                f"*Coach Breakdown:*\n{profile_data.coaching_feedback}"
             )
 
             await send_telegram_reply(chat_id, reply)
