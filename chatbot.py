@@ -1670,7 +1670,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
         if chat_id in PENDING_LOGS and PENDING_LOGS[chat_id].get("awaiting_manual_input"):
             parts = [p.strip() for p in user_text.split("|")]
 
-            if len(parts) == 5:
+            if len(parts) == 6:
                 try:
                     food_data = FoodStructure(
                         food_name=parts[0],
@@ -1696,7 +1696,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             else:
                 await send_telegram_reply(
                     chat_id, 
-                    "⚠️ *Incorrect format.*\nPlease split values using 4 pipe `|` symbols:\n`Food Name | Calories | Protein | Carbs | Fat`"
+                    "⚠️ *Incorrect format.*\nPlease split values using 4 pipe `|` symbols:\n`Food Name | Serving Size | Calories | Protein | Carbs | Fat`"
                 )
                 return {"status": "success"}
 
