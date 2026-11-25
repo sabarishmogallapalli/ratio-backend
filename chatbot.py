@@ -2224,6 +2224,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             await send_telegram_reply(chat_id, profile_instructions)
             return {"status": "success"}
         if user_text.lower().startswith("profile:"):
+            central_tz = zoneinfo.ZoneInfo("America/Chicago")
             clean_profile_text = user_text.lower().replace("profile:", "").strip()
 
             from datetime import timedelta
