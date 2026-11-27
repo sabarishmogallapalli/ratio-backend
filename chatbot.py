@@ -1416,7 +1416,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
 
     await send_telegram_reply(chat_id, reply)
 
-async def get_superset_keyboard(exercise_name: str, current_phase) -> Optional[dict]:
+def get_superset_keyboard(exercise_name: str, current_phase) -> Optional[dict]:
     partner = None
     prefix = None
 
