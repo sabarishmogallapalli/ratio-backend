@@ -1416,6 +1416,32 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
 
     await send_telegram_reply(chat_id, reply)
 
+async def get_superset_keyboard(exercise_name: str, current_phase) -> Optional[dict]:
+    partner = None
+    prefix = None
+
+    if current_phase in [1, "Phase 1"]:
+        prefix = "p1l2_"
+        if exercise_name == "machine hip adduction":
+            partner = "sissy squat"
+        elif exercise_name == "sissy squat":
+            partner = "machine hip adduction"
+    elif current_phase in [2, "Phase 2"]:
+        prefix = "p2l2_"
+        if exercise_name == "machine hip adduction":
+            partner = "machine hip abduction"
+        elif exercise_name == "machine hip abduction":
+            partner = "machine hip adduction"
+
+    if not partner or not prefix:
+        return None
+
+    slug = partner.lower().replace(" ", "-")
+    return {
+        "inline_keyboard": [
+            [{"text": f"⚡ Superset: {partner.title()}", "callback_data": f"{prefix}{slug}"}]
+        ]
+    }
 
 @app.post("/api/v1/webhook")
 async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
@@ -2422,6 +2448,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             total_target_sets = len(sets_config)
             next_set_advice = ""
             # intensity_advice = ex_info.get("advice", "")
+            superset_markup = get_superset_keyboard(exercise, current_phase)
             if set_count >= total_target_sets:
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
                 next_set_advice = f"*Exercise Complete!* {
@@ -2471,7 +2498,8 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                     exercise_name=exercise,
                     next_set=next_set_count,
                     target_desc=f"{max_reps} reps",
-                    next_set_advice=next_set_advice
+                    next_set_advice=next_set_advice,
+                    reply_markup=superset_markup,
                 )
 
             reply_msg = (
@@ -2479,7 +2507,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 f" {lift_data.weight} lbs × {lift_data.reps} reps\n\n"
                 f" {next_set_advice}"
             )
-            await send_telegram_reply(chat_id, reply_msg)
+            await send_telegram_reply(chat_id, reply_msg, reply_markup=superset_markup)
             return {"status": "success"}
 
         await send_telegram_reply(chat_id, "Message received. Type `/meal` to log food or start an exercise checklist to log lifts.")
