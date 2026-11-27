@@ -1089,7 +1089,7 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
     return []
 
 
-async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str, next_set_advice: str):
+async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int, target_desc: str, next_set_advice: str, reply_markup: dict = None,):
     ex_data = EXERCISE_REGISTRY.get(exercise_name.lower(), {})
     rest_seconds = ex_data.get("rest_seconds", 180)
 
@@ -1116,7 +1116,7 @@ async def delayed_rest_reminder(chat_id: int, exercise_name: str, next_set: int,
         # f"Time for *Set {next_set}* of *{exercise_name.title()}*.\n"
         f"{next_set_advice}"
     )
-    await send_telegram_reply(chat_id, reminder)
+    await send_telegram_reply(chat_id, reminder, reply_markup=reply_markup)
 
 
 async def handle_workout_completion(chat_id: int) -> str:
