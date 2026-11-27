@@ -1040,11 +1040,9 @@ async def get_usda_macros(food_query: str, upc: Optional[str] = None):
     async with httpx.AsyncClient() as client:
         for q in queries_to_try:
             if upc:
-                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={
-                    USDA_API_KEY}&query={q}&dataType=Branded&pageSize=3"
+                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={q}&dataType=Branded&pageSize=3"
             else:
-                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={
-                    q}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
+                url = f"https://api.nal.usda.gov/fdc/v1/foods/search?api_key={USDA_API_KEY}&query={q}&pageSize=3&dataType=Foundation,Survey%20(FNDDS),Branded,SR%20Legacy"
 
             try:
                 response = await client.get(url)
@@ -1337,8 +1335,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     else:
         created_timestamp = datetime.now(central_tz).isoformat()
     meal_type = food_data.extracted_meal_type if food_data.extracted_meal_type else define_meal()
-    created_timestamp = f"{
-        food_data.extracted_date}T12:00:00-05:00" if food_data.extracted_date else datetime.now(central_tz).isoformat()
+    created_timestamp = f"{food_data.extracted_date}T12:00:00-05:00" if food_data.extracted_date else datetime.now(central_tz).isoformat()
 
     insert_payload = {
         "meal_type": meal_type,
@@ -1396,8 +1393,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
         # coach_advice = advice_res.choices[0].message.content.strip()
         daily_summary = (
             f"\n\n *Daily Status:*\n"
-            f" Protein: *{round(total_pro)}g* / {round(
-                target_pro)}g\n"
+            f" Protein: *{round(total_pro)}g* / {round(target_pro)}g\n"
             f" Carbohydrates: *{round(total_carb)}g* / {round(target_carb)}g\n"
             f" Fat: *{round(total_fat)}g* / {round(target_fat)}g\n"
             f" Calories: *{round(total_cal)}g* / {round(target_cal)}g\n\n"
@@ -1409,8 +1405,7 @@ async def process_and_save_meal(chat_id: int, food_data: FoodStructure):
     reply = (
         f" {meal_type.capitalize()}:\n"
         f" *{food_data.food_name.title()}*\n"
-        f" {food_data.calories} kcal | {food_data.protein}g P | {
-            food_data.carbs}g C | {food_data.fat}g F"
+        f" {food_data.calories} kcal | {food_data.protein}g P | {food_data.carbs}g C | {food_data.fat}g F"
         f"{daily_summary}"
     )
 
@@ -1420,17 +1415,21 @@ def get_superset_keyboard(exercise_name: str, current_phase) -> Optional[dict]:
     partner = None
     prefix = None
 
-    if current_phase in [1, "Phase 1"]:
+    phase_str = str(current_phase).strip().lower().replace("phase", "").strip()
+    phase_num = int(phase_str) if phase_str.isdigit() else None
+    ex_clean = exercise_name.strip().lower()
+
+    if phase_num == 1:
         prefix = "p1l2_"
-        if exercise_name == "machine hip adduction":
+        if ex_clean == "machine hip adduction":
             partner = "sissy squat"
-        elif exercise_name == "sissy squat":
+        elif ex_clean == "sissy squat":
             partner = "machine hip adduction"
-    elif current_phase in [2, "Phase 2"]:
+    elif phase_num == 2:
         prefix = "p2l2_"
-        if exercise_name == "machine hip adduction":
+        if ex_clean == "machine hip adduction":
             partner = "machine hip abduction"
-        elif exercise_name == "machine hip abduction":
+        elif ex_clean == "machine hip abduction":
             partner = "machine hip adduction"
 
     if not partner or not prefix:
@@ -1467,14 +1466,12 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                 async with httpx.AsyncClient() as http_client:
                     await http_client.post(
-                        f"https://api.telegram.org/bot{
-                            TELEGRAM_TOKEN}/answerCallbackQuery",
+                        f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery",
                         json={"callback_query_id": callback["id"]}
                     )
 
                     await http_client.post(
-                        f"https://api.telegram.org/bot{
-                            TELEGRAM_TOKEN}/editMessageReplyMarkup",
+                        f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageReplyMarkup",
                         json={
                             "chat_id": chat_id,
                             "message_id": message_id,
@@ -1490,17 +1487,13 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
                     keyboard_buttons = []
                     if isinstance(wp_data, str):
-                        reply_text = f"*{wp_key.title()
-                                          } Advice:*\n\n{wp_data}"
+                        reply_text = f"*{wp_key.title()} Advice:*\n\n{wp_data}"
                     else:
-                        reply_text = f"*{
-                            wp_data['title']} Weak Point Options*\n\nSelect an exercise below to view its targets and cues. *Do not do all of them in one day!*"
+                        reply_text = f"*{wp_data['title']} Weak Point Options*\n\nSelect an exercise below to view its targets and cues. *Do not do all of them in one day!*"
                         for ex in wp_data['ex1']:
-                            keyboard_buttons.append(
-                                [{"text": f"Ex 1: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
+                            keyboard_buttons.append([{"text": f"Ex 1: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
                         for ex in wp_data['ex2']:
-                            keyboard_buttons.append(
-                                [{"text": f"Ex 2: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
+                            keyboard_buttons.append([{"text": f"Ex 2: {ex}", "callback_data": f"wp_ex_{ex.lower()}"}])
                     async with httpx.AsyncClient() as http_client:
                         await http_client.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/editMessageText", json={
                             "chat_id": chat_id,
@@ -1510,9 +1503,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                             "reply_markup": {"inline_keyboard": keyboard_buttons}
                         })
                         await http_client.post(
-                            f"https://api.telegram.org/bot{
-                                TELEGRAM_TOKEN}/answerCallbackQuery",
-                            json={"callback_query_id": callback["id"]}
+                            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery",json={"callback_query_id": callback["id"]}
                         )
                 return {"status": "success"}
             workout_prefixes = ["test_", "p1u1_", "p1u2_", "p1l1_", "p1l2_",
@@ -1589,12 +1580,10 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 selected_food = pending_data["usda_options"][index]
                 schema_string = json.dumps(FoodStructure.model_json_schema())
                 system_instructions = (
-                    f"Return a flat JSON object matching this schema: {
-                        schema_string}. "
+                    f"Return a flat JSON object matching this schema: {schema_string}. "
                     f"The user ate: '{raw_text}'. "
                     f"Use this EXACT baseline data to calculate the final macros based on their portion: "
-                    f"{json.dumps(
-                        selected_food)}. Extract 'extracted_date' and 'extracted_meal_type' if present."
+                    f"{json.dumps(selected_food)}. Extract 'extracted_date' and 'extracted_meal_type' if present."
                 )
             elif callback_data == "choice_ai":
                 schema_string = json.dumps(FoodStructure.model_json_schema())
@@ -2395,13 +2384,11 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
                 clean_text = f"{active_ex} {clean_text}"
             schema_string = json.dumps(WorkoutStructure.model_json_schema())
             official_names = ", ".join(EXERCISE_REGISTRY.keys())
-            system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {
-                official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both."
+            system_instructions = f"You are a data extractor. Return ONLY a valid JSON object matching this schema exactly: {schema_string}. IMPORTANT: You must standardize the exercise_name to match one of these official names if it is similar: {official_names}. If the user mentions an exercise but provides no numbers for weight or reps, return 0 for both."
             response = groq_client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": system_instructions},
-                    {"role": "user", "content": f"Extract parameters from this performed set text: '{
-                        clean_text}'"}
+                    {"role": "user", "content": f"Extract parameters from this performed set text: '{clean_text}'"}
                 ],
                 model="openai/gpt-oss-120b",
                 response_format={"type": "json_object"}
@@ -2413,8 +2400,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
 
             if exercise not in EXERCISE_REGISTRY:
                 error_reply = (
-                    f"Unrecognized Exercise: '_{
-                        exercise.title()}_' Check spelling or select via workout menu.\n\n"
+                    f"Unrecognized Exercise: '_{exercise.title()}_' Check spelling or select via workout menu.\n\n"
                 )
                 await send_telegram_reply(chat_id, error_reply)
                 return {"status": "success"}
@@ -2451,8 +2437,7 @@ async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
             superset_markup = get_superset_keyboard(exercise, current_phase)
             if set_count >= total_target_sets:
                 ACTIVE_EXERCISE_SESSIONS.pop(chat_id, None)
-                next_set_advice = f"*Exercise Complete!* {
-                    total_target_sets} sets logged at {lift_data.weight} lbs."
+                next_set_advice = f"*Exercise Complete!* {total_target_sets} sets logged at {lift_data.weight} lbs."
             else:
                 next_set_count = set_count + 1
                 curr_targets = sets_config.get(set_count, {"min_reps": 8, "max_reps": 12, "increment": 5})
